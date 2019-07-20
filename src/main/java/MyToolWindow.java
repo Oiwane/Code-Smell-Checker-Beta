@@ -7,21 +7,19 @@ import java.awt.*;
 
 public class MyToolWindow {
     private JPanel myToolWindowContent;
-//    private DefaultMutableTreeNode nodes;
+    private JScrollPane scrollPane;
     private JTree sourceTree;
     private DefaultTreeModel model;
     private DefaultMutableTreeNode root;
 
 
     public MyToolWindow(ToolWindow toolWindow) {
-        myToolWindowContent = new JPanel();
+//        myToolWindowContent = new JPanel();
 //        nodes = new DefaultMutableTreeNode("Java source code");
 
-        this.updateSourceTree("Java source code");
 //        DefaultTreeModel model = (DefaultTreeModel) sourceTree.getModel();
 //        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 //        model.insertNodeInto(new DefaultMutableTreeNode("nodes"), root, root.getChildCount());
-
 
         this.createUIComponents();
     }
@@ -30,6 +28,7 @@ public class MyToolWindow {
         model = (DefaultTreeModel) sourceTree.getModel();
         root = (DefaultMutableTreeNode) model.getRoot();
         model.insertNodeInto(new DefaultMutableTreeNode(newNode), root, root.getChildCount());
+        model.reload();
     }
 
     public JPanel getContent() {
@@ -38,13 +37,20 @@ public class MyToolWindow {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        scrollPane.setViewportView(sourceTree);
+//        this.updateSourceTree("Java source code");
+        model = (DefaultTreeModel) sourceTree.getModel();
+        root = (DefaultMutableTreeNode) model.getRoot();
+        root.add(new DefaultMutableTreeNode("Java source code"));
+        model.reload(root);
+
+//        JFrame frame = new JFrame();
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        frame.setTitle("Refactoring for Java");
-        frame.setVisible(true);
+//        frame.setVisible(true);
 
-        myToolWindowContent.add(sourceTree);
+        myToolWindowContent.add(scrollPane);
 
-        frame.getContentPane().add(myToolWindowContent, BorderLayout.LINE_START);
+//        frame.getContentPane().add(myToolWindowContent, BorderLayout.LINE_START);
     }
 }
