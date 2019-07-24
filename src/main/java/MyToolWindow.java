@@ -1,8 +1,6 @@
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.search.FilenameIndex;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 
@@ -11,6 +9,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
+/**
+ * コードスメル表示部の設定をする
+ */
 public class MyToolWindow {
     private Project project;
     private JPanel myToolWindowContent;
@@ -19,7 +20,11 @@ public class MyToolWindow {
     private DefaultTreeModel model;
     private DefaultMutableTreeNode root;
 
-
+    /**
+     * コンストラクタ
+     * @param project_ [プロジェクト]
+     * @param toolWindow [ツールウィンドウ]
+     */
     public MyToolWindow(Project project_, ToolWindow toolWindow) {
         project = project_;
         myToolWindowContent = new JPanel();
@@ -28,17 +33,14 @@ public class MyToolWindow {
         model = new DefaultTreeModel(root);
         sourceTree = new Tree(root);
         scrollPane = new JBScrollPane();
-//        sourceTree = new Tree(root);
-//        myToolWindowContent = new JPanel();
-//        nodes = new DefaultMutableTreeNode("Java source code");
-
-//        DefaultTreeModel model = (DefaultTreeModel) sourceTree.getModel();
-//        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-//        model.insertNodeInto(new DefaultMutableTreeNode("nodes"), root, root.getChildCount());
 
         this.createUIComponents();
     }
 
+    /**
+     * ソースコードをツリーに入れ込む
+     * @param newNode [オブジェクト]
+     */
     public void updateSourceTree(Object newNode) {
         model = (DefaultTreeModel) sourceTree.getModel();
         root = (DefaultMutableTreeNode) model.getRoot();
@@ -46,10 +48,17 @@ public class MyToolWindow {
 //        model.reload(root);
     }
 
+    /**
+     * ゲッター
+     * @return JPanel [ウィンドウの構成要素を含んだパネル]
+     */
     public JPanel getContent() {
         return myToolWindowContent;
     }
 
+    /**
+     * ウィンドウの要素を作成する
+     */
     private void createUIComponents() {
         // TODO: place custom component creation code here
 //        String[] filenames = FilenameIndex.getAllFilenames(project);
@@ -77,6 +86,9 @@ public class MyToolWindow {
 //        frame.getContentPane().add(myToolWindowContent, BorderLayout.LINE_START);
     }
 
+    /**
+     * ウィンドウの要素のサイズを設定する
+     */
     private void setUIComponentsSize() {
         myToolWindowContent.setSize(myToolWindowContent.getMaximumSize());
         Dimension d = myToolWindowContent.getSize();
