@@ -1,7 +1,8 @@
 package Window;
 
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
@@ -16,27 +17,61 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 
 import Source.SourceFileFetcher;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * コードスメル表示部の設定をする
  */
-public class MyToolWindow {
+public class MyToolWindow extends SimpleToolWindowPanel {
     private Project myProject;
-    private JPanel myToolWindowContent;
-    private JTree sourceTree;
-    private JScrollPane scrollPane;
     private DefaultTreeModel model;
     private DefaultMutableTreeNode root;
+    private Tree sourceTree;
 
     /**
      * コンストラクタ
-     * @param project [プロジェクト]
+     * @param project
      */
-    public MyToolWindow(Project project) {
+    public MyToolWindow(final Project project) {
+        super(true, true);
         myProject = project;
-        System.out.println(myProject.toString());
 
-        this.createUIComponents();
+        setToolbar(createToolbarPanel());
+        setContent(createContentPanel());
+    }
+
+    /**
+     * ツールバーのコンポーネントを作成する
+     * @return ツールバーのコンポーネント
+     */
+    private JComponent createToolbarPanel() {
+        final DefaultActionGroup actionGroup = new DefaultActionGroup();
+        actionGroup.add(new AnAction() {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+
+            }
+        });
+        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("sample", actionGroup, true);
+        return actionToolbar.getComponent();
+    }
+
+    /**
+     * ツールウィンドウのコンポーネントを作成する
+     * @return ツールウィンドウにセットするスクロールペイン
+     */
+    private JScrollPane createContentPanel() {
+        root = new DefaultMutableTreeNode("Java source code");
+        model = new DefaultTreeModel(root);
+        sourceTree = new Tree(root);
+        JScrollPane scrollPane = new JBScrollPane(sourceTree);
+
+        this.updateSourceTree("aiueo");
+        this.updateSourceTree("abcd");
+
+//        scrollPane.setViewportView(sourceTree);
+
+        return scrollPane;
     }
 
     /**
@@ -47,63 +82,5 @@ public class MyToolWindow {
         model = (DefaultTreeModel) sourceTree.getModel();
         root = (DefaultMutableTreeNode) model.getRoot();
         model.insertNodeInto(new DefaultMutableTreeNode(newNode), root, root.getChildCount());
-    }
-
-    /**
-     * ゲッター
-     * @return JPanel [ウィンドウの構成要素を含んだパネル]
-     */
-    public JPanel getContent() {
-        return myToolWindowContent;
-    }
-
-    /**
-     * ウィンドウの要素を作成する
-     */
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
-        myToolWindowContent = new JPanel();
-        root = new DefaultMutableTreeNode("Java source code");
-        model = new DefaultTreeModel(root);
-        sourceTree = new Tree(root);
-        scrollPane = new JBScrollPane(sourceTree);
-
-//        String[] filenames = FilenameIndex.getAllFilenames(myProject);
-//        for(PsiFile f : SourceFileFetcher.fetch(myProject, filenames)) {
-//            this.updateSourceTree(f);
-//        }
-
-//        String[] filenames = FilenameIndex.getAllFilenames(myProject);
-//        for(String f : filenames) {
-//            this.updateSourceTree(f);
-//        }
-
-//        this.updateSourceTree(SourceFileFetcher.fetch(myProject));
-
-//        for(PsiFile f : SourceFileFetcher.fetch(myProject)){
-//            this.updateSourceTree(f.getName());
-//        }
-
-        this.setUIComponentsSize();
-//        scrollPane.getViewport().setView(sourceTree);;
-//        scrollPane.setPreferredSize(new Dimension(180, 120));
-
-        myToolWindowContent.add(scrollPane);
-//        myToolWindowContent.add(new JBScrollPane());
-//        myToolWindowContent.add(new JLabel("Hello"));
-    }
-
-    /**
-     * ウィンドウの要素のサイズを設定する
-     */
-    private void setUIComponentsSize() {
-//        Dimension d = myToolWindowContent.getSize();
-//        System.out.println(d);
-        Dimension size = myToolWindowContent.getSize();
-//        myToolWindowContent.setSize(size);
-//        d = myToolWindowContent.getSize();
-//        System.out.println(d);
-        scrollPane.setSize(size);
-        sourceTree.setSize(size);
     }
 }
