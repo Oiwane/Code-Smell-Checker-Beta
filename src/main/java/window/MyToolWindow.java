@@ -1,22 +1,15 @@
-package Window;
+package window;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.ui.components.JBList;
-import com.intellij.ui.components.JBScrollBar;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
 
-import Source.SourceFileFetcher;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -68,8 +61,6 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 
         this.updateSourceTree("aiueo");
         this.updateSourceTree("abcd");
-
-//        scrollPane.setViewportView(sourceTree);
 
         return scrollPane;
     }
