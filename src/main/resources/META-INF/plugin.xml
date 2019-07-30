@@ -16,12 +16,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="Refactoring for Java" anchor="left" canCloseContents="false" factoryClass="MyToolWindowFactory"/>
-<!--        <treeStructureProvider implementation="TargetTreeStructureProvider"/>-->
-<!--        <projectViewPane implementation="MyPluginViewPane"/>-->
+        <toolWindow id="Refactoring for Java" anchor="left" secondary="true" canCloseContents="false" factoryClass="window.MyToolWindowFactory"/>
+
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
+        <action class="action.MyToolWindowAction" id="Refactoring for Java"/>
     </actions>
 </idea-plugin>
