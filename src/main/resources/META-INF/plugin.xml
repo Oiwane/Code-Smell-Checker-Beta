@@ -22,6 +22,6 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action class="action.MyToolWindowAction" id="Refactoring for Java"/>
+<!--        <action class="action.MyToolWindowAction" id="toolWindow action"/>-->
     </actions>
 </idea-plugin>
