@@ -113,7 +113,12 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 //            this.updateSourceTree(file.getUrl());
         }
 
-        EditSourceOnDoubleClickHandler.install(sourceTree);
+        EditSourceOnDoubleClickHandler.install(sourceTree, new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("aiueo");
+            }
+        });
 
         return scrollPane;
     }
