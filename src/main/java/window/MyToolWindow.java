@@ -3,11 +3,11 @@ package window;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.projectView.impl.ProjectViewTree;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBScrollPane;
@@ -19,23 +19,22 @@ import javax.swing.tree.DefaultTreeModel;
 import com.intellij.util.EditSourceOnDoubleClickHandler;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
-//import source.SourceFileFetcher;
 
+import java.io.File;
 import java.util.Collection;
-//import source.MyFileCellRenderer;
 
 /**
  * コードスメル表示部の設定をする
  */
 public class MyToolWindow extends SimpleToolWindowPanel {
     private Project myProject;
-    private DefaultTreeModel model;
-    private DefaultMutableTreeNode root;
-//    private Tree sourceTree;
+//    private DefaultTreeModel model;
+//    private DefaultMutableTreeNode root;
     private ProjectViewTree sourceTree;
 
     /**
      * コンストラクタ
+     *
      * @param project
      */
     public MyToolWindow(final Project project) {
@@ -48,6 +47,7 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 
     /**
      * ツールバーのコンポーネントを作成する
+     *
      * @return ツールバーのコンポーネント
      */
     private JComponent createToolbarPanel() {
@@ -64,6 +64,7 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 
     /**
      * ツールウィンドウのコンポーネントを作成する
+     *
      * @return ツールウィンドウにセットするスクロールペイン
      */
     private JScrollPane createContentPanel() {
@@ -72,66 +73,66 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 //        sourceTree = new Tree(root);
         sourceTree = new ProjectViewTree(model);
         JScrollPane scrollPane = new JBScrollPane(sourceTree);
-//        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createMultipleFoldersDescriptor();
-//
-//        MyFileCellRenderer cellRenderer = new MyFileCellRenderer();
-//
-//        FileSystemTreeImpl fileSystemTree = new FileSystemTreeImpl(myProject, descriptor, sourceTree, cellRenderer, null, null);
-//        sourceTree = (Tree) fileSystemTree.getTree();
 
         Collection<VirtualFile> virtualFiles = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
 
-//        List<String> list = new ArrayList<String>();
-//        File dir = new File(myProject.getProjectFilePath());
-//        SourceFileFetcher.searchFile(list, dir);
-//        for(String s : list) {
-//            System.out.println(s);
-//        }
-//        ProjectViewPane
-//        PsiFile[] files = SourceFileFetcher.fetch(myProject, list);
-//        System.out.println("num of files : " + files.length);
-//        for(PsiFile f : files) {
-//            if(f == null) {
-//                this.updateSourceTree("null");
-//            } else {
-//                this.updateSourceTree(f.toString());
-//            }
-//        }
-
-        for(VirtualFile file : virtualFiles) {
-//            this.updateSourceTree(PsiManager.getInstance(myProject).findViewProvider(file));
-            PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
-
-            String projectPath =  myProject.getBasePath() + "/";
+        String projectPath = myProject.getBasePath() + "/";
+        for (VirtualFile file : virtualFiles) {
             DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
             DefaultTreeModel newModel = new DefaultTreeModel(newNode);
             newModel.insertNodeInto(new DefaultMutableTreeNode("aiueo"), newNode, newNode.getChildCount());
             root.add(newNode);
-
-//            this.updateSourceTree(filename);
-//            this.updateSourceTree(file.getName());
-//            this.updateSourceTree(file.getUrl());
         }
 
         EditSourceOnDoubleClickHandler.install(sourceTree, new Runnable() {
             @Override
             public void run() {
-                System.out.println("aiueo");
+                // ダブルクリックした子ノードの親の名前を取得;
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
+
+                if (node == null) {
+                    System.out.println("Selected node is null");
+                    return;
+                }
+                if (node.getChildCount() != 0) {
+                    System.out.println("There are not code smells");
+                    return;
+                }
+
+                // 仮想ファイルを取得
+                String openFilename = projectPath + node.getParent().toString();
+                System.out.println(openFilename);
+                VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
+
+                if (virtualFile == null) {
+                    System.out.println("out!!");
+                    return;
+                }
+
+                // TODO 未完成
+                // ダブルクリックした子ノードの文字列を取得し、数値に変換
+                String info = node.toString();
+                System.out.println(info);
+
+                // 仮想ファイルを開く
+                OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, 1, 1);
+                descriptor.navigateInEditor(myProject, true);
             }
         });
 
         return scrollPane;
     }
 
-    /**
-     * ソースコードをツリーに入れ込む
-     * @param newNode [オブジェクト]
-     */
-    public void updateSourceTree(Object newNode) {
-        model = (DefaultTreeModel) sourceTree.getModel();
-        root = (DefaultMutableTreeNode) model.getRoot();
-        model.insertNodeInto(new DefaultMutableTreeNode(newNode), root, root.getChildCount());
-    }
+//    /**
+//     * ソースコードをツリーに入れ込む
+//     *
+//     * @param newNode [オブジェクト]
+//     */
+//    public void updateSourceTree(Object newNode) {
+//        model = (DefaultTreeModel) sourceTree.getModel();
+//        root = (DefaultMutableTreeNode) model.getRoot();
+//        model.insertNodeInto(new DefaultMutableTreeNode(newNode), root, root.getChildCount());
+//    }
 //
 //    public void insertGrandchile(String parent, Object child) {
 //        model = (DefaultTreeModel) sourceTree.getModel();
