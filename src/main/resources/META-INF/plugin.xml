@@ -16,7 +16,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="Refactoring for Java" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.MyToolWindowFactory"/>
+        <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.MyToolWindowFactory"/>
 
     </extensions>
 
