@@ -83,59 +83,46 @@ public class MyToolWindow extends SimpleToolWindowPanel {
       root.add(newNode);
     }
 
-    EditSourceOnDoubleClickHandler.install(sourceTree, new Runnable() {
-      @Override
-      public void run() {
-        // ダブルクリックした子ノードの親の名前を取得;
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
-
-        if (node == null) {
-          System.out.println("Selected node is null");
-          return;
-        }
-        if (node.getChildCount() != 0) {
-          System.out.println("There are not code smells");
-          return;
-        }
-
-        // 仮想ファイルを取得
-        String openFilename = projectPath + node.getParent().toString();
-        System.out.println(openFilename);
-        VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
-
-        if (virtualFile == null) {
-          System.out.println("Virtual file is null");
-          return;
-        }
-
-        // TODO 未完成
-        // ダブルクリックした子ノードの文字列を取得し、数値に変換
-        String info = node.toString();
-        System.out.println(info);
-
-        // 仮想ファイルを開く
-        OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, 1, 1);
-        descriptor.navigateInEditor(myProject, true);
-      }
-    });
+    EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
 
     return scrollPane;
 	}
 
-//    /**
-//     * ソースコードをツリーに入れ込む
-//     *
-//     * @param newNode [オブジェクト]
-//     */
-//    public void updateSourceTree(Object newNode) {
-//        model = (DefaultTreeModel) sourceTree.getModel();
-//        root = (DefaultMutableTreeNode) model.getRoot();
-//        model.insertNodeInto(new DefaultMutableTreeNode(newNode), root, root.getChildCount());
-//    }
-//
-//    public void insertGrandchile(String parent, Object child) {
-//        model = (DefaultTreeModel) sourceTree.getModel();
-//        root = (DefaultMutableTreeNode) model.getRoot();
-//
-//    }
+  /**
+   * ノードをダブルクリックした時の動作を管理する
+   */
+	private class MyToolWindowRunnable implements Runnable {
+	  public MyToolWindowRunnable() {}
+
+	  @Override
+    public void run() {
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
+
+      if (node == null) {
+        System.out.println("Selected node is null");
+        return;
+      }
+      if (node.getChildCount() != 0) {
+        System.out.println("There are not code smells");
+        return;
+      }
+
+      String openFilename = myProject.getBasePath() + "/" + node.getParent().toString();
+      System.out.println(openFilename);
+      VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
+
+      if (virtualFile == null) {
+        System.out.println("Virtual file is null");
+        return;
+      }
+
+      // TODO 未完成
+      // ダブルクリックした子ノードの文字列を取得し、数値に変換
+      String info = node.toString();
+      System.out.println(info);
+
+      OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, 1, 1);
+      descriptor.navigateInEditor(myProject, true);
+    }
+	}
 }
