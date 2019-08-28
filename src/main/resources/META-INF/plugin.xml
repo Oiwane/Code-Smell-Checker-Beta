@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>jp.ac.miyazaki_u.student.yuki.oiwane.refactoring_for_java_plugin</id>
+    <id>jp.ac.miyazaki_u.student.yuki.oiwane.refactoring_navigator_plugin</id>
     <name>Refactoring for Java</name>
     <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
@@ -15,9 +15,8 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.MyToolWindowFactory"/>
-
+        <inspectionToolProvider implementation="inspection.CodeSmellsInspectionProvider"/>
     </extensions>
 
     <actions>
