@@ -6,7 +6,7 @@ import inspection.LongParameterList.LongParameterListInspection;
 import inspection.MessageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
-public class CodeInspectionProvider implements InspectionToolProvider {
+public class CodeSmellsInspectionProvider implements InspectionToolProvider {
     @NotNull
     @Override
     public Class[] getInspectionClasses() {

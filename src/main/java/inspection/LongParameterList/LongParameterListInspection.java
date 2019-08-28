@@ -1,35 +1,52 @@
 package inspection.LongParameterList;
 
+import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.JavaElementVisitor;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiReturnStatement;
+import com.intellij.psi.*;
+import inspection.Setting;
 import org.jetbrains.annotations.NotNull;
 
 public class LongParameterListInspection extends AbstractBaseJavaLocalInspectionTool {
-    private final LocalQuickFix quickFix = new LongParameterListFix();
+  private final LocalQuickFix quickFix = new LongParameterListFix();
+  private int numParameterList;
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Long parameter list";
-    }
+  public LongParameterListInspection() {
+    numParameterList = Setting.numParameterList;
+    System.out.println("LongParameterListInspection start");
+  }
 
-    private void registerError(ProblemsHolder holder, PsiElement element) {
-        holder.registerProblem(element, getDisplayName(), quickFix);
-    }
+//  @Override
+  @NotNull
+  public String getDisplayName() {
+      return "Long parameter list";
+  }
 
-    @NotNull
-    @Override
-    public PsiElementVisitor buildVisitor(@NotNull final ProblemsHolder holder, boolean isOnTheFly) {
-        return new JavaElementVisitor() {
-            @Override
-            public void visitReturnStatement(PsiReturnStatement statement) {
-                super.visitReturnStatement(statement);
-            }
-        };
-    }
+  private void registerError(ProblemsHolder holder, PsiElement element) {
+    holder.registerProblem(element, getDisplayName(), quickFix);
+  }
+
+  @NotNull
+  @Override
+  public PsiElementVisitor buildVisitor(@NotNull final ProblemsHolder holder, boolean isOnTheFly) {
+    return new JavaElementVisitor() {
+      @Override
+      public void visitParameterList(PsiParameterList list) {
+        System.out.println(list);
+
+        super.visitParameterList(list);
+        if (list.getParametersCount() < numParameterList) {
+          return;
+        }
+
+        registerError(holder, list);
+      }
+    };
+  }
+
+  @NotNull
+  public HighlightDisplayLevel getDefaultLevel() {
+    return HighlightDisplayLevel.WARNING;
+  }
 }
