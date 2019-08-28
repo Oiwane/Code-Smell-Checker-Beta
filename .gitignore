@@ -1,5 +1,6 @@
 .gradle/
 build/
+codeForTest/
 gradle/
 gradlew
 gradlew.bat
