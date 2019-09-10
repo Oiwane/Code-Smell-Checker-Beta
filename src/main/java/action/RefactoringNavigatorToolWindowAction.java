@@ -1,14 +1,12 @@
 package action;
 
 import com.intellij.openapi.actionSystem.*;
-import ui.MyToolWindow;
+import ui.RefactoringNavigatorToolWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collection;
 
 public class MyToolWindowAction extends AnAction {
 
@@ -25,7 +23,7 @@ public class MyToolWindowAction extends AnAction {
   }
 
   private void resetContent(Project project) {
-    MyToolWindow toolWindow = new MyToolWindow(project);
+    RefactoringNavigatorToolWindow toolWindow = new RefactoringNavigatorToolWindow(project);
     ContentManager contentManager = (ContentManager) ToolWindowManager.getInstance(project).getToolWindow("Refactoring Navigator");
     Content content = contentManager.getFactory().createContent(toolWindow, null, false);
 
