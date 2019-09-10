@@ -14,13 +14,14 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
+    <depends>com.intellij.modules.java</depends>
+
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.MyToolWindowFactory"/>
+        <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.RefactoringNavigatorToolWindowFactory"/>
         <inspectionToolProvider implementation="inspection.CodeSmellsInspectionProvider"/>
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
-<!--        <action class="action.MyToolWindowAction" id="toolWindow action"/>-->
     </actions>
 </idea-plugin>
