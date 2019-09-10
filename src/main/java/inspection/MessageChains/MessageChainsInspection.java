@@ -3,33 +3,48 @@ package inspection.MessageChains;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.JavaElementVisitor;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiReturnStatement;
+import com.intellij.psi.*;
+import inspection.Setting;
 import org.jetbrains.annotations.NotNull;
 
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
-    private LocalQuickFix quickFix = new MessageChainsFix();
+  private LocalQuickFix quickFix = new MessageChainsFix();
+  private int numChains;
 
-    @Override
-    @NotNull
-    public String getDisplayName() {
-        return "Message chains";
-    }
+  public MessageChainsInspection() {
+    numChains = Setting.numChains;
+    System.out.println("MessageChainsInspection start");
+  }
 
-    private void registerError(ProblemsHolder holder, PsiElement element) {
-        holder.registerProblem(element, this.getDisplayName(), quickFix);
-    }
+  @Override
+  @NotNull
+  public String getDisplayName() {
+      return "Message chains";
+  }
 
-    @NotNull
-    @Override
-    public PsiElementVisitor buildVisitor(@NotNull final ProblemsHolder holder, boolean isOnTheFly) {
-        return new JavaElementVisitor() {
-            @Override
-            public void visitReturnStatement(PsiReturnStatement statement) {
-                super.visitReturnStatement(statement);
-            }
-        };
-    }
+  private void registerError(ProblemsHolder holder, PsiElement element) {
+    holder.registerProblem(element, this.getDisplayName(), quickFix);
+  }
+
+  @NotNull
+  @Override
+  public PsiElementVisitor buildVisitor(@NotNull final ProblemsHolder holder, boolean isOnTheFly) {
+    return new JavaElementVisitor() {
+
+      @Override
+      public void visitExpressionStatement(PsiExpressionStatement statement) {
+        super.visitExpressionStatement(statement);
+
+        int count = 0;
+        // PsiExpressionStatement内のPsiReferenceExpressionの数を比較
+        for (PsiElement element : statement.getChildren()) {
+          if (element instanceof PsiReferenceExpression) count++;
+        }
+
+        if (count < numChains) return;
+
+        registerError(holder, statement);
+      }
+    };
+  }
 }

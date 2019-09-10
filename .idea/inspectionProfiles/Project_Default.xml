@@ -1,0 +1,8 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="LongMethodInspector" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="LongParameterListInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="MessageChainsInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+  </profile>
+</component>

@@ -8,6 +8,8 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+
 public class MyToolWindowAction extends AnAction {
 
   public MyToolWindowAction() {
@@ -17,19 +19,14 @@ public class MyToolWindowAction extends AnAction {
   @NotNull
   @Override
   public void actionPerformed(AnActionEvent actionEvent) {
-//        Project project = actionEvent.getProject();
-//
-//        VirtualFile selectDir = actionEvent.getData(PlatformDataKeys.VIRTUAL_FILE);
-//
-//        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createMultipleFoldersDescriptor();
-//        final VirtualFile file = FileChooser.chooseFile(descriptor, project, selectDir);
-//
-//        this.resetContent(project);
+    Project project = actionEvent.getData(PlatformDataKeys.PROJECT);
+
+    this.resetContent(project);
   }
 
   private void resetContent(Project project) {
     MyToolWindow toolWindow = new MyToolWindow(project);
-    ContentManager contentManager = (ContentManager) ToolWindowManager.getInstance(project).getToolWindow("Refactoring for Java");
+    ContentManager contentManager = (ContentManager) ToolWindowManager.getInstance(project).getToolWindow("Refactoring Navigator");
     Content content = contentManager.getFactory().createContent(toolWindow, null, false);
 
     contentManager.removeAllContents(true);

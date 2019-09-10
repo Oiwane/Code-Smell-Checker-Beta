@@ -1,5 +1,6 @@
 package ui;
 
+import action.MyToolWindowAction;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.projectView.impl.ProjectViewTree;
 import com.intellij.openapi.actionSystem.*;
@@ -8,6 +9,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBScrollPane;
@@ -21,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * コードスメル表示部の設定をする
@@ -52,12 +58,7 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 	 */
 	private JComponent createToolbarPanel() {
 	  final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new AnAction() {
-			@Override
-			public void actionPerformed(@NotNull AnActionEvent e) {
-
-			}
-		});
+		actionGroup.add(new MyToolWindowAction());
 		final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("sample", actionGroup, true);
 		return actionToolbar.getComponent();
 	}
@@ -73,15 +74,7 @@ public class MyToolWindow extends SimpleToolWindowPanel {
     sourceTree = new ProjectViewTree(model);
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
 
-    Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.allScope(myProject));
-
-    String projectPath = myProject.getBasePath() + "/";
-    for (VirtualFile file : virtualFiles) {
-      DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
-      DefaultTreeModel newModel = new DefaultTreeModel(newNode);
-      newModel.insertNodeInto(new DefaultMutableTreeNode("aiueo"), newNode, newNode.getChildCount());
-      root.add(newNode);
-    }
+    this.createTree();
 
     EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
 
@@ -89,10 +82,29 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 	}
 
   /**
+   * ツールウィンドウ内のツリーを生成する
+   */
+  private void createTree() {
+    Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.allScope(myProject));
+
+    String projectPath = myProject.getBasePath() + "/";
+
+    for (VirtualFile file : virtualFiles) {
+
+      // TODO コードスメルがない場合の処理を書く
+      DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
+      DefaultTreeModel newModel = new DefaultTreeModel(newNode);
+      // TODO コードスメルが何行目にあるのかを探す
+      newModel.insertNodeInto(new DefaultMutableTreeNode("aiueo"), newNode, newNode.getChildCount());
+      root.add(newNode);
+    }
+  }
+
+  /**
    * ノードをダブルクリックした時の動作を管理する
    */
 	private class MyToolWindowRunnable implements Runnable {
-	  public MyToolWindowRunnable() {}
+	  private MyToolWindowRunnable() {}
 
 	  @Override
     public void run() {
@@ -108,7 +120,7 @@ public class MyToolWindow extends SimpleToolWindowPanel {
       }
 
       String openFilename = myProject.getBasePath() + "/" + node.getParent().toString();
-      System.out.println(openFilename);
+      // System.out.println(openFilename);
       VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
 
       if (virtualFile == null) {
@@ -116,8 +128,13 @@ public class MyToolWindow extends SimpleToolWindowPanel {
         return;
       }
 
-      // TODO 未完成
-      // ダブルクリックした子ノードの文字列を取得し、数値に変換
+      PsiFile psi = PsiManager.getInstance(myProject).findFile(virtualFile);
+      PsiJavaFile psiJavaFile = (PsiJavaFile) PsiManager.getInstance(myProject).findFile(virtualFile);
+      PsiElement element = psi.findElementAt(1);
+      System.out.println(psiJavaFile);
+      System.out.println(element);
+
+      // TODO ダブルクリックした子ノードの文字列を取得し、数値に変換する
       String info = node.toString();
       System.out.println(info);
 
