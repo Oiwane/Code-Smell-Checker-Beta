@@ -9,7 +9,7 @@ import com.intellij.ui.content.ContentFactory;
 /**
  * コードスメル表示部を表示するためのクラス
  */
-public class MyToolWindowFactory implements ToolWindowFactory {
+public class RefactoringNavigatorToolWindowFactory implements ToolWindowFactory {
 
   /**
    * コードスメル表示部を作成する
@@ -18,9 +18,9 @@ public class MyToolWindowFactory implements ToolWindowFactory {
    */
   @Override
   public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-    MyToolWindow myToolWindow = new MyToolWindow(project);
+    RefactoringNavigatorToolWindow window = new RefactoringNavigatorToolWindow(project);
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-    Content content = contentFactory.createContent(myToolWindow.getContent(), "", false);
+    Content content = contentFactory.createContent(window.getContent(), "", false);
     toolWindow.getContentManager().addContent(content);
   }
 }

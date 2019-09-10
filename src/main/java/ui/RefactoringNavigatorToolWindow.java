@@ -1,6 +1,9 @@
 package ui;
 
-import action.MyToolWindowAction;
+import action.RefactoringNavigatorToolWindowAction;
+import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
+import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.projectView.impl.ProjectViewTree;
 import com.intellij.openapi.actionSystem.*;
@@ -9,9 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -22,28 +23,32 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.intellij.util.EditSourceOnDoubleClickHandler;
+import inspection.LongMethod.LongMethodInspection;
+import inspection.LongParameterList.LongParameterListInspection;
+import inspection.MessageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * コードスメル表示部の設定をする
  */
-public class MyToolWindow extends SimpleToolWindowPanel {
+public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	private Project myProject;
-	private DefaultTreeModel model;
-	private DefaultMutableTreeNode root;
+  private DefaultMutableTreeNode root;
 	// TODO ツリーが更新されない
 	private ProjectViewTree sourceTree;
+  private Collection<VirtualFile> virtualFiles;
 
 	/**
 	 * コンストラクタ
 	 *
-	 * @param project
+	 * @param project [プロジェクト]
 	 */
-	public MyToolWindow(final Project project) {
+	public RefactoringNavigatorToolWindow(final Project project) {
 		super(true, true);
 		myProject = project;
 
@@ -56,9 +61,10 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 	 *
 	 * @return ツールバーのコンポーネント
 	 */
-	private JComponent createToolbarPanel() {
+	@NotNull
+  private JComponent createToolbarPanel() {
 	  final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new MyToolWindowAction());
+		actionGroup.add(new RefactoringNavigatorToolWindowAction());
 		final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("sample", actionGroup, true);
 		return actionToolbar.getComponent();
 	}
@@ -70,9 +76,10 @@ public class MyToolWindow extends SimpleToolWindowPanel {
 	 */
 	private JScrollPane createContentPanel() {
     root = new DefaultMutableTreeNode("Java source code");
-    model = new DefaultTreeModel(root);
+    DefaultTreeModel model = new DefaultTreeModel(root);
     sourceTree = new ProjectViewTree(model);
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
+    virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.allScope(myProject));
 
     this.createTree();
 
@@ -85,18 +92,33 @@ public class MyToolWindow extends SimpleToolWindowPanel {
    * ツールウィンドウ内のツリーを生成する
    */
   private void createTree() {
-    Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.allScope(myProject));
+    List<AbstractBaseJavaLocalInspectionTool> inspectionTools = new ArrayList<>();
+    InspectionManager manager = InspectionManager.getInstance(myProject);
+
+    inspectionTools.add(new LongMethodInspection());
+    inspectionTools.add(new LongParameterListInspection());
+    inspectionTools.add(new MessageChainsInspection());
 
     String projectPath = myProject.getBasePath() + "/";
 
     for (VirtualFile file : virtualFiles) {
-
-      // TODO コードスメルがない場合の処理を書く
       DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
       DefaultTreeModel newModel = new DefaultTreeModel(newNode);
-      // TODO コードスメルが何行目にあるのかを探す
-      newModel.insertNodeInto(new DefaultMutableTreeNode("aiueo"), newNode, newNode.getChildCount());
-      root.add(newNode);
+
+      PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
+      List<ProblemDescriptor> codeSmellList;
+
+      // コードスメルが何行目にあるのかを探す
+      for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
+        if (psi == null) continue;
+        codeSmellList = inspectionTool.processFile(psi, manager);
+
+        // ファイルにコードスメルがあればツリーにファイル情報を挿入する
+        for (ProblemDescriptor descriptor : codeSmellList) {
+          newModel.insertNodeInto(new DefaultMutableTreeNode(inspectionTool.getShortName() + " : " + (descriptor.getLineNumber() + 1)), newNode, newNode.getChildCount());
+          root.add(newNode);
+        }
+      }
     }
   }
 
@@ -114,13 +136,8 @@ public class MyToolWindow extends SimpleToolWindowPanel {
         System.out.println("Selected node is null");
         return;
       }
-      if (node.getChildCount() != 0) {
-        System.out.println("There are not code smells");
-        return;
-      }
 
       String openFilename = myProject.getBasePath() + "/" + node.getParent().toString();
-      // System.out.println(openFilename);
       VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
 
       if (virtualFile == null) {
@@ -128,17 +145,12 @@ public class MyToolWindow extends SimpleToolWindowPanel {
         return;
       }
 
-      PsiFile psi = PsiManager.getInstance(myProject).findFile(virtualFile);
-      PsiJavaFile psiJavaFile = (PsiJavaFile) PsiManager.getInstance(myProject).findFile(virtualFile);
-      PsiElement element = psi.findElementAt(1);
-      System.out.println(psiJavaFile);
-      System.out.println(element);
-
-      // TODO ダブルクリックした子ノードの文字列を取得し、数値に変換する
+      // ダブルクリックした子ノードの文字列から行数を取得する
       String info = node.toString();
-      System.out.println(info);
+      int line = Integer.parseInt(info.substring(info.indexOf(":") + 2));
 
-      OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, 1, 1);
+      // ファイルを開く
+      OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, line - 1, 0);
       descriptor.navigateInEditor(myProject, true);
     }
 	}
