@@ -79,7 +79,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     DefaultTreeModel model = new DefaultTreeModel(root);
     sourceTree = new ProjectViewTree(model);
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
-    virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.allScope(myProject));
+    virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
 
     this.createTree();
 
@@ -102,8 +102,8 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     String projectPath = myProject.getBasePath() + "/";
 
     for (VirtualFile file : virtualFiles) {
-      DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
-      DefaultTreeModel newModel = new DefaultTreeModel(newNode);
+      DefaultMutableTreeNode fileTreeNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
+      DefaultTreeModel fileTreeModel = new DefaultTreeModel(fileTreeNode);
 
       PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
       List<ProblemDescriptor> codeSmellList;
@@ -111,12 +111,24 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
       // コードスメルが何行目にあるのかを探す
       for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
         if (psi == null) continue;
+        String codeSmellName = inspectionTool.getDisplayName();
+        DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(codeSmellName);
+        DefaultTreeModel codeSmellTreeModel = new DefaultTreeModel(codeSmellTreeNode);
+
         codeSmellList = inspectionTool.processFile(psi, manager);
+
+        if (codeSmellList.size() == 0) continue;
+        fileTreeModel.insertNodeInto(codeSmellTreeNode, fileTreeNode, fileTreeNode.getChildCount());
 
         // ファイルにコードスメルがあればツリーにファイル情報を挿入する
         for (ProblemDescriptor descriptor : codeSmellList) {
-          newModel.insertNodeInto(new DefaultMutableTreeNode(inspectionTool.getShortName() + " : " + (descriptor.getLineNumber() + 1)), newNode, newNode.getChildCount());
-          root.add(newNode);
+          int firstLine = descriptor.getLineNumber() + 1;
+
+          DefaultMutableTreeNode openTreeNode = new DefaultMutableTreeNode("Line : " + firstLine);
+
+          codeSmellTreeModel.insertNodeInto(openTreeNode, codeSmellTreeNode, codeSmellTreeNode.getChildCount());
+
+          root.add(fileTreeNode);
         }
       }
     }
@@ -137,7 +149,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
         return;
       }
 
-      String openFilename = myProject.getBasePath() + "/" + node.getParent().toString();
+      String openFilename = myProject.getBasePath() + "/" + node.getParent().getParent().toString();
       VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
 
       if (virtualFile == null) {
@@ -147,7 +159,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 
       // ダブルクリックした子ノードの文字列から行数を取得する
       String info = node.toString();
-      int line = Integer.parseInt(info.substring(info.indexOf(":") + 2));
+      int line = Integer.parseInt(info.substring(("Line : ").length()));
 
       // ファイルを開く
       OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, line - 1, 0);
