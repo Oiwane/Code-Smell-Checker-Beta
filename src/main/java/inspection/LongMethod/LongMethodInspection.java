@@ -4,13 +4,18 @@ import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.psi.*;
-import inspection.InspectionSetting;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import psi.PsiUtil;
 import ui.inspectionOptions.LongMethodInspectionOption;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static inspection.InspectionSetting.DEFAULT_NUM_LINES;
+import static inspection.InspectionSetting.GROUP_NAME;
 
 public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new LongMethodFix();
@@ -25,7 +30,7 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     if (value != null) {
       return Integer.parseInt(value);
     } else {
-      return InspectionSetting.numLines;
+      return DEFAULT_NUM_LINES;
     }
   }
 
@@ -38,12 +43,12 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   @NonNls
   @NotNull
   public String getShortName() {
-    return "LongMethodInspector";
+    return "LongMethodInspection";
   }
 
   @NotNull
   public String getGroupDisplayName() {
-    return "Code Smell";
+    return GROUP_NAME;
   }
 
   public boolean isEnabledByDefault() {
@@ -55,16 +60,31 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     return HighlightDisplayLevel.WARNING;
   }
 
-  private void registerError(ProblemsHolder holder, PsiElement element) {
-    holder.registerProblem(element, this.getDisplayName(), quickFix);
-  }
-
   @Override
   public JComponent createOptionsPanel() {
     LongMethodInspectionOption option = new LongMethodInspectionOption();
 
     return option.createOptionPanel();
   }
+
+  @Override
+  @Nullable
+  public ProblemDescriptor[] checkMethod(@NotNull PsiMethod method, @NotNull InspectionManager manager, boolean isOnTheFly) {
+    if (method.getBody() == null) {
+      return null;
+    }
+
+    numLines = initNumOfLine();
+    if (PsiUtil.countStatement(method) <= numLines) {
+      return null;
+    }
+
+    List<ProblemDescriptor> descriptors = new ArrayList<>();
+    descriptors.add(manager.createProblemDescriptor(method, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+
+    return descriptors.toArray(new ProblemDescriptor[0]);
+  }
+
 
   @NotNull
   @Override
@@ -75,23 +95,15 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
       public void visitMethod(PsiMethod method) {
         super.visitMethod(method);
 
-        System.out.println(method.getContainingFile().toString());
-        System.out.println(method.toString());
-        System.out.println(method.getParameterList().toString());
-        if (method.getBody() == null) {
-          System.out.println("null");
-          return;
+        addDescriptors(checkMethod(method, holder.getManager(), isOnTheFly));
+      }
+
+      private void addDescriptors(final ProblemDescriptor[] descriptors) {
+        if (descriptors != null) {
+          for (ProblemDescriptor descriptor : descriptors) {
+            holder.registerProblem(descriptor);
+          }
         }
-
-        int count = PsiUtil.countStatement(method);
-        System.out.println("statement total : " + count + "\n");
-
-        numLines = initNumOfLine();
-        if (count <= numLines) {
-          return;
-        }
-
-        registerError(holder, method);
       }
     };
   }
