@@ -5,19 +5,21 @@ import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.*;
-import inspection.InspectionSetting;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+
+import static inspection.InspectionSetting.DEFAULT_NUM_PARAMETER_LIST;
+import static inspection.InspectionSetting.GROUP_NAME;
 
 public class LongParameterListInspection extends AbstractBaseJavaLocalInspectionTool {
   private final LocalQuickFix quickFix = new LongParameterListFix();
   private int numParameterList;
 
   public LongParameterListInspection() {
-    numParameterList = InspectionSetting.numParameterList;
+    numParameterList = DEFAULT_NUM_PARAMETER_LIST;
   }
 
-//  @Override
+  @Override
   @NotNull
   public String getDisplayName() {
       return "Long parameter list";
@@ -31,7 +33,7 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
 
   @NotNull
   public String getGroupDisplayName() {
-    return "Code Smell";
+    return GROUP_NAME;
   }
 
   private void registerError(ProblemsHolder holder, PsiElement element) {

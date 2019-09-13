@@ -4,17 +4,18 @@ import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.*;
-import inspection.InspectionSetting;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+
+import static inspection.InspectionSetting.DEFAULT_NUM_CHAINS;
+import static inspection.InspectionSetting.GROUP_NAME;
 
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new MessageChainsFix();
   private int numChains;
 
   public MessageChainsInspection() {
-    numChains = InspectionSetting.numChains;
-    // System.out.println("MessageChainsInspection start");
+    numChains = DEFAULT_NUM_CHAINS;
   }
 
   @Override
@@ -31,7 +32,7 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
 
   @NotNull
   public String getGroupDisplayName() {
-    return "Code Smell";
+    return GROUP_NAME;
   }
 
   private void registerError(ProblemsHolder holder, PsiElement element) {
