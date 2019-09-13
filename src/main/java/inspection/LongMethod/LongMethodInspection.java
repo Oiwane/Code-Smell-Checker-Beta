@@ -8,7 +8,8 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import psi.PsiUtil;
-import ui.inspectionOptions.LongMethodInspectionOption;
+import ui.inspectionOptions.InspectionOptionListener;
+import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import java.util.List;
 
 import static inspection.InspectionSetting.DEFAULT_NUM_LINES;
 import static inspection.InspectionSetting.GROUP_NAME;
+import static ui.inspectionOptions.InspectionOptionsUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME;
+import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new LongMethodFix();
@@ -25,8 +28,8 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     numLines = initNumOfLine();
   }
 
-  public static int initNumOfLine() {
-    String value = PropertiesComponent.getInstance().getValue("value of LongMethodInspection");
+  private static int initNumOfLine() {
+    String value = PropertiesComponent.getInstance().getValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME);
     if (value != null) {
       return Integer.parseInt(value);
     } else {
@@ -62,9 +65,13 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
 
   @Override
   public JComponent createOptionsPanel() {
-    LongMethodInspectionOption option = new LongMethodInspectionOption();
+    String description = "detected length of \"" + getDisplayName() + "\" : ";
+    String successMessage = "save" + description;
 
-    return option.createOptionPanel();
+    InspectionOptionUI optionUI = new InspectionOptionUI(description, initNumOfLine());
+    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_METHOD_PROPERTIES_COMPONENT_NAME);
+
+    return optionUI.createOptionPanel(listener);
   }
 
   @Override

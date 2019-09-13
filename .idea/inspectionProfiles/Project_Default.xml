@@ -1361,7 +1361,7 @@
     <inspection_tool class="LoggingConditionDisagreesWithLogStatement" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="LongLine" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="LongLiteralsEndingWithLowercaseL" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="LongMethodInspector" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="LongMethodInspection" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="LongParameterListInspection" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="LoopConditionNotUpdatedInsideLoop" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreIterators" value="false" />
@@ -2332,5 +2332,6 @@
         </value>
       </option>
     </inspection_tool>
+    <inspection_tool class="unused" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>
