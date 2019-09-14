@@ -1,19 +1,14 @@
 <idea-plugin>
-    <id>jp.ac.miyazaki_u.student.yuki.oiwane.refactoring_navigator_plugin</id>
-    <name>Refactoring for Java</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>jp.ac.miyazaki_u.student.oiwane.refactoring_navigator_plugin</id>
+    <name>Refactoring Navigator</name>
+    <vendor email="drhv8272@gmail.com" url=""/>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    This plugin helps you find code smells and help you to refactor Java source code that has code smells.<br>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
-
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -21,7 +16,4 @@
         <inspectionToolProvider implementation="inspection.CodeSmellsInspectionProvider"/>
     </extensions>
 
-    <actions>
-        <!-- Add your actions here -->
-    </actions>
 </idea-plugin>
