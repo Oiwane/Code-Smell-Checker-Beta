@@ -9,8 +9,8 @@ import static ui.inspectionOptions.InspectionOptionsUtil.disableInvalidInput;
 public class InspectionOptionUI {
 
   private JPanel panel;
-  private JPanel subPanel1;
-  private JPanel subPanel2;
+  private JPanel spinnerPanel;
+  private JPanel buttonPanel;
   private JLabel descriptionLabel;
   private SpinnerNumberModel spinnerNumberModel;
   private JSpinner spinner;
@@ -24,8 +24,8 @@ public class InspectionOptionUI {
    */
   public InspectionOptionUI(String description, int initialValue) {
     panel = new JPanel();
-    subPanel1 = new JPanel();
-    subPanel2 = new JPanel();
+    spinnerPanel = new JPanel();
+    buttonPanel = new JPanel();
     descriptionLabel = new JLabel(description);
     spinnerNumberModel = new SpinnerNumberModel(initialValue, LIMIT_MIN_VALUE, null, 1);
     spinner = new JSpinner(spinnerNumberModel);
@@ -35,19 +35,19 @@ public class InspectionOptionUI {
   public SpinnerNumberModel getSpinnerNumberModel() { return spinnerNumberModel; }
 
   public JPanel createOptionPanel(ActionListener listener) {
-    subPanel1.setLayout(new BoxLayout(subPanel1, BoxLayout.X_AXIS));
+    spinnerPanel.setLayout(new BoxLayout(spinnerPanel, BoxLayout.X_AXIS));
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
     button.addActionListener(listener);
     disableInvalidInput(spinner);
 
-    subPanel1.add(descriptionLabel);
-    subPanel1.add(spinner);
+    spinnerPanel.add(descriptionLabel);
+    spinnerPanel.add(spinner);
 
-    subPanel2.add(button);
+    buttonPanel.add(button);
 
-    panel.add(subPanel1);
-    panel.add(subPanel2);
+    panel.add(spinnerPanel);
+    panel.add(buttonPanel);
 
     return panel;
   }
