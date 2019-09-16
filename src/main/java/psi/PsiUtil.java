@@ -51,4 +51,27 @@ public class PsiUtil {
     return count;
   }
 
+  public static int countPsiMethodCallExpression(@NotNull PsiMethodCallExpression expression) {
+    int count = 1;
+
+    for (PsiElement element : expression.getChildren()) {
+      if (element instanceof PsiReferenceExpression) {
+        count += countPsiMethodCallExpression((PsiReferenceExpression) element);
+      }
+    }
+
+    return count;
+  }
+
+  private static int countPsiMethodCallExpression(@NotNull PsiReferenceExpression expression) {
+    int count = 0;
+
+    for (PsiElement element : expression.getChildren()) {
+      if (element instanceof PsiMethodCallExpression) {
+        count += countPsiMethodCallExpression((PsiMethodCallExpression) element);
+      }
+    }
+
+    return count;
+  }
 }
