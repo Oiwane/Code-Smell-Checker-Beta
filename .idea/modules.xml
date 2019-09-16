@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Refactoring Navigator.iml" filepath="$PROJECT_DIR$/.idea/Refactoring Navigator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/refactoring_navigator.iml" filepath="$PROJECT_DIR$/.idea/modules/refactoring_navigator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/refactoring_navigator.main.iml" filepath="$PROJECT_DIR$/.idea/modules/refactoring_navigator.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/refactoring_navigator.test.iml" filepath="$PROJECT_DIR$/.idea/modules/refactoring_navigator.test.iml" />
     </modules>
   </component>
 </project>

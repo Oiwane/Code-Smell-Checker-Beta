@@ -1,6 +1,5 @@
 package inspection.LongParameterList;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
@@ -72,6 +71,7 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
       public void visitParameterList(PsiParameterList list) {
         super.visitParameterList(list);
 
+        numParameterList = initNumOfParameterList();
         if (list.getParametersCount() <= numParameterList) {
           return;
         }
@@ -79,10 +79,5 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
         registerError(holder, list);
       }
     };
-  }
-
-  @NotNull
-  public HighlightDisplayLevel getDefaultLevel() {
-    return HighlightDisplayLevel.WARNING;
   }
 }

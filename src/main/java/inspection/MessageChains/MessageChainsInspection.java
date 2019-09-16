@@ -1,5 +1,6 @@
 package inspection.MessageChains;
 
+import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
@@ -12,8 +13,11 @@ import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 
-import static inspection.InspectionSetting.*;
-import static ui.inspectionOptions.InspectionOptionsUtil.*;
+import static inspection.InspectionSetting.GROUP_NAME;
+import static inspection.InspectionSetting.DEFAULT_NUM_CHAINS;
+import static psi.PsiUtil.countPsiMethodCallExpression;
+import static ui.inspectionOptions.InspectionOptionsUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME;
+import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new MessageChainsFix();
@@ -49,6 +53,15 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
     return GROUP_NAME;
   }
 
+  public boolean isEnabledByDefault() {
+    return true;
+  }
+
+  @NotNull
+  public HighlightDisplayLevel getDefaultLevel() {
+    return HighlightDisplayLevel.WARNING;
+  }
+
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\" : ";
@@ -70,19 +83,30 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
     return new JavaElementVisitor() {
 
       @Override
-      public void visitExpressionStatement(PsiExpressionStatement statement) {
-        super.visitExpressionStatement(statement);
+      public void visitMethodCallExpression(PsiMethodCallExpression expression) {
+        super.visitMethodCallExpression(expression);
 
-        int count = 0;
-        // PsiExpressionStatement内のPsiReferenceExpressionの数を比較
-        for (PsiElement element : statement.getChildren()) {
-          if (element instanceof PsiReferenceExpression) count++;
+        int count;
+        // 木の途中でないかを確認
+        if (isReferenceExpression(expression.getParent()) && isMethodCallExpression(expression.getParent().getParent())) {
+          return;
+        } else {
+          count = countPsiMethodCallExpression(expression);
         }
 
+        numChains = initNumOfChains();
         if (count <= numChains) return;
 
-        registerError(holder, statement);
+        registerError(holder, expression);
       }
     };
+  }
+
+  private boolean isMethodCallExpression(@NotNull PsiElement element) {
+    return element instanceof PsiMethodCallExpression;
+  }
+
+  private boolean isReferenceExpression(@NotNull PsiElement element) {
+    return element instanceof PsiReferenceExpression;
   }
 }
