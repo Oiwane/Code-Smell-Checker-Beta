@@ -5,6 +5,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * コードスメル表示部を表示するためのクラス
@@ -17,7 +18,7 @@ public class RefactoringNavigatorToolWindowFactory implements ToolWindowFactory 
    * @param toolWindow [ツールウィンドウ]
    */
   @Override
-  public void createToolWindowContent(Project project, ToolWindow toolWindow) {
+  public void createToolWindowContent(@NotNull Project project, ToolWindow toolWindow) {
     RefactoringNavigatorToolWindow window = new RefactoringNavigatorToolWindow(project);
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
     Content content = contentFactory.createContent(window.getContent(), "", false);
