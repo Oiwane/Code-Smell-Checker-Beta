@@ -1,9 +1,8 @@
-package inspection.LongParameterList;
+package inspection.longParameterList;
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +11,7 @@ import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 
-import static inspection.InspectionSetting.*;
+import static inspection.InspectionUtil.*;
 import static ui.inspectionOptions.InspectionOptionsUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
@@ -20,15 +19,8 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
   private final LocalQuickFix quickFix = new LongParameterListFix();
   private int numParameterList;
 
-  public LongParameterListInspection() { numParameterList = initNumOfParameterList(); }
-
-  private static int initNumOfParameterList() {
-    String value = PropertiesComponent.getInstance().getValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME);
-    if (value != null) {
-      return Integer.parseInt(value);
-    } else {
-      return DEFAULT_NUM_PARAMETER_LIST;
-    }
+  public LongParameterListInspection() {
+    numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
   }
 
   @Override
@@ -53,7 +45,7 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
     String description = "detected length of \"" + getDisplayName() + "\" : ";
     String successMessage = "save" + description;
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, initNumOfParameterList());
+    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME);
 
     return optionUI.createOptionPanel(listener);
@@ -71,7 +63,7 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
       public void visitParameterList(PsiParameterList list) {
         super.visitParameterList(list);
 
-        numParameterList = initNumOfParameterList();
+        numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
         if (list.getParametersCount() <= numParameterList) {
           return;
         }

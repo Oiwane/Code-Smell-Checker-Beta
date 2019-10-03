@@ -1,10 +1,9 @@
-package inspection.MessageChains;
+package inspection.messageChains;
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +12,7 @@ import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 
-import static inspection.InspectionSetting.GROUP_NAME;
-import static inspection.InspectionSetting.DEFAULT_NUM_CHAINS;
+import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
 import static ui.inspectionOptions.InspectionOptionsUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
@@ -24,16 +22,7 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
   private int numChains;
 
   public MessageChainsInspection() {
-    numChains = initNumOfChains();
-  }
-
-  private static int initNumOfChains() {
-    String value = PropertiesComponent.getInstance().getValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME);
-    if (value != null) {
-      return Integer.parseInt(value);
-    } else {
-      return DEFAULT_NUM_CHAINS;
-    }
+    numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
   }
 
   @Override
@@ -67,7 +56,7 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
     String description = "detected length of \"" + getDisplayName() + "\" : ";
     String successMessage = "save" + description;
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, initNumOfChains());
+    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME);
 
     return optionUI.createOptionPanel(listener);
@@ -94,7 +83,7 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
           count = countPsiMethodCallExpression(expression);
         }
 
-        numChains = initNumOfChains();
+        numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
         if (count <= numChains) return;
 
         registerError(holder, expression);
