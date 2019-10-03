@@ -14,9 +14,8 @@ public class RefactoringNavigatorToolWindowAction extends AnAction {
 
   }
 
-  @NotNull
   @Override
-  public void actionPerformed(AnActionEvent actionEvent) {
+  public void actionPerformed(@NotNull AnActionEvent actionEvent) {
     Project project = actionEvent.getData(PlatformDataKeys.PROJECT);
 
     this.resetContent(project);

@@ -7,14 +7,13 @@ import static ui.inspectionOptions.InspectionOptionsUtil.LIMIT_MIN_VALUE;
 import static ui.inspectionOptions.InspectionOptionsUtil.disableInvalidInput;
 
 public class InspectionOptionUI {
-
-  private JPanel panel;
-  private JPanel spinnerPanel;
-  private JPanel buttonPanel;
-  private JLabel descriptionLabel;
-  private SpinnerNumberModel spinnerNumberModel;
-  private JSpinner spinner;
-  private JButton button;
+  private final JPanel panel;
+  private final JPanel spinnerPanel;
+  private final JPanel buttonPanel;
+  private final JLabel descriptionLabel;
+  private final SpinnerNumberModel spinnerNumberModel;
+  private final JSpinner spinner;
+  private final JButton button;
 
   /**
    * Inspectionの設定画面のオプション

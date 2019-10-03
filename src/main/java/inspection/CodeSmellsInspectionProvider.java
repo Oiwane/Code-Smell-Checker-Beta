@@ -1,9 +1,9 @@
 package inspection;
 
 import com.intellij.codeInspection.InspectionToolProvider;
-import inspection.LongMethod.LongMethodInspection;
-import inspection.LongParameterList.LongParameterListInspection;
-import inspection.MessageChains.MessageChainsInspection;
+import inspection.longMethod.LongMethodInspection;
+import inspection.longParameterList.LongParameterListInspection;
+import inspection.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
 public class CodeSmellsInspectionProvider implements InspectionToolProvider {

@@ -1,13 +1,11 @@
-package inspection.LongMethod;
+package inspection.longMethod;
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import psi.PsiUtil;
 import ui.inspectionOptions.InspectionOptionListener;
 import ui.inspectionOptions.InspectionOptionUI;
 
@@ -15,26 +13,19 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionSetting.DEFAULT_NUM_LINES;
-import static inspection.InspectionSetting.GROUP_NAME;
+import static inspection.InspectionUtil.getUpperLimitValue;
+import static inspection.InspectionUtil.DEFAULT_NUM_PROCESSES;
+import static inspection.InspectionUtil.GROUP_NAME;
+import static psi.PsiUtil.countStatement;
 import static ui.inspectionOptions.InspectionOptionsUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new LongMethodFix();
-  private int numLines;
+  private int numProcesses;
 
   public LongMethodInspection() {
-    numLines = initNumOfLine();
-  }
-
-  private static int initNumOfLine() {
-    String value = PropertiesComponent.getInstance().getValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME);
-    if (value != null) {
-      return Integer.parseInt(value);
-    } else {
-      return DEFAULT_NUM_LINES;
-    }
+    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
   }
 
   @Override
@@ -68,7 +59,7 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     String description = "detected length of \"" + getDisplayName() + "\" : ";
     String successMessage = "save" + description;
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, initNumOfLine());
+    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_METHOD_PROPERTIES_COMPONENT_NAME);
 
     return optionUI.createOptionPanel(listener);
@@ -81,8 +72,8 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
       return null;
     }
 
-    numLines = initNumOfLine();
-    if (PsiUtil.countStatement(method) <= numLines) {
+    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    if (countStatement(method) <= numProcesses) {
       return null;
     }
 
@@ -91,7 +82,6 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
 
     return descriptors.toArray(new ProblemDescriptor[0]);
   }
-
 
   @NotNull
   @Override
