@@ -23,9 +23,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.intellij.util.EditSourceOnDoubleClickHandler;
-import inspection.LongMethod.LongMethodInspection;
-import inspection.LongParameterList.LongParameterListInspection;
-import inspection.MessageChains.MessageChainsInspection;
+import inspection.longMethod.LongMethodInspection;
+import inspection.longParameterList.LongParameterListInspection;
+import inspection.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

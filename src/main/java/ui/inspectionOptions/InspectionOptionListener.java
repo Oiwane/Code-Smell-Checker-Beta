@@ -10,10 +10,10 @@ import java.awt.event.ActionListener;
 import static ui.inspectionOptions.InspectionOptionsUtil.LIMIT_MIN_VALUE;
 
 public class InspectionOptionListener implements ActionListener {
-  private SpinnerNumberModel myModel;
-  private String mySuccessMessage;
-  private String myErrorMessage;
-  private String myPropertiesComponentName;
+  private final SpinnerNumberModel myModel;
+  private final String mySuccessMessage;
+  private final String myErrorMessage;
+  private final String myPropertiesComponentName;
 
   public InspectionOptionListener(SpinnerNumberModel model, String successMessage,
                                   String errorMessage, String propertiesComponentName) {
