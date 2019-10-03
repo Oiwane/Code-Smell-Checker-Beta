@@ -37,7 +37,7 @@ import java.util.List;
  * コードスメル表示部の設定をする
  */
 public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
-	private Project myProject;
+	private final Project myProject;
   private DefaultMutableTreeNode root;
 	// TODO ツリーが更新されない
 	private ProjectViewTree sourceTree;
