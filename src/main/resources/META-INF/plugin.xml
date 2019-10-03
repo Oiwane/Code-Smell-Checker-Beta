@@ -1,6 +1,7 @@
 <idea-plugin>
     <id>jp.ac.miyazaki_u.student.oiwane.refactoring_navigator_plugin</id>
     <name>Refactoring Navigator</name>
+    <version>1.0</version>
     <vendor email="drhv8272@gmail.com" url=""/>
 
     <description><![CDATA[
@@ -10,6 +11,8 @@
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.java</depends>
+
+    <idea-version since-build="191"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.RefactoringNavigatorToolWindowFactory"/>
