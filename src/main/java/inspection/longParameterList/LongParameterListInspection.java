@@ -43,7 +43,7 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save" + description;
+    String successMessage = "save " + description;
 
     InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME);

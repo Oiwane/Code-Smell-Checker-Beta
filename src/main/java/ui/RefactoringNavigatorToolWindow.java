@@ -1,12 +1,10 @@
 package ui;
 
-import action.RefactoringNavigatorToolWindowAction;
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.projectView.impl.ProjectViewTree;
-import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -52,21 +50,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 		super(true, true);
 		myProject = project;
 
-		this.setToolbar(createToolbarPanel());
 		this.setContent(createContentPanel());
-	}
-
-	/**
-	 * ツールバーのコンポーネントを作成する
-	 *
-	 * @return ツールバーのコンポーネント
-	 */
-	@NotNull
-  private JComponent createToolbarPanel() {
-	  final DefaultActionGroup actionGroup = new DefaultActionGroup();
-		actionGroup.add(new RefactoringNavigatorToolWindowAction());
-		final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar("sample", actionGroup, true);
-		return actionToolbar.getComponent();
 	}
 
 	/**
@@ -95,9 +79,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     List<AbstractBaseJavaLocalInspectionTool> inspectionTools = new ArrayList<>();
     InspectionManager manager = InspectionManager.getInstance(myProject);
 
-    inspectionTools.add(new LongMethodInspection());
-    inspectionTools.add(new LongParameterListInspection());
-    inspectionTools.add(new MessageChainsInspection());
+    this.addInspections(inspectionTools);
 
     String projectPath = myProject.getBasePath() + "/";
 
@@ -132,6 +114,17 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
         }
       }
     }
+  }
+
+  /**
+   * リストにインスペクションを追加する
+   *
+   * @param inspectionTools [自作インスペクションのリスト]
+   */
+  private void addInspections(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools) {
+    inspectionTools.add(new LongMethodInspection());
+    inspectionTools.add(new LongParameterListInspection());
+    inspectionTools.add(new MessageChainsInspection());
   }
 
   /**

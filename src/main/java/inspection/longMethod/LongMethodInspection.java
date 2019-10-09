@@ -57,7 +57,7 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save" + description;
+    String successMessage = "save " + description;
 
     InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_METHOD_PROPERTIES_COMPONENT_NAME);
