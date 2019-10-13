@@ -12,7 +12,6 @@ import ui.inspectionOptions.InspectionOptionUI;
 import javax.swing.*;
 
 import static inspection.InspectionUtil.*;
-import static ui.inspectionOptions.InspectionOptionsUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class LongParameterListInspection extends AbstractBaseJavaLocalInspectionTool {

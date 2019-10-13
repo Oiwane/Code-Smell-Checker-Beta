@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
-import static ui.inspectionOptions.InspectionOptionsUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {

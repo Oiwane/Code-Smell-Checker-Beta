@@ -13,11 +13,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionUtil.getUpperLimitValue;
-import static inspection.InspectionUtil.DEFAULT_NUM_PROCESSES;
-import static inspection.InspectionUtil.GROUP_NAME;
+import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countStatement;
-import static ui.inspectionOptions.InspectionOptionsUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
