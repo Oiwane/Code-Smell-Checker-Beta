@@ -18,10 +18,10 @@ public class RefactoringNavigatorToolWindowFactory implements ToolWindowFactory 
    * @param toolWindow [ツールウィンドウ]
    */
   @Override
-  public void createToolWindowContent(@NotNull Project project, ToolWindow toolWindow) {
+  public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
     RefactoringNavigatorToolWindow window = new RefactoringNavigatorToolWindow(project);
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-    Content content = contentFactory.createContent(window.getContent(), "", false);
+    Content content = contentFactory.createContent(window.getContent(), null, false);
     toolWindow.getContentManager().addContent(content);
   }
 }
