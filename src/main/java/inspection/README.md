@@ -2,7 +2,7 @@
 
 自作インスペクションに関するパッケージです。
 
-English ver : [description_English.md](./description_English.md)
+English ver : [README_English.md](README_English.md)
 
 ## パッケージの構造
 
