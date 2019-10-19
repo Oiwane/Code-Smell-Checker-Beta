@@ -2,14 +2,18 @@ package ui;
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.InspectionProfile;
 import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.ide.dnd.aware.DnDAwareTree;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.ide.projectView.impl.ProjectViewTree;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.profile.ProfileChangeAdapter;
+import com.intellij.profile.codeInspection.InspectionProfileManager;
+import com.intellij.profile.codeInspection.ProjectInspectionProfileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
@@ -25,6 +29,7 @@ import inspection.longMethod.LongMethodInspection;
 import inspection.longParameterList.LongParameterListInspection;
 import inspection.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,7 +43,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
 	// TODO ツリーが更新されない
-	private ProjectViewTree sourceTree;
+	private DnDAwareTree sourceTree;
   private Collection<VirtualFile> virtualFiles;
 
 	/**
@@ -61,13 +66,16 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	private JScrollPane createContentPanel() {
     root = new DefaultMutableTreeNode("Java source code");
     DefaultTreeModel model = new DefaultTreeModel(root);
-    sourceTree = new ProjectViewTree(model);
+    sourceTree = new DnDAwareTree(model);
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
     virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
 
     this.createTree();
 
     EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
+
+    RefactoringNavigatorToolWindowListener listener = new RefactoringNavigatorToolWindowListener(myProject, virtualFiles);
+    sourceTree.addFocusListener(listener);
 
     return scrollPane;
 	}

@@ -1,6 +1,7 @@
 package inspection;
 
 import com.intellij.ide.util.PropertiesComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class InspectionUtil {
   public static final int DEFAULT_NUM_PARAMETER_LIST = 5;
@@ -19,6 +20,15 @@ public class InspectionUtil {
       return Integer.parseInt(value);
     } else {
       return DefaultValue;
+    }
+  }
+
+  public static int getUpperLimitValue(@NotNull InspectionData data) {
+    String value = PropertiesComponent.getInstance().getValue(data.getComponentName());
+    if (value != null) {
+      return Integer.parseInt(value);
+    } else {
+      return data.getComponentValue();
     }
   }
 }
