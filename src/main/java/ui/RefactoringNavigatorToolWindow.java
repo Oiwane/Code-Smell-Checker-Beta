@@ -2,7 +2,6 @@ package ui;
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
-import com.intellij.codeInspection.InspectionProfile;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.dnd.aware.DnDAwareTree;
 import com.intellij.ide.highlighter.JavaFileType;
@@ -11,9 +10,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.profile.ProfileChangeAdapter;
-import com.intellij.profile.codeInspection.InspectionProfileManager;
-import com.intellij.profile.codeInspection.ProjectInspectionProfileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
@@ -29,7 +25,6 @@ import inspection.longMethod.LongMethodInspection;
 import inspection.longParameterList.LongParameterListInspection;
 import inspection.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,11 +37,12 @@ import java.util.List;
 public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
-	// TODO ツリーが更新されない
 	private DnDAwareTree sourceTree;
   private Collection<VirtualFile> virtualFiles;
+  private DefaultMutableTreeNode fileTreeNode; //psiファイルに対応したツリーノード
+  private DefaultTreeModel fileTreeModel; //psiファイルに対応したツリーモデル
 
-	/**
+  /**
 	 * コンストラクタ
 	 *
 	 * @param project [プロジェクト]
@@ -65,8 +61,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	 */
 	private JScrollPane createContentPanel() {
     root = new DefaultMutableTreeNode("Java source code");
-    DefaultTreeModel model = new DefaultTreeModel(root);
-    sourceTree = new DnDAwareTree(model);
+    sourceTree = new DnDAwareTree(new DefaultTreeModel(root));
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
     virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
 
@@ -92,35 +87,54 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     String projectPath = myProject.getBasePath() + "/";
 
     for (VirtualFile file : virtualFiles) {
-      DefaultMutableTreeNode fileTreeNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
-      DefaultTreeModel fileTreeModel = new DefaultTreeModel(fileTreeNode);
+      fileTreeNode = new DefaultMutableTreeNode(file.getPath().substring(projectPath.length()));
+      fileTreeModel = new DefaultTreeModel(fileTreeNode);
 
-      PsiFile psi = PsiManager.getInstance(myProject).findFile(file);
-      List<ProblemDescriptor> codeSmellList;
+      PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
 
-      // コードスメルが何行目にあるのかを探す
-      for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
-        if (psi == null) continue;
-        String codeSmellName = inspectionTool.getDisplayName();
-        DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(codeSmellName);
-        DefaultTreeModel codeSmellTreeModel = new DefaultTreeModel(codeSmellTreeNode);
+      this.findCodeSmells(inspectionTools, manager, psiFile);
+    }
+  }
 
-        codeSmellList = inspectionTool.processFile(psi, manager);
+  /**
+   * コードスメルが何行目にあるのかを探す
+   *
+   * @param inspectionTools [自作インスペクションのリスト]
+   * @param manager [インスペクションマネージャー]
+   * @param psiFile [psiファイル]
+   */
+  private void findCodeSmells(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools, InspectionManager manager, PsiFile psiFile) {
+    for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
+      if (psiFile == null) continue;
+      String codeSmellName = inspectionTool.getDisplayName();
+      DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(codeSmellName);
+      DefaultTreeModel codeSmellTreeModel = new DefaultTreeModel(codeSmellTreeNode);
 
-        if (codeSmellList.size() == 0) continue;
-        fileTreeModel.insertNodeInto(codeSmellTreeNode, fileTreeNode, fileTreeNode.getChildCount());
+      List<ProblemDescriptor> codeSmellList = inspectionTool.processFile(psiFile, manager);
+      
+      if (codeSmellList.size() == 0) continue;
+      fileTreeModel.insertNodeInto(codeSmellTreeNode, fileTreeNode, fileTreeNode.getChildCount());
 
-        // ファイルにコードスメルがあればツリーにファイル情報を挿入する
-        for (ProblemDescriptor descriptor : codeSmellList) {
-          int firstLine = descriptor.getLineNumber() + 1;
+      this.addCodeSmellsInfo(codeSmellList, codeSmellTreeNode, codeSmellTreeModel);
+    }
+  }
 
-          DefaultMutableTreeNode openTreeNode = new DefaultMutableTreeNode("Line : " + firstLine);
+  /**
+   * ファイルにコードスメルがあればツリーにファイル情報を挿入する
+   *
+   * @param codeSmellList [コードスメルのある箇所を格納するリスト]
+   * @param codeSmellTreeNode [コードスメルに対応したツリーノード]
+   * @param codeSmellTreeModel [コードスメルに対応したツリーモデル]
+   */
+  private void addCodeSmellsInfo(@NotNull List<ProblemDescriptor> codeSmellList, DefaultMutableTreeNode codeSmellTreeNode, DefaultTreeModel codeSmellTreeModel) {
+    for (ProblemDescriptor descriptor : codeSmellList) {
+      int firstLine = descriptor.getLineNumber() + 1;
 
-          codeSmellTreeModel.insertNodeInto(openTreeNode, codeSmellTreeNode, codeSmellTreeNode.getChildCount());
+      DefaultMutableTreeNode openTreeNode = new DefaultMutableTreeNode("Line : " + firstLine);
 
-          root.add(fileTreeNode);
-        }
-      }
+      codeSmellTreeModel.insertNodeInto(openTreeNode, codeSmellTreeNode, codeSmellTreeNode.getChildCount());
+
+      root.add(fileTreeNode);
     }
   }
 
@@ -139,8 +153,6 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
    * ノードをダブルクリックした時の動作を管理する
    */
 	private class MyToolWindowRunnable implements Runnable {
-	  private MyToolWindowRunnable() {}
-
 	  @Override
     public void run() {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
