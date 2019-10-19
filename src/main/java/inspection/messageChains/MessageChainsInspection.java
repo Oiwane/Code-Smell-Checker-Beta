@@ -14,7 +14,6 @@ import javax.swing.*;
 
 import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
-import static ui.inspectionOptions.InspectionOptionsUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
@@ -54,7 +53,7 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save" + description;
+    String successMessage = "save " + description;
 
     InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS));
     InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME);

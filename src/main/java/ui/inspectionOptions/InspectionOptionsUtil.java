@@ -10,10 +10,6 @@ import javax.swing.text.DefaultFormatter;
 public class InspectionOptionsUtil {
   final static int LIMIT_MIN_VALUE = 1;
 
-  public final static String LONG_METHOD_PROPERTIES_COMPONENT_NAME = "limit value used for LongMethodInspection";
-  public final static String LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME = "limit value used for LongParameterListInspection";
-  public final static String MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME = "limit value used for MessageChainsInspection";
-
   public final static String TOO_SMALL_VALUE = "The value you set is too small.\nChange to another value.";
 
   /**
