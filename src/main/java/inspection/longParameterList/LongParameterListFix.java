@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static inspection.InspectionUtil.GROUP_NAME;
 
+/**
+ * LongParameterListInspectionのクイックフィックス
+ */
 public class LongParameterListFix implements LocalQuickFix {
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull

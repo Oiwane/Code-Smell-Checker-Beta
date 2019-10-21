@@ -3,6 +3,9 @@ package psi;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * PSI要素の操作に関するクラス
+ */
 public class PsiUtil {
   public static int countStatement(@NotNull PsiMethod method) {
     if (method.getBody() == null) return 0;

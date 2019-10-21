@@ -17,6 +17,9 @@ import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countStatement;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
+/**
+ * コードスメル『Long Method（長いメソッド）』のインスペクション
+ */
 public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new LongMethodFix();
   private int numProcesses;

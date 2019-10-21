@@ -3,6 +3,9 @@ package inspection;
 import com.intellij.ide.util.PropertiesComponent;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 各インスペクションに関する処理で共通の処理を書くクラス
+ */
 public class InspectionUtil {
   public static final int DEFAULT_NUM_PARAMETER_LIST = 5;
   public static final int DEFAULT_NUM_PROCESSES = 5;

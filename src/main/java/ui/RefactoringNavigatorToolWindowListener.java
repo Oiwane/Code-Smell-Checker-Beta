@@ -22,6 +22,9 @@ import java.util.Collection;
 
 import static inspection.InspectionUtil.*;
 
+/**
+ * ウィンドウの更新処理をするためのリスナークラス
+ */
 public class RefactoringNavigatorToolWindowListener implements FocusListener, VirtualFileListener {
   private Project myProject;
   private ArrayList<PsiFile> oldPsiFiles;
@@ -89,8 +92,7 @@ public class RefactoringNavigatorToolWindowListener implements FocusListener, Vi
   //// ここからFocusListener
 
   /**
-   * 以下のツールウィンドウの更新条件のうち、いづれかを満たした場合、ツールウィンドウの更新を行う
-   * 1.コードスメルの検出条件（Long MethodやLong ParameterListなど）が変更された -> hasChangedComponentValueで判断
+   * コードスメルの検出条件（Long MethodやLong ParameterListなど）が変更された場合、ツールウィンドウの更新を行う
    *
    * @param e [フォーカスイベント]
    */

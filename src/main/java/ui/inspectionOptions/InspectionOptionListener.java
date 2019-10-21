@@ -9,6 +9,9 @@ import java.awt.event.ActionListener;
 
 import static ui.inspectionOptions.InspectionOptionsUtil.LIMIT_MIN_VALUE;
 
+/**
+ * UI上のボタンを押したかを監視するリスナークラス
+ */
 public class InspectionOptionListener implements ActionListener {
   private final SpinnerNumberModel myModel;
   private final String mySuccessMessage;

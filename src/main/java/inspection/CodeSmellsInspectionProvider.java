@@ -6,6 +6,9 @@ import inspection.longParameterList.LongParameterListInspection;
 import inspection.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * インスペクションを追加するためのクラス
+ */
 public class CodeSmellsInspectionProvider implements InspectionToolProvider {
   @NotNull
   @Override

@@ -1,5 +1,8 @@
 package inspection;
 
+/**
+ * インスペクションの検出条件に関するデータクラス
+ */
 public class InspectionData {
   private String componentName;
   private int componentValue;

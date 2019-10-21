@@ -16,6 +16,9 @@ import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
+/**
+ * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション
+ */
 public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
   private LocalQuickFix quickFix = new MessageChainsFix();
   private int numChains;

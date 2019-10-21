@@ -7,6 +7,9 @@ import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * LongMethodInspectionのクイックフィックス
+ */
 public class LongMethodFix implements LocalQuickFix {
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull

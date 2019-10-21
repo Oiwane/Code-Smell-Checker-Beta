@@ -6,6 +6,9 @@ import java.awt.event.ActionListener;
 import static ui.inspectionOptions.InspectionOptionsUtil.LIMIT_MIN_VALUE;
 import static ui.inspectionOptions.InspectionOptionsUtil.disableInvalidInput;
 
+/**
+ * 各インスペクションの検出条件を設定する画面のUIを生成するクラス
+ */
 public class InspectionOptionUI {
   private final JPanel panel;
   private final JPanel spinnerPanel;

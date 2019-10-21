@@ -14,6 +14,9 @@ import javax.swing.*;
 import static inspection.InspectionUtil.*;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
+/**
+ * コードスメル『Long Parameter List（長いパラメータリスト）』のインスペクション
+ */
 public class LongParameterListInspection extends AbstractBaseJavaLocalInspectionTool {
   private final LocalQuickFix quickFix = new LongParameterListFix();
   private int numParameterList;
