@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>jp.ac.miyazaki_u.student.oiwane.refactoring_navigator_plugin</id>
-    <name>Refactoring Navigator</name>
+    <id>jp.ac.miyazaki_u.student.oiwane.code_smell_checker_plugin</id>
+    <name>Code Smell Checker</name>
     <version>1.0</version>
     <vendor email="drhv8272@gmail.com" url=""/>
 
@@ -15,7 +15,7 @@
     <idea-version since-build="191"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Refactoring Navigator" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.RefactoringNavigatorToolWindowFactory"/>
+        <toolWindow id="Code Smell Checker" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.RefactoringNavigatorToolWindowFactory"/>
         <inspectionToolProvider implementation="inspection.CodeSmellsInspectionProvider"/>
     </extensions>
 
