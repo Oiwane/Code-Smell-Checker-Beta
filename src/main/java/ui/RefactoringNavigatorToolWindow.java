@@ -7,7 +7,9 @@ import com.intellij.ide.dnd.aware.DnDAwareTree;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.ui.messages.MessageDialog;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -28,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -38,7 +39,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
 	private DnDAwareTree sourceTree;
-  private Collection<VirtualFile> virtualFiles;
+  private ArrayList<VirtualFile> virtualFiles;
   private DefaultMutableTreeNode fileTreeNode; //psiファイルに対応したツリーノード
   private DefaultTreeModel fileTreeModel; //psiファイルに対応したツリーモデル
 
@@ -63,13 +64,19 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     root = new DefaultMutableTreeNode("Java source code");
     sourceTree = new DnDAwareTree(new DefaultTreeModel(root));
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
-    virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
+
+    // ツールウィンドウに表示するvirtualFileの取得
+    virtualFiles = new ArrayList<>();
+    for (VirtualFile file : FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject))) {
+      if (!ProjectRootManager.getInstance(myProject).getFileIndex().isInSource(file)) continue;
+      virtualFiles.add(file);
+    }
 
     this.createTree();
 
     EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
 
-    RefactoringNavigatorToolWindowListener listener = new RefactoringNavigatorToolWindowListener(myProject, virtualFiles);
+    RefactoringNavigatorToolWindowListener listener = new RefactoringNavigatorToolWindowListener(myProject);
     sourceTree.addFocusListener(listener);
 
     return scrollPane;
@@ -157,8 +164,12 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     public void run() {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
 
-      if (node == null) {
-        System.out.println("Selected node is null");
+      assert node != null : "Node does not exist.";
+
+      if (node.getParent() == null) {
+        String message = "Code smells does not exist or this project has not been set up. If the latter, set up in \"Project Structure\".";
+        MessageDialog dialog = new MessageDialog(message, "Message", new String[]{"OK"}, 1, null);
+        dialog.show();
         return;
       }
 
@@ -166,7 +177,8 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
       VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
 
       if (virtualFile == null) {
-        System.out.println("Virtual file is null");
+        MessageDialog dialog = new MessageDialog("This file does not exist.", "Error", new String[]{"OK"}, 1, null);
+        dialog.show();
         return;
       }
 

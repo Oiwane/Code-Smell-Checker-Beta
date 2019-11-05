@@ -1,14 +1,9 @@
 package ui;
 
-import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FileTypeIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
@@ -18,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static inspection.InspectionUtil.*;
 
@@ -27,21 +21,13 @@ import static inspection.InspectionUtil.*;
  */
 public class RefactoringNavigatorToolWindowListener implements FocusListener, VirtualFileListener {
   private Project myProject;
-  private ArrayList<PsiFile> oldPsiFiles;
   private ArrayList<Integer> componentValueList;
   private ArrayList<InspectionData> inspectionDataList;
   private ContentManager contentManager;
   private Content content;
 
-  RefactoringNavigatorToolWindowListener(@NotNull Project project, @NotNull Collection<VirtualFile> virtualFiles) {
+  RefactoringNavigatorToolWindowListener(@NotNull Project project) {
     myProject = project;
-    oldPsiFiles = new ArrayList<>();
-
-    for (VirtualFile virtualFile : virtualFiles) {
-      PsiFile file = PsiManager.getInstance(myProject).findFile(virtualFile);
-      if (file == null) continue;
-      oldPsiFiles.add(file);
-    }
 
     this.setInspectionDataList();
     this.setComponentValueList();
@@ -79,13 +65,6 @@ public class RefactoringNavigatorToolWindowListener implements FocusListener, Vi
     contentManager.removeAllContents(true);
     contentManager.addContent(content);
 
-    ArrayList<PsiFile> tmpList = new ArrayList<>();
-    for (VirtualFile virtualFile : FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject))) {
-      PsiFile file = PsiManager.getInstance(myProject).findFile(virtualFile);
-      if (file == null) continue;
-      tmpList.add(file);
-    }
-    oldPsiFiles = tmpList;
     this.setComponentValueList();
   }
 
@@ -97,7 +76,7 @@ public class RefactoringNavigatorToolWindowListener implements FocusListener, Vi
    * @param e [フォーカスイベント]
    */
   public void focusGained(FocusEvent e) {
-    ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow("Refactoring Navigator");
+    ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow("Code Smell Checker");
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
     RefactoringNavigatorToolWindow toolWindowPane = new RefactoringNavigatorToolWindow(myProject);
     content = contentFactory.createContent(toolWindowPane.getContent(), null, false);
