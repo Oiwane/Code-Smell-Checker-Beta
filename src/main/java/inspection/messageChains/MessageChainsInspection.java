@@ -1,16 +1,18 @@
 package inspection.messageChains;
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
-import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ui.inspectionOptions.InspectionOptionListener;
 import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
@@ -64,8 +66,24 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
     return optionUI.createOptionPanel(listener);
   }
 
-  private void registerError(ProblemsHolder holder, PsiElement element) {
-    holder.registerProblem(element, this.getDisplayName(), quickFix);
+  @Nullable
+  public ProblemDescriptor[] checkMethodCallExpression(@NotNull PsiMethodCallExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
+    int count;
+    // 木の途中でないかを確認
+    if (isReferenceExpression(expression.getParent()) && isMethodCallExpression(expression.getParent().getParent())) {
+      return null;
+    } else {
+      count = countPsiMethodCallExpression(expression);
+    }
+
+    numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
+    if (count <= numChains) return null;
+
+    List<ProblemDescriptor> descriptors = new ArrayList<>();
+    descriptors.add(manager.createProblemDescriptor(expression, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+
+    return descriptors.toArray(new ProblemDescriptor[0]);
+
   }
 
   @NotNull
@@ -77,18 +95,15 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
       public void visitMethodCallExpression(PsiMethodCallExpression expression) {
         super.visitMethodCallExpression(expression);
 
-        int count;
-        // 木の途中でないかを確認
-        if (isReferenceExpression(expression.getParent()) && isMethodCallExpression(expression.getParent().getParent())) {
-          return;
-        } else {
-          count = countPsiMethodCallExpression(expression);
+        addDescriptors(checkMethodCallExpression(expression, holder.getManager(), isOnTheFly));
+      }
+
+      private void addDescriptors(final ProblemDescriptor[] descriptors) {
+        if (descriptors != null) {
+          for (ProblemDescriptor descriptor : descriptors) {
+            holder.registerProblem(descriptor);
+          }
         }
-
-        numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
-        if (count <= numChains) return;
-
-        registerError(holder, expression);
       }
     };
   }

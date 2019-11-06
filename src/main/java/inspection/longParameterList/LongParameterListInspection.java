@@ -1,15 +1,17 @@
 package inspection.longParameterList;
 
-import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
-import com.intellij.codeInspection.LocalQuickFix;
-import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ui.inspectionOptions.InspectionOptionListener;
 import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static inspection.InspectionUtil.*;
 import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
@@ -53,8 +55,17 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
     return optionUI.createOptionPanel(listener);
   }
 
-  private void registerError(ProblemsHolder holder, PsiElement element) {
-    holder.registerProblem(element, getDisplayName(), quickFix);
+  @Nullable
+  public ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
+    numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
+    if (list.getParametersCount() <= numParameterList) {
+      return null;
+    }
+
+    List<ProblemDescriptor> descriptors = new ArrayList<>();
+    descriptors.add(manager.createProblemDescriptor(list, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+
+    return descriptors.toArray(new ProblemDescriptor[0]);
   }
 
   @NotNull
@@ -65,12 +76,15 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
       public void visitParameterList(PsiParameterList list) {
         super.visitParameterList(list);
 
-        numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
-        if (list.getParametersCount() <= numParameterList) {
-          return;
-        }
+        addDescriptors(checkParameterList(list, holder.getManager(), isOnTheFly));
+      }
 
-        registerError(holder, list);
+      private void addDescriptors(final ProblemDescriptor[] descriptors) {
+        if (descriptors != null) {
+          for (ProblemDescriptor descriptor : descriptors) {
+            holder.registerProblem(descriptor);
+          }
+        }
       }
     };
   }
