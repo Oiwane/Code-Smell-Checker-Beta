@@ -2,11 +2,11 @@ package inspection.longParameterList;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.InspectionData;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ui.inspectionOptions.InspectionOptionListener;
-import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static inspection.InspectionUtil.*;
-import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 /**
  * コードスメル『Long Parameter List（長いパラメータリスト）』のインスペクション
@@ -44,15 +43,16 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
     return GROUP_NAME;
   }
 
+  public boolean isEnabledByDefault() {
+    return true;
+  }
+
   @Override
   public JComponent createOptionsPanel() {
-    String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save " + description;
+    String description = "detected length of \"" + getDisplayName() + "\"";
+    InspectionData defaultData = new InspectionData(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST));
-    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME);
-
-    return optionUI.createOptionPanel(listener);
+    return InspectionUtil.createOptionUI(description, defaultData);
   }
 
   @Nullable

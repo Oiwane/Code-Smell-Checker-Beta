@@ -3,11 +3,11 @@ package inspection.longMethod;
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.InspectionData;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ui.inspectionOptions.InspectionOptionListener;
-import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import java.util.List;
 
 import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countStatement;
-import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 /**
  * コードスメル『Long Method（長いメソッド）』のインスペクション
@@ -56,13 +55,10 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
 
   @Override
   public JComponent createOptionsPanel() {
-    String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save " + description;
+    String description = "detected length of \"" + getDisplayName() + "\"";
+    InspectionData defaultData = new InspectionData(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES));
-    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_METHOD_PROPERTIES_COMPONENT_NAME);
-
-    return optionUI.createOptionPanel(listener);
+    return InspectionUtil.createOptionUI(description, defaultData);
   }
 
   @Override

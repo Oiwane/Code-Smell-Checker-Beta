@@ -2,6 +2,12 @@ package inspection;
 
 import com.intellij.ide.util.PropertiesComponent;
 import org.jetbrains.annotations.NotNull;
+import ui.inspectionOptions.InspectionOptionListener;
+import ui.inspectionOptions.InspectionOptionUI;
+
+import javax.swing.*;
+
+import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
 /**
  * 各インスペクションに関する処理で共通の処理を書くクラス
@@ -33,5 +39,14 @@ public class InspectionUtil {
     } else {
       return data.getComponentValue();
     }
+  }
+
+  public static JComponent createOptionUI(String description, @NotNull InspectionData data) {
+    String successMessage = "save" + description;
+
+    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(data.getComponentName(), data.getComponentValue()));
+    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
+
+    return optionUI.createOptionPanel(listener);
   }
 }
