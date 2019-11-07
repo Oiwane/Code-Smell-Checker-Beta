@@ -19,14 +19,14 @@ import static inspection.InspectionUtil.*;
 /**
  * ウィンドウの更新処理をするためのリスナークラス
  */
-public class RefactoringNavigatorToolWindowListener implements FocusListener, VirtualFileListener {
+public class CSCToolWindowListener implements FocusListener, VirtualFileListener {
   private Project myProject;
   private ArrayList<Integer> componentValueList;
   private ArrayList<InspectionData> inspectionDataList;
   private ContentManager contentManager;
   private Content content;
 
-  RefactoringNavigatorToolWindowListener(@NotNull Project project) {
+  CSCToolWindowListener(@NotNull Project project) {
     myProject = project;
 
     this.setInspectionDataList();
@@ -78,7 +78,7 @@ public class RefactoringNavigatorToolWindowListener implements FocusListener, Vi
   public void focusGained(FocusEvent e) {
     ToolWindow toolWindow = ToolWindowManager.getInstance(myProject).getToolWindow("Code Smell Checker");
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-    RefactoringNavigatorToolWindow toolWindowPane = new RefactoringNavigatorToolWindow(myProject);
+    CSCToolWindow toolWindowPane = new CSCToolWindow(myProject);
     content = contentFactory.createContent(toolWindowPane.getContent(), null, false);
 
     contentManager = toolWindow.getContentManager();

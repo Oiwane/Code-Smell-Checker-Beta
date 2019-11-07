@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * コードスメル表示部の設定をする
  */
-public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
+public class CSCToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
 	private DnDAwareTree sourceTree;
@@ -48,7 +48,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	 *
 	 * @param project [プロジェクト]
 	 */
-	public RefactoringNavigatorToolWindow(final Project project) {
+	public CSCToolWindow(final Project project) {
 		super(true, true);
 		myProject = project;
 
@@ -76,7 +76,7 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 
     EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
 
-    RefactoringNavigatorToolWindowListener listener = new RefactoringNavigatorToolWindowListener(myProject);
+    CSCToolWindowListener listener = new CSCToolWindowListener(myProject);
     sourceTree.addFocusListener(listener);
 
     return scrollPane;
