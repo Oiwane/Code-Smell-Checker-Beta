@@ -2,6 +2,7 @@ package inspection.longParameterList;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.CodeSmellInspection;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
@@ -18,7 +19,7 @@ import static inspection.InspectionUtil.*;
 /**
  * コードスメル『Long Parameter List（長いパラメータリスト）』のインスペクション
  */
-public class LongParameterListInspection extends AbstractBaseJavaLocalInspectionTool {
+public class LongParameterListInspection extends CodeSmellInspection {
   private final LocalQuickFix quickFix = new LongParameterListFix();
   private int numParameterList;
 
@@ -36,15 +37,6 @@ public class LongParameterListInspection extends AbstractBaseJavaLocalInspection
   @NotNull
   public String getShortName() {
     return "LongParameterListInspection";
-  }
-
-  @NotNull
-  public String getGroupDisplayName() {
-    return GROUP_NAME;
-  }
-
-  public boolean isEnabledByDefault() {
-    return true;
   }
 
   @Override
