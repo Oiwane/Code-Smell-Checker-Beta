@@ -1,6 +1,5 @@
 package ui;
 
-import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.dnd.aware.DnDAwareTree;
@@ -23,9 +22,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.intellij.util.EditSourceOnDoubleClickHandler;
-import inspection.longMethod.LongMethodInspection;
-import inspection.longParameterList.LongParameterListInspection;
-import inspection.messageChains.MessageChainsInspection;
+import inspection.CodeSmellInspection;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -86,10 +84,10 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
    * ツールウィンドウ内のツリーを生成する
    */
   private void createTree() {
-    List<AbstractBaseJavaLocalInspectionTool> inspectionTools = new ArrayList<>();
+    List<CodeSmellInspection> inspectionTools = new ArrayList<>();
     InspectionManager manager = InspectionManager.getInstance(myProject);
 
-    this.addInspections(inspectionTools);
+    CSCToolWindowUtil.addInspections(inspectionTools);
 
     String projectPath = myProject.getBasePath() + "/";
 
@@ -110,8 +108,10 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
    * @param manager [インスペクションマネージャー]
    * @param psiFile [psiファイル]
    */
-  private void findCodeSmells(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools, InspectionManager manager, PsiFile psiFile) {
-    for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
+  private void findCodeSmells(@NotNull List<CodeSmellInspection> inspectionTools, InspectionManager manager, PsiFile psiFile) {
+    for (CodeSmellInspection inspectionTool : inspectionTools) {
+      if (!InspectionUtil.getWorkedInspection(inspectionTool.getWorked())) return;
+
       if (psiFile == null) continue;
       String codeSmellName = inspectionTool.getDisplayName();
       DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(codeSmellName);
@@ -143,17 +143,6 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
 
       root.add(fileTreeNode);
     }
-  }
-
-  /**
-   * リストにインスペクションを追加する
-   *
-   * @param inspectionTools [自作インスペクションのリスト]
-   */
-  private void addInspections(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools) {
-    inspectionTools.add(new LongMethodInspection());
-    inspectionTools.add(new LongParameterListInspection());
-    inspectionTools.add(new MessageChainsInspection());
   }
 
   /**
