@@ -14,8 +14,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionUtil.*;
-
 /**
  * コードスメル『Long Parameter List（長いパラメータリスト）』のインスペクション
  */
@@ -24,7 +22,8 @@ public class LongParameterListInspection extends CodeSmellInspection {
   private int numParameterList;
 
   public LongParameterListInspection() {
-    numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
+    numParameterList = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
+                                                         InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
   }
 
   @Override
@@ -40,16 +39,23 @@ public class LongParameterListInspection extends CodeSmellInspection {
   }
 
   @Override
+  public String getWorked() {
+    return InspectionUtil.IS_ENABLED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME;
+  }
+
+  @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
+    InspectionData defaultData = new InspectionData(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
+                                                    InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
 
     return InspectionUtil.createOptionUI(description, defaultData);
   }
 
   @Nullable
   public ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-    numParameterList = getUpperLimitValue(LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PARAMETER_LIST);
+    numParameterList = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
+                                                         InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
     if (list.getParametersCount() <= numParameterList) {
       return null;
     }

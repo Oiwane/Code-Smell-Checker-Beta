@@ -1,8 +1,8 @@
 package inspection.messageChains;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.CodeSmellInspection;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
@@ -14,18 +14,18 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countPsiMethodCallExpression;
 
 /**
  * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション
  */
-public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool {
+public class MessageChainsInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new MessageChainsFix();
   private int numChains;
 
   public MessageChainsInspection() {
-    numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
+    numChains = InspectionUtil.getUpperLimitValue(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
+                                                  InspectionUtil.DEFAULT_NUM_CHAINS);
   }
 
   @Override
@@ -40,24 +40,16 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
     return "MessageChainsInspection";
   }
 
-  @NotNull
-  public String getGroupDisplayName() {
-    return GROUP_NAME;
-  }
-
-  public boolean isEnabledByDefault() {
-    return true;
-  }
-
-  @NotNull
-  public HighlightDisplayLevel getDefaultLevel() {
-    return HighlightDisplayLevel.WARNING;
+  @Override
+  public String getWorked() {
+    return InspectionUtil.IS_ENABLED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
+    InspectionData defaultData = new InspectionData(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
+                                                    InspectionUtil.DEFAULT_NUM_CHAINS);
 
     return InspectionUtil.createOptionUI(description, defaultData);
   }
@@ -72,7 +64,8 @@ public class MessageChainsInspection extends AbstractBaseJavaLocalInspectionTool
       count = countPsiMethodCallExpression(expression);
     }
 
-    numChains = getUpperLimitValue(MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_CHAINS);
+    numChains = InspectionUtil.getUpperLimitValue(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
+                                                  InspectionUtil.DEFAULT_NUM_CHAINS);
     if (count <= numChains) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();

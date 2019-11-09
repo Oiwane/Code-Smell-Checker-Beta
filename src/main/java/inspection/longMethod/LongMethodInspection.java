@@ -1,8 +1,8 @@
 package inspection.longMethod;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.CodeSmellInspection;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
@@ -13,18 +13,18 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countStatement;
 
 /**
  * コードスメル『Long Method（長いメソッド）』のインスペクション
  */
-public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
+public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new LongMethodFix();
   private int numProcesses;
 
   public LongMethodInspection() {
-    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
   }
 
   @Override
@@ -39,24 +39,16 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     return "LongMethodInspection";
   }
 
-  @NotNull
-  public String getGroupDisplayName() {
-    return GROUP_NAME;
-  }
-
-  public boolean isEnabledByDefault() {
-    return true;
-  }
-
-  @NotNull
-  public HighlightDisplayLevel getDefaultLevel() {
-    return HighlightDisplayLevel.WARNING;
+  @Override
+  public String getWorked() {
+    return InspectionUtil.IS_ENABLED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    InspectionData defaultData = new InspectionData(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                    InspectionUtil.DEFAULT_NUM_PROCESSES);
 
     return InspectionUtil.createOptionUI(description, defaultData);
   }
@@ -68,7 +60,8 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
       return null;
     }
 
-    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
     if (countStatement(method) <= numProcesses) {
       return null;
     }
