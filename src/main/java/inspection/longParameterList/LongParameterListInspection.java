@@ -40,7 +40,7 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.IS_ENABLED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionUtil.HAS_WORKED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override

@@ -1,5 +1,11 @@
 package ui;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
 import inspection.CodeSmellInspection;
 import inspection.longMethod.LongMethodInspection;
 import inspection.longParameterList.LongParameterListInspection;
@@ -18,5 +24,17 @@ public class CSCToolWindowUtil {
     inspectionTools.add(new LongMethodInspection());
     inspectionTools.add(new LongParameterListInspection());
     inspectionTools.add(new MessageChainsInspection());
+  }
+
+  public static void resetToolWindow(final Project project) {
+    ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Code Smell Checker");
+    ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+    CSCToolWindow toolWindowPane = new CSCToolWindow(project);
+    Content content = contentFactory.createContent(toolWindowPane.getContent(), null, false);
+
+    ContentManager contentManager = toolWindow.getContentManager();
+
+    contentManager.removeAllContents(true);
+    contentManager.addContent(content);
   }
 }

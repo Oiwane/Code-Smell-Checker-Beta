@@ -4,5 +4,6 @@
 build/
 codeForTest/
 gradle/
+out/
 gradlew
 gradlew.bat
