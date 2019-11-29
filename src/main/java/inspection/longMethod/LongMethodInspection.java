@@ -41,7 +41,7 @@ public class LongMethodInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.IS_ENABLED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionUtil.HAS_WORKED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override

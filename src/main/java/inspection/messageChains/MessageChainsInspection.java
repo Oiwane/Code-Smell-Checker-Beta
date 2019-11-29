@@ -42,7 +42,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.IS_ENABLED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionUtil.HAS_WORKED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override

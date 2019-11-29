@@ -21,9 +21,11 @@ public class InspectionUtil {
   public final static String LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME = "limit value used for LongParameterListInspection";
   public final static String MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME = "limit value used for MessageChainsInspection";
 
-  public final static String IS_ENABLED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable LongMethodInspection";
-  public final static String IS_ENABLED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable LongParameterInspection";
-  public final static String IS_ENABLED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable MessageChainsInspection";
+  public final static String HAS_WORKED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable LongMethodInspection";
+  public final static String HAS_WORKED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable LongParameterInspection";
+  public final static String HAS_WORKED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME = "is enable MessageChainsInspection";
+
+  public final static boolean IS_ENABLED_BY_DEFAULT = false;
 
   public static final String GROUP_NAME = "Code smell";
 
@@ -59,7 +61,7 @@ public class InspectionUtil {
     if (value != null) {
       return Boolean.valueOf(value);
     } else {
-      return true;
+      return IS_ENABLED_BY_DEFAULT;
     }
   }
 }

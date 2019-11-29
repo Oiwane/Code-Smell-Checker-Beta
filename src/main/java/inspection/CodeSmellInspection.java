@@ -12,7 +12,7 @@ public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectio
   }
 
   public boolean isEnabledByDefault() {
-    return true;
+    return InspectionUtil.IS_ENABLED_BY_DEFAULT;
   }
 
   @NotNull
