@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import static inspection.InspectionUtil.GROUP_NAME;
 
+/**
+ * MessageChainsInspectionのクイックフィックス
+ */
 public class MessageChainsFix implements LocalQuickFix {
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull

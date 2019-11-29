@@ -1,28 +1,30 @@
 package inspection.longMethod;
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
+import inspection.CodeSmellInspection;
+import inspection.InspectionData;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ui.inspectionOptions.InspectionOptionListener;
-import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.InspectionUtil.*;
 import static psi.PsiUtil.countStatement;
-import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
 
-public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
+/**
+ * コードスメル『Long Method（長いメソッド）』のインスペクション
+ */
+public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new LongMethodFix();
   private int numProcesses;
 
   public LongMethodInspection() {
-    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
   }
 
   @Override
@@ -37,29 +39,18 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
     return "LongMethodInspection";
   }
 
-  @NotNull
-  public String getGroupDisplayName() {
-    return GROUP_NAME;
-  }
-
-  public boolean isEnabledByDefault() {
-    return true;
-  }
-
-  @NotNull
-  public HighlightDisplayLevel getDefaultLevel() {
-    return HighlightDisplayLevel.WARNING;
+  @Override
+  public String getWorked() {
+    return InspectionUtil.HAS_WORKED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME;
   }
 
   @Override
   public JComponent createOptionsPanel() {
-    String description = "detected length of \"" + getDisplayName() + "\" : ";
-    String successMessage = "save " + description;
+    String description = "detected length of \"" + getDisplayName() + "\"";
+    InspectionData defaultData = new InspectionData(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                    InspectionUtil.DEFAULT_NUM_PROCESSES);
 
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES));
-    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, LONG_METHOD_PROPERTIES_COMPONENT_NAME);
-
-    return optionUI.createOptionPanel(listener);
+    return InspectionUtil.createOptionUI(description, defaultData);
   }
 
   @Override
@@ -69,7 +60,8 @@ public class LongMethodInspection extends AbstractBaseJavaLocalInspectionTool {
       return null;
     }
 
-    numProcesses = getUpperLimitValue(LONG_METHOD_PROPERTIES_COMPONENT_NAME, DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
+                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
     if (countStatement(method) <= numProcesses) {
       return null;
     }

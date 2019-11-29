@@ -7,6 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.text.DefaultFormatter;
 
+/**
+ * オプションUIの処理に関するクラス
+ */
 public class InspectionOptionsUtil {
   final static int LIMIT_MIN_VALUE = 1;
 

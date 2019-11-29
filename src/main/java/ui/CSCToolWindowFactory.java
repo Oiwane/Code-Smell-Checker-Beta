@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * コードスメル表示部を表示するためのクラス
  */
-public class RefactoringNavigatorToolWindowFactory implements ToolWindowFactory {
+public class CSCToolWindowFactory implements ToolWindowFactory {
 
   /**
    * コードスメル表示部を作成する
@@ -19,7 +19,7 @@ public class RefactoringNavigatorToolWindowFactory implements ToolWindowFactory 
    */
   @Override
   public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-    RefactoringNavigatorToolWindow window = new RefactoringNavigatorToolWindow(project);
+    CSCToolWindow window = new CSCToolWindow(project);
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
     Content content = contentFactory.createContent(window.getContent(), null, false);
     toolWindow.getContentManager().addContent(content);

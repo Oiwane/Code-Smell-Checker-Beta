@@ -1,15 +1,16 @@
 package ui;
 
-import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.dnd.aware.DnDAwareTree;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.ui.messages.MessageDialog;
+import com.intellij.openapi.vfs.*;
+import com.intellij.profile.codeInspection.ProjectInspectionProfileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
@@ -21,24 +22,25 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.intellij.util.EditSourceOnDoubleClickHandler;
-import inspection.longMethod.LongMethodInspection;
-import inspection.longParameterList.LongParameterListInspection;
-import inspection.messageChains.MessageChainsInspection;
+import inspection.CodeSmellInspection;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
+import ui.listener.CSCProfileChangeAdapter;
+import ui.listener.CSCToolWindowListener;
+import ui.listener.CSCVirtualFileListener;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
  * コードスメル表示部の設定をする
  */
-public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
+public class CSCToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
 	private DnDAwareTree sourceTree;
-  private Collection<VirtualFile> virtualFiles;
+  private ArrayList<VirtualFile> virtualFiles;
   private DefaultMutableTreeNode fileTreeNode; //psiファイルに対応したツリーノード
   private DefaultTreeModel fileTreeModel; //psiファイルに対応したツリーモデル
 
@@ -47,10 +49,11 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 	 *
 	 * @param project [プロジェクト]
 	 */
-	public RefactoringNavigatorToolWindow(final Project project) {
+	public CSCToolWindow(final Project project) {
 		super(true, true);
 		myProject = project;
 
+    virtualFiles = new ArrayList<>();
 		this.setContent(createContentPanel());
 	}
 
@@ -63,14 +66,21 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     root = new DefaultMutableTreeNode("Java source code");
     sourceTree = new DnDAwareTree(new DefaultTreeModel(root));
     JScrollPane scrollPane = new JBScrollPane(sourceTree);
-    virtualFiles = FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject));
+
+    // ツールウィンドウに表示するvirtualFileの取得
+    for (VirtualFile file : FileTypeIndex.getFiles(JavaFileType.INSTANCE, GlobalSearchScope.projectScope(myProject))) {
+      if (!ProjectRootManager.getInstance(myProject).getFileIndex().isInSource(file)) continue;
+      virtualFiles.add(file);
+    }
 
     this.createTree();
 
     EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
 
-    RefactoringNavigatorToolWindowListener listener = new RefactoringNavigatorToolWindowListener(myProject, virtualFiles);
-    sourceTree.addFocusListener(listener);
+    // リスナーの登録
+    VirtualFileManager.getInstance().addVirtualFileListener(new CSCVirtualFileListener(myProject));
+    ProjectInspectionProfileManager.getInstance(myProject).addProfileChangeListener(new CSCProfileChangeAdapter(myProject), myProject);
+    sourceTree.addFocusListener(new CSCToolWindowListener(myProject));
 
     return scrollPane;
 	}
@@ -79,10 +89,8 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
    * ツールウィンドウ内のツリーを生成する
    */
   private void createTree() {
-    List<AbstractBaseJavaLocalInspectionTool> inspectionTools = new ArrayList<>();
-    InspectionManager manager = InspectionManager.getInstance(myProject);
-
-    this.addInspections(inspectionTools);
+    List<CodeSmellInspection> inspectionTools = new ArrayList<>();
+    CSCToolWindowUtil.addInspections(inspectionTools);
 
     String projectPath = myProject.getBasePath() + "/";
 
@@ -92,61 +100,41 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
 
       PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
 
-      this.findCodeSmells(inspectionTools, manager, psiFile);
+      this.insertCodeSmellInfo(inspectionTools, InspectionManager.getInstance(myProject), psiFile);
     }
   }
 
   /**
-   * コードスメルが何行目にあるのかを探す
+   * ファイルにコードスメルがあればツリーに情報を挿入する
    *
    * @param inspectionTools [自作インスペクションのリスト]
    * @param manager [インスペクションマネージャー]
    * @param psiFile [psiファイル]
    */
-  private void findCodeSmells(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools, InspectionManager manager, PsiFile psiFile) {
-    for (AbstractBaseJavaLocalInspectionTool inspectionTool : inspectionTools) {
+  private void insertCodeSmellInfo(@NotNull List<CodeSmellInspection> inspectionTools, InspectionManager manager, PsiFile psiFile) {
+    for (CodeSmellInspection inspectionTool : inspectionTools) {
+      if (!InspectionUtil.getWorkedInspection(inspectionTool.getWorked())) return;
       if (psiFile == null) continue;
-      String codeSmellName = inspectionTool.getDisplayName();
-      DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(codeSmellName);
-      DefaultTreeModel codeSmellTreeModel = new DefaultTreeModel(codeSmellTreeNode);
 
       List<ProblemDescriptor> codeSmellList = inspectionTool.processFile(psiFile, manager);
-      
+
+      // コードスメルが無かったらスルー
       if (codeSmellList.size() == 0) continue;
+
+      DefaultMutableTreeNode codeSmellTreeNode = new DefaultMutableTreeNode(inspectionTool.getDisplayName());
+      DefaultTreeModel codeSmellTreeModel = new DefaultTreeModel(codeSmellTreeNode);
       fileTreeModel.insertNodeInto(codeSmellTreeNode, fileTreeNode, fileTreeNode.getChildCount());
 
-      this.addCodeSmellsInfo(codeSmellList, codeSmellTreeNode, codeSmellTreeModel);
+      for (ProblemDescriptor descriptor : codeSmellList) {
+        int startLine = descriptor.getLineNumber() + 1;
+
+        DefaultMutableTreeNode openTreeNode = new DefaultMutableTreeNode("Line : " + startLine);
+
+        codeSmellTreeModel.insertNodeInto(openTreeNode, codeSmellTreeNode, codeSmellTreeNode.getChildCount());
+
+        root.add(fileTreeNode);
+      }
     }
-  }
-
-  /**
-   * ファイルにコードスメルがあればツリーにファイル情報を挿入する
-   *
-   * @param codeSmellList [コードスメルのある箇所を格納するリスト]
-   * @param codeSmellTreeNode [コードスメルに対応したツリーノード]
-   * @param codeSmellTreeModel [コードスメルに対応したツリーモデル]
-   */
-  private void addCodeSmellsInfo(@NotNull List<ProblemDescriptor> codeSmellList, DefaultMutableTreeNode codeSmellTreeNode, DefaultTreeModel codeSmellTreeModel) {
-    for (ProblemDescriptor descriptor : codeSmellList) {
-      int firstLine = descriptor.getLineNumber() + 1;
-
-      DefaultMutableTreeNode openTreeNode = new DefaultMutableTreeNode("Line : " + firstLine);
-
-      codeSmellTreeModel.insertNodeInto(openTreeNode, codeSmellTreeNode, codeSmellTreeNode.getChildCount());
-
-      root.add(fileTreeNode);
-    }
-  }
-
-  /**
-   * リストにインスペクションを追加する
-   *
-   * @param inspectionTools [自作インスペクションのリスト]
-   */
-  private void addInspections(@NotNull List<AbstractBaseJavaLocalInspectionTool> inspectionTools) {
-    inspectionTools.add(new LongMethodInspection());
-    inspectionTools.add(new LongParameterListInspection());
-    inspectionTools.add(new MessageChainsInspection());
   }
 
   /**
@@ -157,8 +145,16 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
     public void run() {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
 
-      if (node == null) {
-        System.out.println("Selected node is null");
+      assert node != null : "Node does not exist.";
+
+      if (node.getParent() == null) {
+        String message = "Child node does not exist.\n" +
+                         "The following reasons will be listed\n" +
+                         "1. Code smells do not exist.\n" +
+                         "2. You have not set up such as the project SDK.\n" +
+                         "In case of 2, set in \"Project Structure\"";
+        MessageDialog dialog = new MessageDialog(message, "Message", new String[]{"OK"}, 1, null);
+        dialog.show();
         return;
       }
 
@@ -166,13 +162,14 @@ public class RefactoringNavigatorToolWindow extends SimpleToolWindowPanel {
       VirtualFile virtualFile = LocalFileSystem.getInstance().findFileByIoFile(new File(openFilename));
 
       if (virtualFile == null) {
-        System.out.println("Virtual file is null");
+        MessageDialog dialog = new MessageDialog("This file does not exist.", "Error", new String[]{"OK"}, 1, null);
+        dialog.show();
         return;
       }
 
       // ダブルクリックした子ノードの文字列から行数を取得する
-      String info = node.toString();
-      int line = Integer.parseInt(info.substring(("Line : ").length()));
+      String lineInfo = node.toString();
+      int line = Integer.parseInt(lineInfo.substring(("Line : ").length()));
 
       // ファイルを開く
       OpenFileDescriptor descriptor = new OpenFileDescriptor(myProject, virtualFile, line - 1, 0);
