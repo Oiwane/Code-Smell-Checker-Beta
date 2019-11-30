@@ -75,7 +75,7 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
 
     this.createTree();
 
-    EditSourceOnDoubleClickHandler.install(sourceTree, new MyToolWindowRunnable());
+    EditSourceOnDoubleClickHandler.install(sourceTree, new CSCDoubleClickListener());
 
     // リスナーの登録
     VirtualFileManager.getInstance().addVirtualFileListener(new CSCVirtualFileListener(myProject));
@@ -140,7 +140,7 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
   /**
    * ノードをダブルクリックした時の動作を管理する
    */
-	private class MyToolWindowRunnable implements Runnable {
+	private class CSCDoubleClickListener implements Runnable {
 	  @Override
     public void run() {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) sourceTree.getLastSelectedPathComponent();
