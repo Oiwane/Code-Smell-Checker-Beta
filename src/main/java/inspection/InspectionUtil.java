@@ -53,7 +53,7 @@ public class InspectionUtil {
     InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(data.getComponentName(), data.getComponentValue()));
     OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
 
-    return optionUI.createOptionPanel(listener);
+    return optionUI.createOptionPanel(listener, data.getComponentName());
   }
 
   public static boolean getWorkedInspection(String propertiesComponentName) {
