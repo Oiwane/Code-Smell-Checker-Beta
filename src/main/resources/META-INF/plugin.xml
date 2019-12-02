@@ -15,7 +15,7 @@
     <idea-version since-build="191"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Code Smell Checker" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.CSCToolWindowFactory"/>
+        <toolWindow id="Code Smell Checker" anchor="left" secondary="true" canCloseContents="false" factoryClass="ui.toolWindow.CSCToolWindowFactory"/>
         <inspectionToolProvider implementation="inspection.CodeSmellsInspectionProvider"/>
     </extensions>
 

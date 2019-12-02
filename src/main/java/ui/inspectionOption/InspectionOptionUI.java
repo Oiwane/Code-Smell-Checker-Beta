@@ -1,13 +1,13 @@
-package ui.inspectionOptions;
+package ui.inspectionOption;
 
-import ui.inspectionOptions.listener.OptionSpinnerNumberModelChangeListener;
-import ui.inspectionOptions.listener.OptionTextFieldDocumentListener;
+import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
+import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
 
 import javax.swing.*;
 import java.awt.event.*;
 
-import static ui.inspectionOptions.InspectionOptionsUtil.LIMIT_MIN_VALUE;
-import static ui.inspectionOptions.InspectionOptionsUtil.disableInvalidInput;
+import static ui.inspectionOption.InspectionOptionUtil.LIMIT_MIN_VALUE;
+import static ui.inspectionOption.InspectionOptionUtil.disableInvalidInput;
 
 /**
  * 各インスペクションの検出条件を設定する画面のUIを生成するクラス

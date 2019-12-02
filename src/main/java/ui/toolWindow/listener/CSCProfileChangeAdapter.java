@@ -1,4 +1,4 @@
-package ui.listener;
+package ui.toolWindow.listener;
 
 import com.intellij.codeInspection.InspectionProfile;
 import com.intellij.codeInspection.ex.Tools;
@@ -8,7 +8,7 @@ import com.intellij.profile.ProfileChangeAdapter;
 import inspection.CodeSmellInspection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ui.CSCToolWindowUtil;
+import ui.toolWindow.CSCToolWindowUtil;
 
 import java.util.ArrayList;
 import java.util.List;
