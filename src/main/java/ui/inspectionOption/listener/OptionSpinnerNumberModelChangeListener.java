@@ -1,7 +1,7 @@
-package ui.inspectionOptions.listener;
+package ui.inspectionOption.listener;
 
 import org.jetbrains.annotations.NotNull;
-import ui.inspectionOptions.InspectionOptionsUtil;
+import ui.inspectionOption.InspectionOptionUtil;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -20,6 +20,6 @@ public class OptionSpinnerNumberModelChangeListener implements ChangeListener {
 
   @Override
   public void stateChanged(ChangeEvent e) {
-    InspectionOptionsUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
+    InspectionOptionUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
   }
 }

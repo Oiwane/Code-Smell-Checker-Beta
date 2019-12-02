@@ -1,7 +1,7 @@
-package ui.inspectionOptions.listener;
+package ui.inspectionOption.listener;
 
 import org.jetbrains.annotations.NotNull;
-import ui.inspectionOptions.InspectionOptionsUtil;
+import ui.inspectionOption.InspectionOptionUtil;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -20,12 +20,12 @@ public class OptionTextFieldDocumentListener implements DocumentListener {
 
   @Override
   public void insertUpdate(DocumentEvent e) {
-    InspectionOptionsUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
+    InspectionOptionUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
   }
 
   @Override
   public void removeUpdate(DocumentEvent e) {
-    InspectionOptionsUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
+    InspectionOptionUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
   }
 
   @Override

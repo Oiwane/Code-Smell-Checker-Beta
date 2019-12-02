@@ -1,4 +1,4 @@
-package ui;
+package ui.toolWindow;
 
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -25,9 +25,9 @@ import com.intellij.util.EditSourceOnDoubleClickHandler;
 import inspection.CodeSmellInspection;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
-import ui.listener.CSCProfileChangeAdapter;
-import ui.listener.CSCToolWindowListener;
-import ui.listener.CSCVirtualFileListener;
+import ui.toolWindow.listener.CSCProfileChangeAdapter;
+import ui.toolWindow.listener.CSCToolWindowListener;
+import ui.toolWindow.listener.CSCVirtualFileListener;
 
 import java.io.File;
 import java.util.ArrayList;

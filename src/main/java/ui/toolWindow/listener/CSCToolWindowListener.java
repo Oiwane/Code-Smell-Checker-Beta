@@ -1,10 +1,10 @@
-package ui.listener;
+package ui.toolWindow.listener;
 
 import com.intellij.openapi.project.Project;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
-import ui.CSCToolWindowUtil;
+import ui.toolWindow.CSCToolWindowUtil;
 
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;

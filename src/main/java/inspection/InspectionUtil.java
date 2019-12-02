@@ -2,12 +2,12 @@ package inspection;
 
 import com.intellij.ide.util.PropertiesComponent;
 import org.jetbrains.annotations.NotNull;
-import ui.inspectionOptions.listener.OptionButtonListener;
-import ui.inspectionOptions.InspectionOptionUI;
+import ui.inspectionOption.listener.OptionButtonListener;
+import ui.inspectionOption.InspectionOptionUI;
 
 import javax.swing.*;
 
-import static ui.inspectionOptions.InspectionOptionsUtil.TOO_SMALL_VALUE;
+import static ui.inspectionOption.InspectionOptionUtil.TOO_SMALL_VALUE;
 
 /**
  * 各インスペクションに関する処理で共通の処理を書くクラス

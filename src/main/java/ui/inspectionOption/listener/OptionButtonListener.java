@@ -1,8 +1,8 @@
-package ui.inspectionOptions.listener;
+package ui.inspectionOption.listener;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.ui.messages.MessageDialog;
-import ui.inspectionOptions.InspectionOptionsUtil;
+import ui.inspectionOption.InspectionOptionUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -30,7 +30,7 @@ public class OptionButtonListener implements ActionListener {
 
     String value = myTextField.getText();
 
-    if (Integer.parseInt(value) < InspectionOptionsUtil.LIMIT_MIN_VALUE) {
+    if (Integer.parseInt(value) < InspectionOptionUtil.LIMIT_MIN_VALUE) {
       String title = "Error : Invalid value";
       messageDialog = new MessageDialog(myErrorMessage, title, new String[]{"OK"}, 1, null);
     } else {

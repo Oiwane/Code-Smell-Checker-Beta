@@ -1,11 +1,11 @@
-package ui.listener;
+package ui.toolWindow.listener;
 
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.*;
 import org.jetbrains.annotations.NotNull;
-import ui.CSCToolWindowUtil;
+import ui.toolWindow.CSCToolWindowUtil;
 
 /**
  * ファイル処理があった時にツールウィンドウを更新するためのクラス
