@@ -4,9 +4,14 @@
     Detect Code smell of "Message Chains".
 </p>
 <p>
-    Specify the allowable upper limit for "number of chains".
-    The "number of chains" here refers to the number of times an object requests something from another.
-    (e.g. 3 times for the code "a.getThis().getThat().foo()")
+    This inspection detect statements that are more than the specified "number of chains".<br>
+    Specify the allowable upper limit for "number of chains".<br>
+    The "number of chains" here refers to the number of times an object requests something from another.<br>
+    (e.g. 3 times for the code "a.getThis().getThat().foo()")<br>
+</p>
+<p>
+    <b>How to refactor</b><br>
+    Execute refactoring of "Hide Delegate".
 </p>
 </body>
 </html>
