@@ -4,8 +4,15 @@
     Detect Code smell of "Long Parameter List".
 </p>
 <p>
-    Specify the allowable upper limit for "parameter list length".
-    The "parameter list length" here refers to the number of method arguments.
+    This inspection detect methods that are longer than the specified "parameter list length".<br>
+    Specify the allowable upper limit for "parameter list length".<br>
+    The "parameter list length" here refers to the number of method arguments.<br>
+</p>
+<p>
+    <b>How to refactor</b><br>
+    1. Execute refactoring of "Replace Parameter with Method" if you can get data by querying in this method.<br>
+    2. Execute refactoring of "Introduce Parameter Object" if you use values as parameter that should be handled together.<br>
+    3. Execute refactoring of "Preserve Whole Object" if you are using multiple values from an object as parameter.<br>
 </p>
 </body>
 </html>

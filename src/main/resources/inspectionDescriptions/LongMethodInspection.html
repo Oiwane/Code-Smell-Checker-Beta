@@ -4,8 +4,17 @@
     Detect Code smell of "Long Method".
 </p>
 <p>
-    Specify the allowable upper limit for "method length".
-    The "method length" here refers to the amount of processing.
+    This inspection detect methods that are longer than the specified "method length".<br>
+    Specify the allowable upper limit for "method length".<br>
+    The "method length" here refers to the amount of processing.<br>
+</p>
+<p>
+    <b>How to refactor</b><br>
+    1. Go to description of "Long Parameter List" if parameter list is too long.<br>
+    2. Execute refactoring of "Replace Temp with Query" if it is not easy to extract as another method because parameters or temporary variables are too many.<br>
+    3. Execute refactoring of "Decompose Conditional" if there are complex conditional branches.<br>
+    4. Execute refactoring of "Replace Method with Method Object" if parameters or temporary variables exist after you execute refactoring 1 and 2.<br>
+    5. Execute refactoring of "Extract Method" if there are parts that can be combined by multiple methods.<br>
 </p>
 </body>
 </html>
