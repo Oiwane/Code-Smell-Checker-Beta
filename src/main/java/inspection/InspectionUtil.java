@@ -2,7 +2,7 @@ package inspection;
 
 import com.intellij.ide.util.PropertiesComponent;
 import org.jetbrains.annotations.NotNull;
-import ui.inspectionOptions.InspectionOptionListener;
+import ui.inspectionOptions.listener.OptionButtonListener;
 import ui.inspectionOptions.InspectionOptionUI;
 
 import javax.swing.*;
@@ -51,7 +51,7 @@ public class InspectionUtil {
     String successMessage = "save" + description;
 
     InspectionOptionUI optionUI = new InspectionOptionUI(description, getUpperLimitValue(data.getComponentName(), data.getComponentValue()));
-    InspectionOptionListener listener = new InspectionOptionListener(optionUI.getSpinnerNumberModel(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
+    OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
 
     return optionUI.createOptionPanel(listener);
   }

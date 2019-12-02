@@ -11,7 +11,7 @@ import javax.swing.text.DefaultFormatter;
  * オプションUIの処理に関するクラス
  */
 public class InspectionOptionsUtil {
-  final static int LIMIT_MIN_VALUE = 1;
+  public final static int LIMIT_MIN_VALUE = 1;
 
   public final static String TOO_SMALL_VALUE = "The value you set is too small.\nChange to another value.";
 
