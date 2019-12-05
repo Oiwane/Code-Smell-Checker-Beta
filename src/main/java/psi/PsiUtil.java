@@ -15,41 +15,37 @@ public class PsiUtil {
 
   private static int countStatement(@NotNull PsiCodeBlock codeBlock) {
     int count = 0;
-    boolean existsStatement;
 
     for (PsiStatement statement : codeBlock.getStatements()) {
-      existsStatement = false;
-      for (PsiElement element : statement.getChildren()) {
-        if (element instanceof PsiStatement) {
-          count += countStatement((PsiStatement) element);
-          existsStatement = true;
-        }
-      }
+      count += countStatement(statement) + countStatementInStatement(statement);
+    }
 
-      if (!existsStatement) count++;
+    return count + codeBlock.getStatementCount();
+  }
+
+  private static int countStatement(@NotNull PsiElement parentElement) {
+    int count = 0;
+
+    for (PsiElement element : parentElement.getChildren()) {
+      if (element instanceof PsiCodeBlock) {
+        count += countStatement((PsiCodeBlock) element);
+      }
+      else{
+        count += countStatement(element);
+      }
     }
 
     return count;
   }
 
-  private static int countStatement(@NotNull PsiStatement statement) {
+  private static int countStatementInStatement(@NotNull PsiStatement statement) {
     int count = 0;
-    boolean existsCodeBlock = false;
-    boolean existsStatement = false;
 
     for (PsiElement element : statement.getChildren()) {
-      if (element instanceof PsiCodeBlock) {
-        count += countStatement((PsiCodeBlock) element);
-        existsCodeBlock = true;
+      if (element instanceof PsiStatement && !(element instanceof PsiBlockStatement)) {
+        count += countStatementInStatement((PsiStatement) element) + 1;
       }
-      else if (element instanceof PsiStatement) {
-        count += countStatement((PsiStatement) element);
-        existsStatement = true;
-      }
-
     }
-
-    if (!(existsCodeBlock || existsStatement)) count++;
 
     return count;
   }
