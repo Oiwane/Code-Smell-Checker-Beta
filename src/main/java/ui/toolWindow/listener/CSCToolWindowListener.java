@@ -3,6 +3,8 @@ package ui.toolWindow.listener;
 import com.intellij.openapi.project.Project;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
+import inspection.InspectionSettingName;
+import inspection.InspectionSettingValue;
 import org.jetbrains.annotations.NotNull;
 import ui.toolWindow.CSCToolWindowUtil;
 
@@ -29,9 +31,9 @@ public class CSCToolWindowListener implements FocusListener {
   private void setInspectionDataList() {
     inspectionDataList = new ArrayList<>();
 
-    inspectionDataList.add(new InspectionData(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionUtil.DEFAULT_NUM_PROCESSES));
-    inspectionDataList.add(new InspectionData(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionUtil.DEFAULT_NUM_PARAMETER_LIST));
-    inspectionDataList.add(new InspectionData(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionUtil.DEFAULT_NUM_CHAINS));
+    inspectionDataList.add(new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES));
+    inspectionDataList.add(new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST));
+    inspectionDataList.add(new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS));
   }
 
   private void setComponentValueList() {

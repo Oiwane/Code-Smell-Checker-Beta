@@ -1,13 +1,15 @@
 package ui.inspectionOption;
 
+import gherkin.lexer.Ru;
+import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
 import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
 
 import javax.swing.*;
+import javax.swing.text.DefaultFormatter;
 import java.awt.event.*;
 
 import static ui.inspectionOption.InspectionOptionUtil.LIMIT_MIN_VALUE;
-import static ui.inspectionOption.InspectionOptionUtil.disableInvalidInput;
 
 /**
  * 各インスペクションの検出条件を設定する画面のUIを生成するクラス
@@ -40,6 +42,17 @@ public class InspectionOptionUI {
     button = new JButton("set value");
   }
 
+  /**
+   * スピナーに無効な値を入力できないようにする
+   *
+   * @param spinner 対象のスピナー
+   */
+  private void disableInvalidInput(@NotNull JSpinner spinner) {
+    JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
+    DefaultFormatter formatter = (DefaultFormatter) editor.getTextField().getFormatter();
+    formatter.setAllowsInvalid(false);
+  }
+
   public JTextField getTextField() {
     return textField;
   }
@@ -50,17 +63,18 @@ public class InspectionOptionUI {
 
     button.addActionListener(listener);
     button.setEnabled(false);
-    disableInvalidInput(spinner);
+    this.disableInvalidInput(spinner);
 
     // リスナーの登録
     spinnerNumberModel.addChangeListener(new OptionSpinnerNumberModelChangeListener(button, textField, propertiesComponentName));
     textField.getDocument().addDocumentListener(new OptionTextFieldDocumentListener(button, textField, propertiesComponentName));
-    textField.addActionListener(e -> {
+    ActionListener actionListener = e -> {
       if (button.isEnabled()) {
         button.doClick();
         button.setEnabled(false);
       }
-    });
+    };
+    textField.addActionListener(actionListener);
 
     spinnerPanel.add(descriptionLabel);
     spinnerPanel.add(spinner);

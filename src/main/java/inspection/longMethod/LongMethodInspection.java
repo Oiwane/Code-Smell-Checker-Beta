@@ -2,9 +2,7 @@ package inspection.longMethod;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
-import inspection.CodeSmellInspection;
-import inspection.InspectionData;
-import inspection.InspectionUtil;
+import inspection.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,11 +18,12 @@ import static psi.PsiUtil.countStatement;
  */
 public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new LongMethodFix();
+  private InspectionData inspectionData;
   private int numProcesses;
 
   public LongMethodInspection() {
-    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
-                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
+    inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -41,16 +40,13 @@ public class LongMethodInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.HAS_WORKED_LONG_METHOD_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionState.LONG_METHOD_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
   }
 
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
-                                                    InspectionUtil.DEFAULT_NUM_PROCESSES);
-
-    return InspectionUtil.createOptionUI(description, defaultData);
+    return this.createOptionUI(description, inspectionData);
   }
 
   @Override
@@ -60,14 +56,17 @@ public class LongMethodInspection extends CodeSmellInspection {
       return null;
     }
 
-    numProcesses = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_METHOD_PROPERTIES_COMPONENT_NAME,
-                                                     InspectionUtil.DEFAULT_NUM_PROCESSES);
+    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
     if (countStatement(method) <= numProcesses) {
       return null;
     }
 
+    final PsiIdentifier identifier = method.getNameIdentifier();
+    if (identifier == null) return null;
+
     List<ProblemDescriptor> descriptors = new ArrayList<>();
-    descriptors.add(manager.createProblemDescriptor(method, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+    descriptors.add(manager.createProblemDescriptor(identifier, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+//    descriptors.add(manager.createProblemDescriptor(method, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
   }

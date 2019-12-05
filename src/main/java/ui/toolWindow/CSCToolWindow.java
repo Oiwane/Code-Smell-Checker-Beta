@@ -4,6 +4,7 @@ import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.dnd.aware.DnDAwareTree;
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -113,7 +114,7 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
    */
   private void insertCodeSmellInfo(@NotNull List<CodeSmellInspection> inspectionTools, InspectionManager manager, PsiFile psiFile) {
     for (CodeSmellInspection inspectionTool : inspectionTools) {
-      if (!InspectionUtil.getWorkedInspection(inspectionTool.getWorked())) return;
+      if (!this.getWorkedInspection(inspectionTool.getWorked())) return;
       if (psiFile == null) continue;
 
       List<ProblemDescriptor> codeSmellList = inspectionTool.processFile(psiFile, manager);
@@ -134,6 +135,15 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
 
         root.add(fileTreeNode);
       }
+    }
+  }
+
+  private boolean getWorkedInspection(String propertiesComponentName) {
+    String value = PropertiesComponent.getInstance().getValue(propertiesComponentName);
+    if (value != null) {
+      return Boolean.valueOf(value);
+    } else {
+      return InspectionUtil.IS_ENABLED_BY_DEFAULT;
     }
   }
 

@@ -2,9 +2,7 @@ package inspection.messageChains;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
-import inspection.CodeSmellInspection;
-import inspection.InspectionData;
-import inspection.InspectionUtil;
+import inspection.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,11 +19,12 @@ import static psi.PsiUtil.countPsiMethodCallExpression;
  */
 public class MessageChainsInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new MessageChainsFix();
+  private InspectionData inspectionData;
   private int numChains;
 
   public MessageChainsInspection() {
-    numChains = InspectionUtil.getUpperLimitValue(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
-                                                  InspectionUtil.DEFAULT_NUM_CHAINS);
+    inspectionData = new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS);
+    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -42,20 +41,17 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.HAS_WORKED_MESSAGE_CHAINS_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionState.MESSAGE_CHAINS_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
   }
 
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
-                                                    InspectionUtil.DEFAULT_NUM_CHAINS);
-
-    return InspectionUtil.createOptionUI(description, defaultData);
+    return this.createOptionUI(description, inspectionData);
   }
 
   @Nullable
-  public ProblemDescriptor[] checkMethodCallExpression(@NotNull PsiMethodCallExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
+  private ProblemDescriptor[] checkMethodCallExpression(@NotNull PsiMethodCallExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
     int count;
     // 木の途中でないかを確認
     if (isReferenceExpression(expression.getParent()) && isMethodCallExpression(expression.getParent().getParent())) {
@@ -64,8 +60,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
       count = countPsiMethodCallExpression(expression);
     }
 
-    numChains = InspectionUtil.getUpperLimitValue(InspectionUtil.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME,
-                                                  InspectionUtil.DEFAULT_NUM_CHAINS);
+    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
     if (count <= numChains) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
