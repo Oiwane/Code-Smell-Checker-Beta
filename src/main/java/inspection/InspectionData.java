@@ -4,19 +4,19 @@ package inspection;
  * インスペクションの検出条件に関するデータクラス
  */
 public class InspectionData {
-  private String componentName;
-  private int componentValue;
+  private InspectionSettingName componentName;
+  private InspectionSettingValue componentValue;
 
-  public InspectionData(String componentName, int componentValue) {
+  public InspectionData(InspectionSettingName componentName, InspectionSettingValue componentValue) {
     this.componentName = componentName;
     this.componentValue = componentValue;
   }
 
   public String getComponentName() {
-    return componentName;
+    return componentName.getName();
   }
 
   public int getComponentValue() {
-    return componentValue;
+    return componentValue.getValue();
   }
 }

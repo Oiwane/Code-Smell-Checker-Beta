@@ -2,9 +2,7 @@ package inspection.longParameterList;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
-import inspection.CodeSmellInspection;
-import inspection.InspectionData;
-import inspection.InspectionUtil;
+import inspection.*;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,11 +17,12 @@ import java.util.List;
  */
 public class LongParameterListInspection extends CodeSmellInspection {
   private final LocalQuickFix quickFix = new LongParameterListFix();
+  private InspectionData inspectionData;
   private int numParameterList;
 
   public LongParameterListInspection() {
-    numParameterList = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
-                                                         InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
+    inspectionData = new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST);
+    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -40,22 +39,18 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
   @Override
   public String getWorked() {
-    return InspectionUtil.HAS_WORKED_LONG_PARAMETER_LIST_INSPECTION_PROPERTIES_COMPONENT_NAME;
+    return InspectionState.LONG_PARAMETER_LIST_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
   }
 
   @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
-    InspectionData defaultData = new InspectionData(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
-                                                    InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
-
-    return InspectionUtil.createOptionUI(description, defaultData);
+    return this.createOptionUI(description, inspectionData);
   }
 
   @Nullable
   public ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-    numParameterList = InspectionUtil.getUpperLimitValue(InspectionUtil.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME,
-                                                         InspectionUtil.DEFAULT_NUM_PARAMETER_LIST);
+    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
     if (list.getParametersCount() <= numParameterList) {
       return null;
     }
