@@ -1,4 +1,4 @@
-# Refactoring-Navigator
+# Code Smell Checker
 
 このプラグインはコードスメルを探し、コードスメルのあるJavaソースコードをリファクタリングを支援します。
 
