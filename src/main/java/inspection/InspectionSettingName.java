@@ -11,7 +11,7 @@ public class InspectionSettingName {
     myPropertiesComponentName = name;
   }
 
-  public String getName() {
+  String getName() {
     return myPropertiesComponentName;
   }
 }

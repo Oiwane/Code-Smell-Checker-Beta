@@ -11,7 +11,7 @@ public class InspectionSettingValue {
     myDefaultValue = defaultValue;
   }
 
-  public int getValue() {
+  int getValue() {
     return myDefaultValue;
   }
 }

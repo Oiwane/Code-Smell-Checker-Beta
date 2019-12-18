@@ -12,11 +12,11 @@ public class InspectionData {
     this.componentValue = componentValue;
   }
 
-  public String getComponentName() {
+  String getComponentName() {
     return componentName.getName();
   }
 
-  public int getComponentValue() {
+  int getComponentValue() {
     return componentValue.getValue();
   }
 }
