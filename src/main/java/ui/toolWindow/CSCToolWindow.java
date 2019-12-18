@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * コードスメル表示部の設定をする
  */
-public class CSCToolWindow extends SimpleToolWindowPanel {
+class CSCToolWindow extends SimpleToolWindowPanel {
 	private final Project myProject;
   private DefaultMutableTreeNode root;
 	private DnDAwareTree sourceTree;
@@ -50,7 +50,7 @@ public class CSCToolWindow extends SimpleToolWindowPanel {
 	 *
 	 * @param project [プロジェクト]
 	 */
-	public CSCToolWindow(final Project project) {
+	CSCToolWindow(final Project project) {
 		super(true, true);
 		myProject = project;
 
