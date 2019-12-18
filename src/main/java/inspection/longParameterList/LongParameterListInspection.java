@@ -4,7 +4,7 @@ import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import inspection.*;
 import inspection.refactoring.introduceParameterObject.IntroduceParameterObject;
-import inspection.refactoring.PreserveWholeObject;
+import inspection.refactoring.preserveWholeObject.PreserveWholeObject;
 import inspection.refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
