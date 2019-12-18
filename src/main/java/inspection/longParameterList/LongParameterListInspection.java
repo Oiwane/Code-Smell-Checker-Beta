@@ -3,7 +3,7 @@ package inspection.longParameterList;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import inspection.*;
-import inspection.refactoring.IntroduceParameterObject;
+import inspection.refactoring.introduceParameterObject.IntroduceParameterObject;
 import inspection.refactoring.PreserveWholeObject;
 import inspection.refactoring.ReplaceParameterWithMethod;
 import org.jetbrains.annotations.NonNls;
