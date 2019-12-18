@@ -1,4 +1,4 @@
-package inspection.refactoring.replaceParameterWithMethod;
+package inspection.refactoring.preserveWholeObject;
 
 import com.intellij.psi.PsiMethodCallExpression;
 
