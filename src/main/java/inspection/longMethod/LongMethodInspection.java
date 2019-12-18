@@ -3,6 +3,10 @@ package inspection.longMethod;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import inspection.*;
+import inspection.refactoring.DecomposeConditional;
+import inspection.refactoring.ExtractMethod;
+import inspection.refactoring.ReplaceMethodWithMethodObject;
+import inspection.refactoring.ReplaceTempWithQuery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +21,10 @@ import static psi.PsiUtil.countStatement;
  * コードスメル『Long Method（長いメソッド）』のインスペクション
  */
 public class LongMethodInspection extends CodeSmellInspection {
-  private LocalQuickFix quickFix = new LongMethodFix();
+  private LocalQuickFix replaceTempWithQuery = new ReplaceTempWithQuery();
+  private LocalQuickFix decomposeConditional = new DecomposeConditional();
+  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
+  private LocalQuickFix extractMethod = new ExtractMethod();
   private InspectionData inspectionData;
   private int numProcesses;
 
@@ -65,8 +72,10 @@ public class LongMethodInspection extends CodeSmellInspection {
     if (identifier == null) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
-    descriptors.add(manager.createProblemDescriptor(identifier, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
-//    descriptors.add(manager.createProblemDescriptor(method, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+    descriptors.add(manager.createProblemDescriptor(
+            identifier, identifier, getDisplayName(), ProblemHighlightType.WARNING, isOnTheFly,
+            replaceTempWithQuery, decomposeConditional, replaceMethodWithMethodObject, extractMethod
+    ));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
   }

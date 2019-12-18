@@ -3,6 +3,9 @@ package inspection.longParameterList;
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
 import inspection.*;
+import inspection.refactoring.IntroduceParameterObject;
+import inspection.refactoring.PreserveWholeObject;
+import inspection.refactoring.ReplaceParameterWithMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +19,9 @@ import java.util.List;
  * コードスメル『Long Parameter List（長いパラメータリスト）』のインスペクション
  */
 public class LongParameterListInspection extends CodeSmellInspection {
-  private final LocalQuickFix quickFix = new LongParameterListFix();
+  private final LocalQuickFix replaceParameterWithMethod = new ReplaceParameterWithMethod();
+  private final LocalQuickFix introduceParameterObject = new IntroduceParameterObject();
+  private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
   private InspectionData inspectionData;
   private int numParameterList;
 
@@ -49,14 +54,16 @@ public class LongParameterListInspection extends CodeSmellInspection {
   }
 
   @Nullable
-  public ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
+  private ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
     numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
     if (list.getParametersCount() <= numParameterList) {
       return null;
     }
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
-    descriptors.add(manager.createProblemDescriptor(list, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+    descriptors.add(manager.createProblemDescriptor(
+            list, list, getDisplayName(), ProblemHighlightType.WARNING, isOnTheFly,
+            replaceParameterWithMethod, introduceParameterObject, preserveWholeObject));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
   }
