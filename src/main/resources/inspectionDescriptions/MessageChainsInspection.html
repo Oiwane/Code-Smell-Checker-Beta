@@ -3,15 +3,33 @@
 <p>
     Detect Code smell of "Message Chains".
 </p>
+<br>
 <p>
-    This inspection detect statements that are more than the specified "number of chains".<br>
-    Specify the allowable upper limit for "number of chains".<br>
-    The "number of chains" here refers to the number of times an object requests something from another.<br>
+    This inspection detect statements that are longer than the specified "length of method chain".<br>
+    Specify the allowable upper limit for "length of method chain".<br>
+    The "length of method chain" here refers to the number of times an object requests something from another.<br>
     (e.g. 3 times for the code "a.getThis().getThat().foo()")<br>
 </p>
+<br>
 <p>
     <b>How to refactor</b><br>
     Execute refactoring of "Hide Delegate".
+</p>
+<hr>
+<p>
+    コードスメル『メッセージの連鎖』を検出します
+</p>
+<br>
+<p>
+    このインスペクションは指定した『メソッドチェーンの長さ』より長い文を検出します。
+    『メソッドチェーンの長さ』の許容上限を指定してください
+    ここでの『メソッドチェーンの長さ』とはオブジェクトが別のオブジェクトに何かを要求する回数を指します。
+    (例えば、『a.getThis().getThat().foo()』といったコードの場合は3です。)
+</p>
+<br>
+<p>
+    <b>リファクタリング方法</b><br>
+    『委譲の隠蔽』を行ってください。
 </p>
 </body>
 </html>

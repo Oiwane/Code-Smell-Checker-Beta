@@ -3,16 +3,35 @@
 <p>
     Detect Code smell of "Long Parameter List".
 </p>
+<br>
 <p>
     This inspection detect methods that are longer than the specified "parameter list length".<br>
     Specify the allowable upper limit for "parameter list length".<br>
     The "parameter list length" here refers to the number of method arguments.<br>
 </p>
+<br>
 <p>
     <b>How to refactor</b><br>
     1. Execute refactoring of "Replace Parameter with Method" if you can get data by querying in this method.<br>
     2. Execute refactoring of "Introduce Parameter Object" if you use values as parameter that should be handled together.<br>
     3. Execute refactoring of "Preserve Whole Object" if you are using multiple values from an object as parameter.<br>
+</p>
+<hr>
+<p>
+    コードスメル『長すぎるパラメータリスト』を検出します
+</p>
+<br>
+<p>
+    このインスペクションは指定した『パラメータリストの長さ』より長いパラメータリストを持つメソッドを検出します。<br>
+    『パラメータリストの長さ』の許容上限を指定してください。<br>
+    ここでの『パラメータリストの長さ』はメソッドの引数の数を指します。<br>
+</p>
+<br>
+<p>
+    <b>リファクタリング方法</b><br>
+    1.メソッド内で問い合わせてデータを取得できる場合、『メソッドによるパラメータの置き換え』を行ってください。<br>
+    2.まとめて扱うべき一連の値をパラメータとして使っている場合、『パラメータオブジェクトの導入』を行ってください。<br>
+    3.あるオブジェクトから複数の値をパラメータとして使っている場合、『オブジェクトそのものの受け渡し』を行ってください。<br>
 </p>
 </body>
 </html>

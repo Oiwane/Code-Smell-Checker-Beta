@@ -3,18 +3,39 @@
 <p>
     Detect Code smell of "Long Method".
 </p>
+<br>
 <p>
     This inspection detect methods that are longer than the specified "method length".<br>
     Specify the allowable upper limit for "method length".<br>
-    The "method length" here refers to the amount of processing.<br>
+    The "method length" here refers to the number of statement.<br>
 </p>
+<br>
 <p>
     <b>How to refactor</b><br>
     1. Go to description of "Long Parameter List" if parameter list is too long.<br>
-    2. Execute refactoring of "Replace Temp with Query" if it is not easy to extract as another method because parameters or temporary variables are too many.<br>
+    2. Execute refactoring of "Replace Temp with Query" if it is not easy to extract as another method because temporary variables are too many.<br>
     3. Execute refactoring of "Decompose Conditional" if there are complex conditional branches.<br>
     4. Execute refactoring of "Replace Method with Method Object" if parameters or temporary variables exist after you execute refactoring 1 and 2.<br>
     5. Execute refactoring of "Extract Method" if there are parts that can be combined by multiple methods.<br>
+</p>
+<hr>
+<p>
+    コードスメル『長すぎるメソッド』を検出します。
+</p>
+<br>
+<p>
+    このインスペクションは指定した『メソッドの長さ』より長いメソッドを検出します。<br>
+    『メソッドの長さ』の許容上限を指定してください。<br>
+    ここでの『メソッドの長さ』とはステートメントの数を指します。<br>
+</p>
+<br>
+<p>
+    <b>リファクタリング方法</b><br>
+    1.引数が多い場合は、『長すぎるパラメータリスト』の説明を見てください。<br>
+    2.一時変数が多すぎるためにメソッドの抽出が困難な場合は、『問い合わせによる一時変数の置き換え』を行ってください。<br>
+    3.複雑な条件式がある場合は、『条件記述の分解』を行ってください。<br>
+    4.リファクタリング1や2を行った後、どうしても一時変数や引数が残ってしまった場合、『メソッドオブジェクトによるメソッドの置き換え』を行ってください。<br>
+    5.複数のメソッドでまとめられる箇所がある場合、『メソッドの抽出』を行ってください。
 </p>
 </body>
 </html>
