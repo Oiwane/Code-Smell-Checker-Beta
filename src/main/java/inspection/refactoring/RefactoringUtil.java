@@ -27,12 +27,23 @@ public class RefactoringUtil<E> {
   }
 
   /**
+   * targetParameterをnewElementに置き換えてtargetParameterを削除する
+   *
+   * @param targetParameter 削除対象のパラメータ
+   * @param newElement targetParameterと置き換えるメソッド呼び出し
+   */
+  public static void optimiseParameter(PsiParameter targetParameter, PsiMethodCallExpression newElement) {
+    RefactoringUtil.replaceParameterObject(targetParameter, newElement);
+    RefactoringUtil.deleteUnnecessaryParameter(targetParameter);
+  }
+
+  /**
    * 使用しているパラメータをメソッド呼び出しに置き換える
    *
-   * @param newElement パラメータの代わりに置くメソッド呼び出し
    * @param targetParameter 対象のパラメータ
+   * @param newElement パラメータの代わりに置くメソッド呼び出し
    */
-  public static void replaceParameterObject(PsiMethodCallExpression newElement, PsiParameter targetParameter) {
+  private static void replaceParameterObject(PsiParameter targetParameter, PsiMethodCallExpression newElement) {
     List<PsiReferenceExpression> referenceExpressionList = new ArrayList<>();
 
     findReplacedElements(referenceExpressionList, targetParameter);
@@ -56,7 +67,6 @@ public class RefactoringUtil<E> {
     PsiParameterList parameterList = ((PsiParameterList) targetParameter.getParent());
     PsiCodeBlock codeBlock = ((PsiMethod) parameterList.getParent()).getBody();
 
-
     assert codeBlock != null;
     findReplacedElements(referenceExpressionList, targetParameter, codeBlock);
   }
@@ -73,8 +83,20 @@ public class RefactoringUtil<E> {
     }
   }
 
-  public static void deleteUnnecessaryParameter(PsiParameter parameter) {
+  private static void deleteUnnecessaryParameter(PsiParameter parameter) {
     ApplicationManager.getApplication().invokeLater(() -> SafeDeleteHandler.invoke(parameter.getProject(), new PsiElement[]{parameter}, true));
 //    SafeDeleteHandler.invoke(parameter.getProject(), new PsiElement[]{parameter}, true);
+  }
+
+  /**
+   * elementの存在するスコープを探す
+   *
+   * @param element 対象のPsiElement
+   * @return elementの存在するスコープ
+   */
+  public static PsiCodeBlock findCodeBlockInParents(@NotNull PsiElement element) {
+    PsiElement parentElement = element.getParent();
+    if (parentElement instanceof PsiCodeBlock) return (PsiCodeBlock) parentElement;
+    else return findCodeBlockInParents(parentElement);
   }
 }
