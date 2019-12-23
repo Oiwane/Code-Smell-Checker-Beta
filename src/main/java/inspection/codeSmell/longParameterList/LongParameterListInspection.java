@@ -1,4 +1,4 @@
-package inspection.longParameterList;
+package inspection.codeSmell.longParameterList;
 
 import com.intellij.codeInspection.*;
 import com.intellij.psi.*;
