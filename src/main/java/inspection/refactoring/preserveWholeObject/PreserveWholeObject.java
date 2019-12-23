@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
+import inspection.psi.PsiUtil;
 import inspection.refactoring.RefactoringUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -22,30 +23,27 @@ public class PreserveWholeObject implements LocalQuickFix {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    PsiElement element = descriptor.getPsiElement();
-    PsiParameterList parameterList = (PsiParameterList) element;
+    PsiParameterList parameterList = (PsiParameterList) descriptor.getPsiElement();
     PsiMethod method = (PsiMethod) parameterList.getParent();
     PsiClass psiClass = method.getContainingClass();
     PsiMethod[] methodsContainsClass = psiClass.getAllMethods();
     List<PsiMethod> methodForCompare = new ArrayList<>();
 
     PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
-
-    for (PsiReference reference : referenceResults) {
-      PsiMethodCallExpression methodCallExpression = ((PsiMethodCallExpression) reference.getElement().getParent());
-      PsiExpressionList argumentList = methodCallExpression.getArgumentList();
-      PsiExpression[] arguments = argumentList.getExpressions();
+    for (PsiReference referenceResult : referenceResults) {
+      PsiMethodCallExpression methodCallExpression = ((PsiMethodCallExpression) referenceResult.getElement().getParent());
+      PsiExpression[] arguments = methodCallExpression.getArgumentList().getExpressions();
 
       Map<PsiElement, List<ArgumentInfo>> map = new HashMap<>();
 
       extractArgumentInfo(methodCallExpression, arguments, map);
-      PsiMethod newMethod = cloneMethod(method);
+      PsiMethod newMethod = PsiUtil.cloneMethod(method);
       createParameterList(newMethod, map);
 
       // メソッドの呼び出し先の編集
       changeArgumentList(map, methodCallExpression);
 
-      if (existsSameMethod(newMethod, methodsContainsClass) || existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
+      if (PsiUtil.existsSameMethod(newMethod, methodsContainsClass) || existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
 
       psiClass.add(newMethod);
       methodForCompare.add(newMethod);
@@ -201,58 +199,22 @@ public class PreserveWholeObject implements LocalQuickFix {
     return (compareVariable.getReference().resolve().equals(targetElement.getReference().resolve())) ? returnValue : null;
   }
 
-  private PsiMethod cloneMethod(@NotNull PsiMethod originalMethod) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(originalMethod.getProject());
-    PsiMethod newMethod = factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
-    PsiParameterList originalParameterList = originalMethod.getParameterList();
-
-    // PsiCodeBlockの作成
-    PsiCodeBlock codeBlock = cloneCodeBlock(originalMethod, factory, newMethod);
-    // PsiParameterListの作成
-    PsiParameterList newParameterList = cloneParameterList(originalParameterList, factory);
-
-    newMethod.getModifierList().replace(originalMethod.getModifierList());
-    newMethod.getReturnTypeElement().replace(originalMethod.getReturnTypeElement());
-    newMethod.getParameterList().replace(newParameterList);
-    newMethod.getThrowsList().replace(originalMethod.getThrowsList());
-    newMethod.getBody().replace(codeBlock);
-
-    return newMethod;
-  }
-
-  @NotNull
-  private PsiCodeBlock cloneCodeBlock(@NotNull PsiMethod originalMethod, @NotNull PsiElementFactory factory, PsiMethod newMethod) {
-    String bodyStr = originalMethod.getBody().getText();
-    return factory.createCodeBlockFromText(bodyStr, newMethod);
-  }
-
-  @NotNull
-  private PsiParameterList cloneParameterList(@NotNull PsiParameterList originalParameterList, PsiElementFactory factory) {
-    String[] newParametersName = new String[originalParameterList.getParametersCount()];
-    List<PsiType> newType = new ArrayList<>();
-    for (int i = 0; i < originalParameterList.getParametersCount(); i++) {
-      newParametersName[i] = originalParameterList.getParameters()[i].getName();
-      newType.add(i, originalParameterList.getParameters()[i].getType());
-    }
-    return factory.createParameterList(newParametersName, newType.toArray(new PsiType[0]));
-  }
-
   private void createParameterList(@NotNull PsiMethod newMethod, @NotNull Map<PsiElement, List<ArgumentInfo>> map) {
     PsiParameterList newParameterList = newMethod.getParameterList();
     for (PsiElement key : map.keySet()) {
-      if (map.get(key).size() > 1) {
-        addParameter(map, key, newParameterList);
+      if (map.get(key).size() < 2) continue;
 
-        List<PsiParameter> parameters = new ArrayList<>();
-        for (ArgumentInfo argumentInfo : map.get(key)) {
-          PsiParameter targetParameter = newParameterList.getParameters()[argumentInfo.getIndex()];
-          parameters.add(targetParameter);
-        }
+      addParameter(map, key, newParameterList);
 
-        ArgumentInfo[] argumentInfo = map.get(key).toArray(new ArgumentInfo[0]);
-        for (int i = 0; i < argumentInfo.length; i++) {
-          RefactoringUtil.optimiseParameter(newMethod, parameters.get(i), argumentInfo[i].getArgumentMethod());
-        }
+      List<PsiParameter> parameters = new ArrayList<>();
+      for (ArgumentInfo argumentInfo : map.get(key)) {
+        PsiParameter targetParameter = newParameterList.getParameters()[argumentInfo.getIndex()];
+        parameters.add(targetParameter);
+      }
+
+      ArgumentInfo[] argumentInfo = map.get(key).toArray(new ArgumentInfo[0]);
+      for (int i = 0; i < argumentInfo.length; i++) {
+        RefactoringUtil.optimiseParameter(newMethod, parameters.get(i), argumentInfo[i].getArgumentMethod());
       }
     }
   }
@@ -278,36 +240,4 @@ public class PreserveWholeObject implements LocalQuickFix {
     }
   }
 
-  private boolean existsSameMethod(PsiMethod target, @NotNull PsiMethod[] samples) {
-    for (PsiMethod sample : samples) {
-      if (!target.getName().equals(sample.getName())) continue;
-      if (target.getParameterList().getParametersCount() != sample.getParameterList().getParametersCount()) continue;
-
-      PsiParameter[] targetParameters = target.getParameterList().getParameters();
-      PsiParameter[] sampleParameters = sample.getParameterList().getParameters();
-
-      if (isSameParameters(targetParameters, sampleParameters)) return true;
-    }
-
-    return false;
-  }
-
-  private boolean isSameParameters(@NotNull PsiParameter[] targetParameters, PsiParameter[] sampleParameters) {
-    int counter = 0;
-    boolean[] flags = new boolean[targetParameters.length];
-    for (int i = 0; i < flags.length; i++) {
-      flags[i] = false;
-    }
-    for (PsiParameter targetParameter : targetParameters) {
-      for (int j = 0; j < sampleParameters.length; j++) {
-        if (targetParameter.getType().equals(sampleParameters[j].getType()) && !flags[j]) {
-          flags[j] = true;
-          counter++;
-          break;
-        }
-      }
-    }
-
-    return counter == targetParameters.length;
-  }
 }
