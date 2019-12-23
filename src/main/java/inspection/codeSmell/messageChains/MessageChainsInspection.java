@@ -12,7 +12,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static psi.PsiUtil.countPsiMethodCallExpression;
+import static inspection.psi.PsiUtil.countPsiMethodCallExpression;
 
 /**
  * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション

@@ -1,4 +1,4 @@
-package psi;
+package inspection.psi;
 
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;

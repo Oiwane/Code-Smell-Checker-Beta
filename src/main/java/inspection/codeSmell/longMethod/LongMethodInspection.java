@@ -15,7 +15,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static psi.PsiUtil.countStatement;
+import static inspection.psi.PsiUtil.countStatement;
 
 /**
  * コードスメル『Long Method（長いメソッド）』のインスペクション
