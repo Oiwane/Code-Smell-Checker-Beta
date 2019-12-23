@@ -15,8 +15,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.psi.PsiUtil.countStatement;
-
 /**
  * コードスメル『Long Method（長いメソッド）』のインスペクション
  */
@@ -78,6 +76,49 @@ public class LongMethodInspection extends CodeSmellInspection {
     ));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
+  }
+
+  private int countStatement(@NotNull PsiMethod method) {
+    if (method.getBody() == null) return 0;
+
+    return countStatement(method.getBody());
+  }
+
+  private int countStatement(@NotNull PsiCodeBlock codeBlock) {
+    int count = 0;
+
+    for (PsiStatement statement : codeBlock.getStatements()) {
+      count += countStatement(statement) + countStatementInStatement(statement);
+    }
+
+    return count + codeBlock.getStatementCount();
+  }
+
+  private int countStatement(@NotNull PsiElement parentElement) {
+    int count = 0;
+
+    for (PsiElement element : parentElement.getChildren()) {
+      if (element instanceof PsiCodeBlock) {
+        count += countStatement((PsiCodeBlock) element);
+      }
+      else{
+        count += countStatement(element);
+      }
+    }
+
+    return count;
+  }
+
+  private int countStatementInStatement(@NotNull PsiStatement statement) {
+    int count = 0;
+
+    for (PsiElement element : statement.getChildren()) {
+      if (element instanceof PsiStatement && !(element instanceof PsiBlockStatement)) {
+        count += countStatementInStatement((PsiStatement) element) + 1;
+      }
+    }
+
+    return count;
   }
 
   @NotNull

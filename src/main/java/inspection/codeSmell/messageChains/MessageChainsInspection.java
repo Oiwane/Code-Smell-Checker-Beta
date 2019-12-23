@@ -12,8 +12,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static inspection.psi.PsiUtil.countPsiMethodCallExpression;
-
 /**
  * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション
  */
@@ -68,6 +66,30 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
     return descriptors.toArray(new ProblemDescriptor[0]);
 
+  }
+
+  private int countPsiMethodCallExpression(@NotNull PsiMethodCallExpression expression) {
+    int count = 1;
+
+    for (PsiElement element : expression.getChildren()) {
+      if (element instanceof PsiReferenceExpression) {
+        count += countPsiMethodCallExpression((PsiReferenceExpression) element);
+      }
+    }
+
+    return count;
+  }
+
+  private int countPsiMethodCallExpression(@NotNull PsiReferenceExpression expression) {
+    int count = 0;
+
+    for (PsiElement element : expression.getChildren()) {
+      if (element instanceof PsiMethodCallExpression) {
+        count += countPsiMethodCallExpression((PsiMethodCallExpression) element);
+      }
+    }
+
+    return count;
   }
 
   @NotNull
