@@ -1,9 +1,6 @@
 package inspection.refactoring;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.*;
-import com.intellij.refactoring.safeDelete.SafeDeleteHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,63 +26,32 @@ public class RefactoringUtil<E> {
   /**
    * targetParameterをnewElementに置き換えてtargetParameterを削除する
    *
+   * @param method 変更するメソッド
    * @param targetParameter 削除対象のパラメータ
    * @param newElement targetParameterと置き換えるメソッド呼び出し
    */
-  public static void optimiseParameter(PsiParameter targetParameter, PsiMethodCallExpression newElement) {
-    RefactoringUtil.replaceParameterObject(targetParameter, newElement);
-    RefactoringUtil.deleteUnnecessaryParameter(targetParameter);
+  public static void optimiseParameter(PsiMethod method, PsiParameter targetParameter, PsiMethodCallExpression newElement) {
+    RefactoringUtil.replaceParameterObject(method, targetParameter, newElement);
+    targetParameter.delete();
   }
 
   /**
    * 使用しているパラメータをメソッド呼び出しに置き換える
    *
+   * @param method 変更するメソッド
    * @param targetParameter 対象のパラメータ
    * @param newElement パラメータの代わりに置くメソッド呼び出し
    */
-  private static void replaceParameterObject(PsiParameter targetParameter, PsiMethodCallExpression newElement) {
-    List<PsiReferenceExpression> referenceExpressionList = new ArrayList<>();
+  private static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiMethodCallExpression newElement) {
+    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
+    PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 
-    findReplacedElements(referenceExpressionList, targetParameter);
-
-    for (PsiReference reference : referenceExpressionList) {
-      PsiReferenceExpression referenceExpression;
-      if (reference.getElement() instanceof PsiReferenceExpression) {
-        referenceExpression = ((PsiReferenceExpression) reference.getElement());
-      } else if (reference.getElement() instanceof PsiIdentifier) {
-        referenceExpression = (PsiReferenceExpression) reference.getElement().getParent();
-      } else continue;
-      ApplicationManager.getApplication().invokeLater(() -> {
-        WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> {
-          referenceExpression.replace(newElement);
-        });
-      });
+    if (method.getBody().getStatementCount() != 0) {
+      PsiStatement firstStatement = method.getBody().getStatements()[0];
+      method.getBody().addBefore(declarationStatement, firstStatement);
+    } else {
+      method.getBody().add(declarationStatement);
     }
-  }
-
-  private static void findReplacedElements(List<PsiReferenceExpression> referenceExpressionList, @NotNull PsiParameter targetParameter) {
-    PsiParameterList parameterList = ((PsiParameterList) targetParameter.getParent());
-    PsiCodeBlock codeBlock = ((PsiMethod) parameterList.getParent()).getBody();
-
-    assert codeBlock != null;
-    findReplacedElements(referenceExpressionList, targetParameter, codeBlock);
-  }
-
-  private static void findReplacedElements(List<PsiReferenceExpression> referenceExpressionList, PsiParameter targetParameter, @NotNull PsiElement element) {
-    for (PsiElement childElement : element.getChildren()) {
-      findReplacedElements(referenceExpressionList, targetParameter, childElement);
-      if (childElement instanceof PsiReferenceExpression) {
-        PsiReferenceExpression referenceExpression = ((PsiReferenceExpression) childElement);
-        if (referenceExpression.resolve().getTextRange().equals(targetParameter.getTextRange())) {
-          referenceExpressionList.add(referenceExpression);
-        }
-      }
-    }
-  }
-
-  private static void deleteUnnecessaryParameter(PsiParameter parameter) {
-    ApplicationManager.getApplication().invokeLater(() -> SafeDeleteHandler.invoke(parameter.getProject(), new PsiElement[]{parameter}, true));
-//    SafeDeleteHandler.invoke(parameter.getProject(), new PsiElement[]{parameter}, true);
   }
 
   /**

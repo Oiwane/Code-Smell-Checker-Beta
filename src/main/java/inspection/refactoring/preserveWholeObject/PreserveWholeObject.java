@@ -27,50 +27,87 @@ public class PreserveWholeObject implements LocalQuickFix {
     PsiMethod method = (PsiMethod) parameterList.getParent();
     PsiClass psiClass = method.getContainingClass();
     PsiMethod[] methodsContainsClass = psiClass.getAllMethods();
+    List<PsiMethod> methodForCompare = new ArrayList<>();
 
     PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
 
     for (PsiReference reference : referenceResults) {
       PsiMethodCallExpression methodCallExpression = ((PsiMethodCallExpression) reference.getElement().getParent());
-      PsiExpression[] arguments = methodCallExpression.getArgumentList().getExpressions();
+      PsiExpressionList argumentList = methodCallExpression.getArgumentList();
+      PsiExpression[] arguments = argumentList.getExpressions();
 
       Map<PsiElement, List<ArgumentInfo>> map = new HashMap<>();
-      for (int i = 0; i < arguments.length; i++) {
-        PsiExpression argument = arguments[i];
-        // 引数がメソッド呼び出しになっているかを確認する
-        if (argument instanceof PsiMethodCallExpression) {
-          addArgumentInfo(map, i, argument);
-        }
-        // TODO オブジェクトがどこで宣言されたのかを確認する
-        // TODO 制約 : 同じスコープ内の変数（オブジェクト）しか見ない
-        else if (argument instanceof PsiReferenceExpression) {
-          PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(methodCallExpression);
-          PsiMethodCallExpression argumentMethod = findTargetElementInScope(scope, argument);
-          if (argumentMethod != null) addArgumentInfo(map, i, argumentMethod);
-        }
-      }
 
-//      for (PsiElement key : map.keySet()) {
-//        if (map.get(key).size() > 1) {
-//          addParameter(map, key);
-//
-//          for (ArgumentInfo argumentInfo : map.get(key)) {
-//            PsiParameter targetParameter = parameterList.getParameters()[argumentInfo.getIndex()];
-//            RefactoringUtil.optimiseParameter(targetParameter, argumentInfo.getArgumentMethod());
-//          }
-//        }
-//      }
-
+      extractArgumentInfo(methodCallExpression, arguments, map);
       PsiMethod newMethod = cloneMethod(method);
+      createParameterList(newMethod, map);
 
-      createParameterList(newMethod.getParameterList(), map);
+      // メソッドの呼び出し先の編集
+      changeArgumentList(map, methodCallExpression);
 
-//      if (existsSameMethod(newMethod, methodsContainsClass)) continue;
-      System.out.println(existsSameMethod(newMethod, methodsContainsClass));
+      if (existsSameMethod(newMethod, methodsContainsClass) || existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
 
-//      psiClass.add(newMethod);
+      psiClass.add(newMethod);
+      methodForCompare.add(newMethod);
+      PsiDocumentManager.getInstance(project).commitAllDocuments();
+
     }
 
+  }
+
+  private void changeArgumentList(@NotNull Map<PsiElement, List<ArgumentInfo>> map, @NotNull PsiMethodCallExpression methodCallExpression) {
+    Project project = methodCallExpression.getProject();
+    PsiExpressionList argumentList = methodCallExpression.getArgumentList();
+    PsiExpression[] arguments = argumentList.getExpressions();
+
+    for (PsiElement key : map.keySet()) {
+      if (map.get(key).size() > 1) {
+        PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
+        if (map.containsKey(key)) {
+          if (!(key instanceof PsiVariable)) return;
+          PsiVariable variable = (PsiVariable) key;
+          PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
+          argumentList.add(newArgument);
+        } else {
+          System.out.println("null");
+        }
+
+        List<PsiExpression> targetArguments = new ArrayList<>();
+        for (ArgumentInfo argumentInfo : map.get(key)) {
+          PsiExpression targetArgument = arguments[argumentInfo.getIndex()];
+          targetArguments.add(targetArgument);
+        }
+
+        for (PsiExpression deleteArgument : targetArguments) {
+          deleteArgument.delete();
+        }
+      }
+    }
+  }
+
+  private void extractArgumentInfo(PsiMethodCallExpression methodCallExpression, @NotNull PsiExpression[] arguments, Map<PsiElement, List<ArgumentInfo>> map) {
+    for (int i = 0; i < arguments.length; i++) {
+      PsiExpression argument = arguments[i];
+      // 引数がメソッド呼び出しになっているかを確認する
+      if (argument instanceof PsiMethodCallExpression) {
+        addArgumentInfo(map, i, argument);
+      }
+      // TODO オブジェクトがどこで宣言されたのかを確認する
+      // TODO 制約 : 同じスコープ内の変数（オブジェクト）しか見ない
+      else if (argument instanceof PsiReferenceExpression) {
+        PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(methodCallExpression);
+        PsiMethodCallExpression argumentMethod = findTargetElementInScope(scope, argument);
+        if (argumentMethod != null) addArgumentInfo(map, i, argumentMethod);
+      }
+    }
+  }
+
+  private boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
+    for (PsiMethod comparedMethod : methodForCompare) {
+      if (comparedMethod.getText().equals(newMethod.getText())) return true;
+    }
+
+    return false;
   }
 
   private void addArgumentInfo(@NotNull Map<PsiElement, List<ArgumentInfo>> map, int index, PsiExpression argumentMethod) {
@@ -104,9 +141,9 @@ public class PreserveWholeObject implements LocalQuickFix {
     PsiMethodCallExpression returnValue = null;
     for (PsiStatement statement : scope.getStatements()) {
       if (statement instanceof PsiDeclarationStatement) {
-        returnValue = findTargetElementInStatement((PsiDeclarationStatement) statement, targetElement);
+        returnValue = findTargetElementInStatement(scope, (PsiDeclarationStatement) statement, targetElement);
       } else if (statement instanceof PsiExpressionStatement) {
-        returnValue = findTargetElementInStatement((PsiExpressionStatement) statement, targetElement);
+        returnValue = findTargetElementInStatement(scope, (PsiExpressionStatement) statement, targetElement);
       }
       if (returnValue != null) return returnValue;
     }
@@ -115,10 +152,10 @@ public class PreserveWholeObject implements LocalQuickFix {
   }
 
   @Nullable
-  private PsiMethodCallExpression findTargetElementInStatement(@NotNull PsiDeclarationStatement statement, @NotNull PsiElement targetElement) {
+  private PsiMethodCallExpression findTargetElementInStatement(PsiCodeBlock scope, @NotNull PsiDeclarationStatement statement, @NotNull PsiElement targetElement) {
     PsiMethodCallExpression returnValue = null;
     final PsiReference reference = targetElement.getReference();
-    assert reference != null;
+    if (reference == null) return null;
 
     // int a = b = c.hoge(); みたいな記述は無視
     for (PsiElement element : statement.getDeclaredElements()) {
@@ -126,6 +163,9 @@ public class PreserveWholeObject implements LocalQuickFix {
         for (PsiElement child : element.getChildren()) {
           if (child instanceof PsiMethodCallExpression) {
             returnValue = (PsiMethodCallExpression) child;
+          } else if (child instanceof PsiReferenceExpression) {
+            PsiElement variableReference = child.getReference().resolve();
+            return findTargetElementInScope(scope, variableReference);
           }
         }
       }
@@ -135,21 +175,29 @@ public class PreserveWholeObject implements LocalQuickFix {
   }
 
   @Nullable
-  private PsiMethodCallExpression findTargetElementInStatement(@NotNull PsiExpressionStatement statement, PsiElement targetElement) {
+  private PsiMethodCallExpression findTargetElementInStatement(PsiCodeBlock scope, @NotNull PsiExpressionStatement statement, PsiElement targetElement) {
     PsiExpression expression = statement.getExpression();
     PsiReferenceExpression compareVariable = null;
     PsiMethodCallExpression returnValue = null;
+    boolean appearEQ = false;
     for (PsiElement element : expression.getChildren()) {
       if (element instanceof PsiReferenceExpression) {
-        compareVariable = (PsiReferenceExpression) element;
+        if (appearEQ) {
+          return findTargetElementInScope(scope, element);
+        } else {
+          compareVariable = (PsiReferenceExpression) element;
+        }
       } else if (element instanceof PsiMethodCallExpression) {
         returnValue = (PsiMethodCallExpression) element;
+      } else if (element instanceof PsiJavaToken) {
+        PsiJavaToken javaToken = (PsiJavaToken) element;
+        appearEQ = javaToken.getText().equals("=");
       }
     }
 
     if (compareVariable == null) return null;
     assert compareVariable.getReference() != null;
-    assert targetElement.getReference() != null;
+    if (targetElement.getReference() == null) return null;
     return (compareVariable.getReference().resolve().equals(targetElement.getReference().resolve())) ? returnValue : null;
   }
 
@@ -189,14 +237,21 @@ public class PreserveWholeObject implements LocalQuickFix {
     return factory.createParameterList(newParametersName, newType.toArray(new PsiType[0]));
   }
 
-  private void createParameterList(PsiParameterList newParameterList, @NotNull Map<PsiElement, List<ArgumentInfo>> map) {
+  private void createParameterList(@NotNull PsiMethod newMethod, @NotNull Map<PsiElement, List<ArgumentInfo>> map) {
+    PsiParameterList newParameterList = newMethod.getParameterList();
     for (PsiElement key : map.keySet()) {
       if (map.get(key).size() > 1) {
         addParameter(map, key, newParameterList);
 
+        List<PsiParameter> parameters = new ArrayList<>();
         for (ArgumentInfo argumentInfo : map.get(key)) {
           PsiParameter targetParameter = newParameterList.getParameters()[argumentInfo.getIndex()];
-          RefactoringUtil.optimiseParameter(targetParameter, argumentInfo.getArgumentMethod());
+          parameters.add(targetParameter);
+        }
+
+        ArgumentInfo[] argumentInfo = map.get(key).toArray(new ArgumentInfo[0]);
+        for (int i = 0; i < argumentInfo.length; i++) {
+          RefactoringUtil.optimiseParameter(newMethod, parameters.get(i), argumentInfo[i].getArgumentMethod());
         }
       }
     }
@@ -208,55 +263,51 @@ public class PreserveWholeObject implements LocalQuickFix {
    * @brief パラメータの一番最後に任意のオブジェクト用のパラメータを追加する
    * @param map 追加するパラメータの対象となるオブジェクトを格納しているマップ
    * @param key mapの添え字
+   * @param newParameterList 新しいパラメータリスト
    */
   private void addParameter(@NotNull Map<PsiElement, List<ArgumentInfo>> map, PsiElement key, @NotNull PsiParameterList newParameterList) {
     PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(newParameterList.getProject());
-//    PsiParameter finalParameter = newParameterList.getParameters()[newParameterList.getParametersCount() - 1];
-//    Project project = newParameterList.getProject();
-//    Document document = PsiDocumentManager.getInstance(project).getDocument(newParameterList.getContainingFile());
     if (map.containsKey(key)) {
       if (!(key instanceof PsiVariable)) return;
-//      if (key instanceof PsiField) {
-//        type = ((PsiField) key).getType();
-//      } else if (key instanceof PsiLocalVariable) {
-//        type = ((PsiLocalVariable) key).getType();
-//      }
       PsiVariable variable = (PsiVariable) key;
       PsiParameter newParameter = factory.createParameter(variable.getName(), variable.getType());
 
       newParameterList.add(newParameter);
-//      String typeStr = type.toString().substring(("PsiType:").length());
-//      String variableName = ((PsiVariable) key).getName();
-//      String insertedString = ", " + typeStr + " " + variableName;
-//
-//      document.insertString(finalParameter.getTextRange().getEndOffset(), insertedString);
-//      PsiDocumentManager.getInstance(project).commitDocument(document);
     } else {
       System.out.println("null");
     }
   }
 
-  private boolean existsSameMethod(PsiMethod target, PsiMethod[] samples) {
+  private boolean existsSameMethod(PsiMethod target, @NotNull PsiMethod[] samples) {
     for (PsiMethod sample : samples) {
       if (!target.getName().equals(sample.getName())) continue;
+      if (target.getParameterList().getParametersCount() != sample.getParameterList().getParametersCount()) continue;
 
-      List<PsiParameter> targetParameters = Arrays.asList(target.getParameterList().getParameters());
-      List<PsiParameter> sampleParameters = Arrays.asList(sample.getParameterList().getParameters());
-      if (targetParameters.size() != sampleParameters.size()) continue;
+      PsiParameter[] targetParameters = target.getParameterList().getParameters();
+      PsiParameter[] sampleParameters = sample.getParameterList().getParameters();
 
-      for (int i = 0; i < targetParameters.size(); i++) {
-        for (int j = 0; j < sampleParameters.size(); j++) {
-          if (targetParameters.get(i).getTypeElement().equals(sampleParameters.get(j).getTypeElement())) {
-            targetParameters.remove(i);
-            sampleParameters.remove(j);
-            break;
-          }
-        }
-      }
-
-      if (targetParameters.size() == 0) return true;
+      if (isSameParameters(targetParameters, sampleParameters)) return true;
     }
 
     return false;
+  }
+
+  private boolean isSameParameters(@NotNull PsiParameter[] targetParameters, PsiParameter[] sampleParameters) {
+    int counter = 0;
+    boolean[] flags = new boolean[targetParameters.length];
+    for (int i = 0; i < flags.length; i++) {
+      flags[i] = false;
+    }
+    for (PsiParameter targetParameter : targetParameters) {
+      for (int j = 0; j < sampleParameters.length; j++) {
+        if (targetParameter.getType().equals(sampleParameters[j].getType()) && !flags[j]) {
+          flags[j] = true;
+          counter++;
+          break;
+        }
+      }
+    }
+
+    return counter == targetParameters.length;
   }
 }
