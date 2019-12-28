@@ -1,6 +1,7 @@
 package inspection.psi;
 
 import com.intellij.psi.*;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -13,7 +14,12 @@ public class PsiUtil {
 
   public static PsiMethod cloneMethod(@NotNull PsiMethod originalMethod) {
     PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(originalMethod.getProject());
-    PsiMethod newMethod = factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
+    PsiMethod newMethod;
+    if (originalMethod.isConstructor()) {
+      newMethod = factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
+    } else {
+      newMethod = factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
+    }
     PsiParameterList originalParameterList = originalMethod.getParameterList();
 
     // PsiCodeBlockの作成
@@ -22,7 +28,8 @@ public class PsiUtil {
     PsiParameterList newParameterList = cloneParameterList(originalParameterList, factory);
 
     newMethod.getModifierList().replace(originalMethod.getModifierList());
-    newMethod.getReturnTypeElement().replace(originalMethod.getReturnTypeElement());
+    if (!originalMethod.isConstructor())
+      newMethod.getReturnTypeElement().replace(originalMethod.getReturnTypeElement());
     newMethod.getParameterList().replace(newParameterList);
     newMethod.getThrowsList().replace(originalMethod.getThrowsList());
     newMethod.getBody().replace(codeBlock);
@@ -85,5 +92,25 @@ public class PsiUtil {
     }
 
     return counter == targetParameters.length;
+  }
+
+  public static boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
+    for (PsiMethod comparedMethod : methodForCompare) {
+      if (comparedMethod.getText().equals(newMethod.getText())) return true;
+    }
+
+    return false;
+  }
+
+  public static void deleteUnusedMethod(@NotNull PsiClass psiClass, String targetMethodName) {
+    PsiMethod[] methods = psiClass.getMethods();
+    for (PsiMethod method : methods) {
+      if (!targetMethodName.equals(method.getName())) continue;
+
+      PsiReference[] references = ReferencesSearch.search(method).toArray(new PsiReference[0]);
+      if (references.length != 0) continue;
+
+      method.delete();
+    }
   }
 }
