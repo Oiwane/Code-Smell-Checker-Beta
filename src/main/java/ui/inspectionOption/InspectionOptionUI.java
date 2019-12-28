@@ -1,6 +1,6 @@
 package ui.inspectionOption;
 
-import gherkin.lexer.Ru;
+import inspection.InspectionData;
 import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
 import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
@@ -57,7 +57,7 @@ public class InspectionOptionUI {
     return textField;
   }
 
-  public JPanel createOptionPanel(ActionListener listener, String propertiesComponentName) {
+  public JPanel createOptionPanel(ActionListener listener, InspectionData inspectionData) {
     spinnerPanel.setLayout(new BoxLayout(spinnerPanel, BoxLayout.X_AXIS));
     panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -66,8 +66,8 @@ public class InspectionOptionUI {
     this.disableInvalidInput(spinner);
 
     // リスナーの登録
-    spinnerNumberModel.addChangeListener(new OptionSpinnerNumberModelChangeListener(button, textField, propertiesComponentName));
-    textField.getDocument().addDocumentListener(new OptionTextFieldDocumentListener(button, textField, propertiesComponentName));
+    spinnerNumberModel.addChangeListener(new OptionSpinnerNumberModelChangeListener(button, textField, inspectionData));
+    textField.getDocument().addDocumentListener(new OptionTextFieldDocumentListener(button, textField, inspectionData));
     ActionListener actionListener = e -> {
       if (button.isEnabled()) {
         button.doClick();

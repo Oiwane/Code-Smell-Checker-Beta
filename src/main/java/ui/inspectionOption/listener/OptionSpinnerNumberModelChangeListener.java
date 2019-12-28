@@ -1,5 +1,6 @@
 package ui.inspectionOption.listener;
 
+import inspection.InspectionData;
 import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.InspectionOptionUtil;
 
@@ -10,16 +11,16 @@ import javax.swing.event.ChangeListener;
 public class OptionSpinnerNumberModelChangeListener implements ChangeListener {
   private JButton button;
   private JTextField textField;
-  private String propertiesComponentName;
+  private InspectionData inspectionData;
 
-  public OptionSpinnerNumberModelChangeListener(@NotNull JButton button_, @NotNull JTextField textField_, @NotNull String propertiesComponentName_) {
+  public OptionSpinnerNumberModelChangeListener(@NotNull JButton button_, @NotNull JTextField textField_, @NotNull InspectionData data) {
     button = button_;
     textField = textField_;
-    propertiesComponentName = propertiesComponentName_;
+    inspectionData = data;
   }
 
   @Override
   public void stateChanged(ChangeEvent e) {
-    InspectionOptionUtil.changeAvailabilityButton(button, textField, propertiesComponentName);
+    InspectionOptionUtil.changeAvailabilityButton(button, textField, inspectionData);
   }
 }

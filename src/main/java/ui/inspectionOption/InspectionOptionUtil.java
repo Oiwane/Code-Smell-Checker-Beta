@@ -1,6 +1,7 @@
 package ui.inspectionOption;
 
-import com.intellij.ide.util.PropertiesComponent;
+import inspection.InspectionData;
+import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -18,14 +19,10 @@ public class InspectionOptionUtil {
    *
    * @param button 対象のボタン
    * @param textField スピナーのテキストフィールド
-   * @param propertiesComponentName 値の保存先の名前
+   * @param data インスペクションの設定値
    */
-  public static void changeAvailabilityButton(@NotNull JButton button, @NotNull JTextField textField, @NotNull String propertiesComponentName) {
-    String value = PropertiesComponent.getInstance().getValue(propertiesComponentName);
-    if (value == null) {
-      button.setEnabled(false);
-      return;
-    }
-    button.setEnabled(!textField.getText().equals(value));
+  public static void changeAvailabilityButton(@NotNull JButton button, @NotNull JTextField textField, @NotNull InspectionData data) {
+    int value = InspectionUtil.getUpperLimitValue(data);
+    button.setEnabled(!textField.getText().equals(String.valueOf(value)));
   }
 }
