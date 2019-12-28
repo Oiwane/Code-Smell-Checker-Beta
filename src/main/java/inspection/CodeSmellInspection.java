@@ -18,7 +18,7 @@ public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectio
     InspectionOptionUI optionUI = new InspectionOptionUI(description, InspectionUtil.getUpperLimitValue(data));
     OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
 
-    return optionUI.createOptionPanel(listener, data.getComponentName());
+    return optionUI.createOptionPanel(listener, data);
   }
 
   @NotNull
