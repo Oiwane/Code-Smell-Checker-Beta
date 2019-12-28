@@ -30,7 +30,7 @@ public class RefactoringUtil<E> {
    * @param targetParameter 削除対象のパラメータ
    * @param newElement targetParameterと置き換えるメソッド呼び出し
    */
-  public static void optimiseParameter(PsiMethod method, PsiParameter targetParameter, PsiMethodCallExpression newElement) {
+  public static void optimiseParameter(PsiMethod method, PsiParameter targetParameter, PsiExpression newElement) {
     RefactoringUtil.replaceParameterObject(method, targetParameter, newElement);
     targetParameter.delete();
   }
@@ -42,7 +42,7 @@ public class RefactoringUtil<E> {
    * @param targetParameter 対象のパラメータ
    * @param newElement パラメータの代わりに置くメソッド呼び出し
    */
-  private static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiMethodCallExpression newElement) {
+  private static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiExpression newElement) {
     PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
     PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 
@@ -64,5 +64,11 @@ public class RefactoringUtil<E> {
     PsiElement parentElement = element.getParent();
     if (parentElement instanceof PsiCodeBlock) return (PsiCodeBlock) parentElement;
     else return findCodeBlockInParents(parentElement);
+  }
+
+  public static PsiMethod findMethodBelongsTo(@NotNull PsiElement element) {
+    PsiElement parentElement = element.getParent();
+    if (parentElement instanceof PsiMethod) return (PsiMethod) parentElement;
+    else return findMethodBelongsTo(parentElement);
   }
 }
