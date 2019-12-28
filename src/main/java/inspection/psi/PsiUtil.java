@@ -54,6 +54,12 @@ public class PsiUtil {
     return factory.createParameterList(newParametersName, newType.toArray(new PsiType[0]));
   }
 
+  @NotNull
+  public static PsiMethodCallExpression clonePsiMethodCallExpression(@NotNull PsiMethodCallExpression originalElement) {
+    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(originalElement.getProject());
+    return (PsiMethodCallExpression) factory.createExpressionFromText(originalElement.getText(), null);
+  }
+
   /**
    * 同じクラス内に同じメソッドがないかを確かめる
    *
