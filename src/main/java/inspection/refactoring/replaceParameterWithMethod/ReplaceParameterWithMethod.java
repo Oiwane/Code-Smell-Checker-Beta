@@ -8,20 +8,20 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
+import inspection.psi.PsiUtil;
 import inspection.refactoring.RefactoringUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * このリファクタリングはメソッドのアクセス修飾子がprivateの時のみ使用できるようにした
- */
 public class ReplaceParameterWithMethod implements LocalQuickFix {
-  private Project myProject;
-  private PsiMethod method;
-  private PsiParameterList parameterList;
+  private Map<Integer, List<PsiElement>> map;
+  private SmartPsiElementPointer<PsiMethod> newMethod;
 
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
@@ -32,70 +32,147 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    myProject = project;
-    parameterList = (PsiParameterList) descriptor.getPsiElement();
-    method = (PsiMethod) parameterList.getParent();
+    PsiMethod method = (PsiMethod) descriptor.getPsiElement().getParent();
 
-    PsiReference[] results = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
+    PsiClass psiClass = method.getContainingClass();
+    assert psiClass != null;
+    List<PsiMethod> methodForCompare = new ArrayList<>();
 
-    List<List<List<PsiStatement>>> extractedStatementList = new ArrayList<>();
-    RefactoringUtil<PsiStatement> refactoringUtil = new RefactoringUtil<>();
-    refactoringUtil.initThreeDimensionalList(extractedStatementList, results.length, parameterList.getParametersCount());
+    PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
+    for (PsiReference referenceResult : referenceResults) {
+      newMethod = SmartPointerManager.createPointer(PsiUtil.cloneMethod(method));
+      PsiMethod extractedMethod = RefactoringUtil.findMethodBelongsTo(referenceResult.getElement());
+      // 呼び出し先のクラスと呼び出されたメソッドのクラスが異なる場合、リファクタリングしない
+      if (!psiClass.equals(extractedMethod.getContainingClass())) continue;
 
-    extractStatements(results, extractedStatementList);
+      map = new HashMap<>();
+      PsiExpression[] arguments = extractElements(referenceResult);
+      if (arguments == null) continue;
 
-    // TODO : 同じパラメータに該当する部分で抽出できない場合が一回でもあったら抽出しないようにする
-    refactor(extractedStatementList);
+      createNewMethod(method, arguments);
+      try {
+        this.wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
+      if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
+              PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) continue;
+
+      psiClass.add(newMethod.getElement());
+      methodForCompare.add(newMethod.getElement());
+      PsiDocumentManager.getInstance(project).commitAllDocuments();
+    }
+
+    PsiUtil.deleteUnusedMethod(psiClass, method.getName());
   }
 
-  /**
-   * 抽出候補のPsiStatementをリストに保存する
-   *
-   * @param results メソッドを呼び出している場所
-   * @param extractedStatements 抽出するPsiStatementを保存するリスト
-   */
-  private void extractStatements(@NotNull PsiReference[] results, @NotNull List<List<List<PsiStatement>>> extractedStatements) {
+  private void createNewMethod(@NotNull PsiMethod originalMethod, PsiExpression[] arguments) {
+    Project project = originalMethod.getProject();
+    for (int key : map.keySet()) {
+      List<PsiElement> extractedElementList = map.get(key);
 
-    for (int i = 0; i < results.length; i++) {
-      if (results[i] instanceof PsiReferenceExpression) {
-        List<List<PsiStatement>> extractCandidate = new ArrayList<>();
-        for (int j = 0; j < extractedStatements.get(0).size(); j++) {
-          extractCandidate.add(new ArrayList<>());
-        }
-        PsiReferenceExpression referenceExpression = (PsiReferenceExpression) results[i];
-        PsiCodeBlock scopeCallingMethod = findCodeBlockInParents(referenceExpression);
-        PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceExpression.getParent();
+      if (extractedElementList.size() == 1) {
+        PsiElement element = extractedElementList.get(0);
+        if (isPsiMethodCallExpression(element) || isPsiNewExpression(element)) {
+          final PsiExpression newElement = (PsiExpression) element;
+          final PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[key];
+          RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, newElement);
+          changeArgumentLst(arguments);
+        } else {
+          if (!isPsiDeclarationStatement(element)) continue;
+          PsiDeclarationStatement declarationStatement = (PsiDeclarationStatement) element;
 
-        PsiExpression[] arguments = methodCallExpression.getArgumentList().getExpressions();
+          for (PsiElement child : declarationStatement.getChildren()) {
+            if (!isPsiVariable(child)) continue;
+            PsiVariable variable = (PsiVariable) child;
 
-        // コードブロックつまり同スコープ以下に引数で使用している変数がないかを確認する
-        for (PsiStatement statement : scopeCallingMethod.getStatements()) {
-          if (statement.equals(findStatementInParents(methodCallExpression))) break;
+            if (!isPsiMethodCallExpression(variable.getInitializer()) ||
+                    !isPsiNewExpression(variable.getInitializer())) continue;
 
-          for (int j = 0; j < arguments.length; j++) {
-            if (existsTargetElement(statement, arguments[j])) {
-              extractCandidate.get(j).add(statement);
-            }
+            final PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[key];
+            final PsiMethodCallExpression newElement = PsiUtil.clonePsiMethodCallExpression((PsiMethodCallExpression) variable.getInitializer());
+
+            RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, newElement);
+            changeArgumentLst(arguments);
+            break;
           }
         }
+      } else {
+        PsiElement[] elements = extractedElementList.toArray(new PsiElement[0]);
+        ExtractMethodProcessor processor = ExtractMethodHandler.getProcessor(project, elements, originalMethod.getContainingFile(), false);
+        assert processor != null;
 
-        for (int j = 0; j < extractCandidate.size(); j++) {
-          for (int k = 0; k < extractCandidate.get(j).size(); k++) {
-            PsiStatement statement = extractCandidate.get(j).get(k);
-            if (canExtractStatement(scopeCallingMethod, statement)) {
-              extractedStatements.get(i).get(j).add(k, statement);
-            }
+        ApplicationManager.getApplication().invokeLater(() -> {
+          if (ExtractMethodHandler.invokeOnElements(project, processor, originalMethod.getContainingFile(), true)) {
+            PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[key];
+            RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, processor.getMethodCall());
           }
-          // TODO : 変数を消すならここら辺で処理をする
-        }
+        });
+      }
+    }
+
+    notify();
+  }
+
+  @Nullable
+  private PsiExpression[] extractElements(PsiReference referenceResult) {
+    PsiExpression[] arguments;
+
+    // 普通のメソッドの時
+    if (isPsiReferenceExpression(referenceResult)) {
+      PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) ((PsiReferenceExpression) referenceResult).getParent();
+      arguments = methodCallExpression.getArgumentList().getExpressions();
+
+      extractElements((PsiReferenceExpression) referenceResult);
+    }
+    // コンストラクタの時
+    else if (isPsiJavaCodeReferenceElement(referenceResult)) {
+      PsiJavaCodeReferenceElement temp = (PsiJavaCodeReferenceElement) referenceResult;
+      PsiNewExpression psiNewExpression = (PsiNewExpression) temp.getParent();
+      arguments = psiNewExpression.getArgumentList().getExpressions();
+
+      extractElements(psiNewExpression);
+    } else return null;
+
+    return arguments;
+  }
+
+  private boolean isPsiNewExpression(PsiElement element) {
+    return element instanceof PsiNewExpression;
+  }
+
+  private boolean isPsiJavaCodeReferenceElement(PsiReference referenceResult) {
+    return referenceResult instanceof PsiJavaCodeReferenceElement;
+  }
+
+  private void changeArgumentLst(PsiExpression[] arguments) {
+    for (int key : map.keySet()) {
+      List<PsiElement> extractedElements = map.get(key);
+      if (extractedElements.size() == 1) arguments[key].delete();
+      else {
+        System.out.println("未実装 : changeArgumentList");
       }
     }
   }
 
-  private PsiCodeBlock findCodeBlockInParents(@NotNull PsiElement element) {
-    PsiElement parentElement = element.getParent();
-    if (parentElement instanceof PsiCodeBlock) return (PsiCodeBlock) parentElement;
-    else return findCodeBlockInParents(parentElement);
+  private void extractElements(@NotNull PsiReferenceExpression referenceExpression) {
+    PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceExpression.getParent();
+    PsiExpression[] arguments = methodCallExpression.getArgumentList().getExpressions();
+    PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(referenceExpression);
+    for (PsiStatement statement : scope.getStatements()) {
+      if (statement.equals(findStatementInParents(methodCallExpression))) break;
+      putExtractedElement(scope, arguments, statement);
+    }
+  }
+
+  private void extractElements(PsiNewExpression psiNewExpression) {
+    PsiExpression[] arguments = psiNewExpression.getArgumentList().getExpressions();
+    PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(psiNewExpression);
+    for (PsiStatement statement : scope.getStatements()) {
+      if (statement.equals(findStatementInParents(psiNewExpression))) break;
+      putExtractedElement(scope, arguments, statement);
+    }
   }
 
   private PsiStatement findStatementInParents(@NotNull PsiElement element) {
@@ -116,6 +193,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     return false;
   }
 
+  // TODO この条件式が正しいかを確かめる
   private boolean canExtractStatement(PsiCodeBlock codeBlock, @NotNull PsiElement element) {
     for (PsiElement child : element.getChildren()) {
       if (!canExtractStatement(codeBlock, child)) return false;
@@ -128,15 +206,36 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
   private boolean fulfillExtractCondition(@NotNull PsiCodeBlock codeBlock, @NotNull PsiElement element) {
     if (!(element instanceof PsiReferenceExpression)) return true;
 
-    PsiElement navigationElement = element.getReference().resolve();
-    if (navigationElement == null) return true;
-    if (!codeBlock.getTextRange().contains(navigationElement.getTextRange())) {
-      if (navigationElement.getContainingFile().equals(method.getContainingFile())) {
-        return isPsiMethod(navigationElement) || isPsiField(navigationElement);
+    PsiElement declareElement = element.getReference().resolve();
+    if (declareElement == null) return true;
+    if (!codeBlock.getTextRange().contains(declareElement.getTextRange())) {
+      if (declareElement.getContainingFile().equals(codeBlock.getContainingFile())) {
+        return isPsiMethod(declareElement) || isPsiField(declareElement);
       }
     }
 
     return true;
+  }
+
+  private void putExtractedElement(PsiCodeBlock scope, @NotNull PsiExpression[] arguments, PsiStatement statement) {
+    for (int i = 0; i < arguments.length; i++) {
+      PsiExpression argument = arguments[i];
+      if (isPsiReferenceExpression(argument)) {
+        if (existsTargetElement(statement, argument)) {
+          if (canExtractStatement(scope, statement)) putToMap(i, statement);
+        }
+      } else if (isPsiMethodCallExpression(argument)) {
+        if (canExtractStatement(scope, argument)) putToMap(i, argument);
+      }
+    }
+  }
+
+  private void putToMap(int index, PsiElement element) {
+    if (!map.containsKey(index)) map.put(index, new ArrayList<>());
+    for (PsiElement sample : map.get(index)) {
+      if (sample.equals(element)) return;
+    }
+    map.get(index).add(element);
   }
 
   private boolean isPsiField(PsiElement element) {
@@ -147,24 +246,19 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     return element instanceof PsiMethod;
   }
 
-  private void refactor(@NotNull List<List<List<PsiStatement>>> extractedStatementList) {
-    for (List<List<PsiStatement>> listList : extractedStatementList) {
-      for (int i = 0; i < listList.size(); i++) {
-        PsiElement[] elements = listList.get(i).toArray(new PsiStatement[0]);
-        if (elements.length == 0) continue;
-        ExtractMethodProcessor processor = ExtractMethodHandler.getProcessor(myProject, elements, method.getContainingFile(), false);
-        assert processor != null;
-
-        int finalI = i;
-        ApplicationManager.getApplication().invokeLater(() -> {
-          if (ExtractMethodHandler.invokeOnElements(myProject, processor, method.getContainingFile(), true)) {
-            PsiParameter parameter = parameterList.getParameters()[finalI];
-            RefactoringUtil.replaceParameterObject(processor.getMethodCall(), parameter);
-            RefactoringUtil.deleteUnnecessaryParameter(parameter);
-          }
-        });
-      }
-    }
+  private boolean isPsiReferenceExpression(Object element) {
+    return element instanceof PsiReferenceExpression;
   }
 
+  private boolean isPsiMethodCallExpression(PsiElement element) {
+    return element instanceof PsiMethodCallExpression;
+  }
+
+  private boolean isPsiDeclarationStatement(PsiElement element) {
+    return element instanceof PsiDeclarationStatement;
+  }
+
+  private boolean isPsiVariable(PsiElement element) {
+    return element instanceof PsiVariable;
+  }
 }
