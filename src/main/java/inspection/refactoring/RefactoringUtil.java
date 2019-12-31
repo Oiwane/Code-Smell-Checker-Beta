@@ -8,22 +8,6 @@ import java.util.List;
 
 public class RefactoringUtil<E> {
   /**
-   * 三次元リストの初期化をする
-   *
-   * @param list 初期化をする三次元リスト
-   * @param first 三次元目のリストサイズ
-   * @param second 二次元目のリストサイズ
-   */
-  public void initThreeDimensionalList(List<List<List<E>>> list, int first, int second) {
-    for(int i = 0; i < first; i++){
-      list.add(new ArrayList<>());
-      for(int j = 0;j < second; j++){
-        list.get(i).add(new ArrayList<>());
-      }
-    }
-  }
-
-  /**
    * targetParameterをnewElementに置き換えてtargetParameterを削除する
    *
    * @param method 変更するメソッド
