@@ -18,7 +18,7 @@ import inspection.InspectionData;
 import inspection.InspectionSettingName;
 import inspection.InspectionSettingValue;
 import inspection.InspectionUtil;
-import inspection.refactoring.DecomposeConditional;
+import inspection.refactoring.decomposeConditional.DecomposeConditional;
 import inspection.refactoring.ExtractMethod;
 import inspection.refactoring.ReplaceMethodWithMethodObject;
 import inspection.refactoring.ReplaceTempWithQuery;
