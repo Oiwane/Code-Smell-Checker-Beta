@@ -1,5 +1,6 @@
 package ui.toolWindow.listener;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import inspection.InspectionData;
 import inspection.InspectionUtil;
@@ -62,7 +63,7 @@ public class CSCToolWindowListener implements FocusListener {
   public void focusGained(FocusEvent e) {
     if (this.hasChangedComponentValue()) {
       this.setComponentValueList();
-      CSCToolWindowUtil.resetToolWindow(myProject);
+      ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
     }
   }
 

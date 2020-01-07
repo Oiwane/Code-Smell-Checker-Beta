@@ -1,6 +1,7 @@
 package ui.toolWindow.listener;
 
 import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.*;
@@ -20,7 +21,7 @@ public class CSCVirtualFileListener implements VirtualFileListener {
 
     if (!this.isJavaFile(eventFile)) return;
     if (event.isFromSave()) {
-      CSCToolWindowUtil.resetToolWindow(myProject);
+      ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
     }
   }
 
@@ -31,7 +32,7 @@ public class CSCVirtualFileListener implements VirtualFileListener {
     for (VirtualFile file : ProjectRootManager.getInstance(myProject).getContentSourceRoots()) {
       if (eventFile.getName().contains(file.getName())) {
         if (event.isFromSave()) {
-          CSCToolWindowUtil.resetToolWindow(myProject);
+          ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
         }
       }
     }
@@ -39,7 +40,7 @@ public class CSCVirtualFileListener implements VirtualFileListener {
 
   public void beforePropertyChange(@NotNull VirtualFilePropertyEvent event) {
     if (event.isFromSave()) {
-      CSCToolWindowUtil.resetToolWindow(myProject);
+      ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
     }
   }
 
@@ -47,7 +48,7 @@ public class CSCVirtualFileListener implements VirtualFileListener {
     VirtualFile eventFile = event.getFile();
 
     if (!this.isJavaFile(eventFile)) return;
-    CSCToolWindowUtil.resetToolWindow(myProject);
+    ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
   }
 
   public void beforeFileMovement(@NotNull VirtualFileMoveEvent event) {
@@ -56,7 +57,7 @@ public class CSCVirtualFileListener implements VirtualFileListener {
     if (!this.isJavaFile(eventFile)) return;
     for (VirtualFile file : ProjectRootManager.getInstance(myProject).getContentSourceRoots()) {
       if (eventFile.getName().contains(file.getName())) {
-        CSCToolWindowUtil.resetToolWindow(myProject);
+        ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
       }
     }
   }

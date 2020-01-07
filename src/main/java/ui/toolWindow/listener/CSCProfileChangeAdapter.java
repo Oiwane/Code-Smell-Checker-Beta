@@ -3,6 +3,7 @@ package ui.toolWindow.listener;
 import com.intellij.codeInspection.InspectionProfile;
 import com.intellij.codeInspection.ex.Tools;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.profile.ProfileChangeAdapter;
 import inspection.CodeSmellInspection;
@@ -47,6 +48,6 @@ public class CSCProfileChangeAdapter implements ProfileChangeAdapter {
       }
     }
 
-    CSCToolWindowUtil.resetToolWindow(myProject);
+    ApplicationManager.getApplication().invokeLater(() -> CSCToolWindowUtil.resetToolWindow(myProject));
   }
 }

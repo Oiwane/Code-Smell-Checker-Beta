@@ -7,9 +7,9 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import inspection.CodeSmellInspection;
-import inspection.longMethod.LongMethodInspection;
-import inspection.longParameterList.LongParameterListInspection;
-import inspection.messageChains.MessageChainsInspection;
+import inspection.codeSmell.longMethod.LongMethodInspection;
+import inspection.codeSmell.longParameterList.LongParameterListInspection;
+import inspection.codeSmell.messageChains.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
