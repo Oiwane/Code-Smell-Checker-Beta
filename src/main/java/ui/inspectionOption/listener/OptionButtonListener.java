@@ -13,32 +13,19 @@ import java.awt.event.ActionListener;
  */
 public class OptionButtonListener implements ActionListener {
   private JTextField myTextField;
-  private final String mySuccessMessage;
-  private final String myErrorMessage;
   private final String myPropertiesComponentName;
 
-  public OptionButtonListener(JTextField textField, String successMessage,
-                              String errorMessage, String propertiesComponentName) {
+  public OptionButtonListener(JTextField textField, String propertiesComponentName) {
     myTextField = textField;
-    mySuccessMessage = successMessage;
-    myErrorMessage = errorMessage;
     myPropertiesComponentName = propertiesComponentName;
   }
 
   public void actionPerformed(ActionEvent e) {
-    MessageDialog messageDialog;
-
     String value = myTextField.getText();
 
-    if (Integer.parseInt(value) < InspectionOptionUtil.LIMIT_MIN_VALUE) {
-      String title = "Error : Invalid value";
-      messageDialog = new MessageDialog(myErrorMessage, title, new String[]{"OK"}, 1, null);
-    } else {
-      String title = "Dialog : Success";
+    if (Integer.parseInt(value) >= InspectionOptionUtil.LIMIT_MIN_VALUE) {
       PropertiesComponent.getInstance().setValue(myPropertiesComponentName, value);
-      messageDialog = new MessageDialog(mySuccessMessage, title, new String[]{"OK"}, 1, null);
     }
-    messageDialog.show();
   }
 
 }

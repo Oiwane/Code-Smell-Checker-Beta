@@ -13,10 +13,8 @@ import static ui.inspectionOption.InspectionOptionUtil.TOO_SMALL_VALUE;
 public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectionTool {
 
   protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
-    String successMessage = "save" + description;
-
     InspectionOptionUI optionUI = new InspectionOptionUI(description, InspectionUtil.getUpperLimitValue(data));
-    OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), successMessage, TOO_SMALL_VALUE, data.getComponentName());
+    OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), data.getComponentName());
 
     return optionUI.createOptionPanel(listener, data);
   }
