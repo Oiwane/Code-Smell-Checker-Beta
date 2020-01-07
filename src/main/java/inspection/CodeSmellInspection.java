@@ -9,6 +9,8 @@ import ui.inspectionOption.listener.OptionButtonListener;
 import javax.swing.JComponent;
 
 public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectionTool {
+  protected InspectionData inspectionData;
+  protected int upperLimitValue;
 
   protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
     InspectionOptionUI optionUI = new InspectionOptionUI(description, InspectionUtil.getUpperLimitValue(data));

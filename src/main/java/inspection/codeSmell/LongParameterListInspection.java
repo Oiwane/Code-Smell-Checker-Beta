@@ -32,12 +32,10 @@ public class LongParameterListInspection extends CodeSmellInspection {
   private final LocalQuickFix replaceParameterWithMethod = new ReplaceParameterWithMethod();
   private final LocalQuickFix introduceParameterObject = new IntroduceParameterObject();
   private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
-  private InspectionData inspectionData;
-  private int numParameterList;
 
   public LongParameterListInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST);
-    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -60,8 +58,8 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
   @Nullable
   private ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (list.getParametersCount() <= numParameterList) {
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (list.getParametersCount() <= upperLimitValue) {
       return null;
     }
 

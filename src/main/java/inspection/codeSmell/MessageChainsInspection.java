@@ -30,12 +30,10 @@ import java.util.List;
  */
 public class MessageChainsInspection extends CodeSmellInspection {
   private LocalQuickFix quickFix = new HideDelegate();
-  private InspectionData inspectionData;
-  private int numChains;
 
   public MessageChainsInspection() {
     inspectionData = new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS);
-    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -66,8 +64,8 @@ public class MessageChainsInspection extends CodeSmellInspection {
       count = countPsiMethodCallExpression(expression);
     }
 
-    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (count <= numChains) return null;
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (count <= upperLimitValue) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(expression, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));

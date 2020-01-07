@@ -38,12 +38,10 @@ public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix decomposeConditional = new DecomposeConditional();
   private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
   private LocalQuickFix extractMethod = new ExtractMethod();
-  private InspectionData inspectionData;
-  private int numProcesses;
 
   public LongMethodInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES);
-    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -71,8 +69,8 @@ public class LongMethodInspection extends CodeSmellInspection {
       return null;
     }
 
-    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (countStatement(method) <= numProcesses) {
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (countStatement(method) <= upperLimitValue) {
       return null;
     }
 
