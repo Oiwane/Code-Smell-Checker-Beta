@@ -1,8 +1,18 @@
-package inspection.codeSmell.longParameterList;
+package inspection.codeSmell;
 
-import com.intellij.codeInspection.*;
-import com.intellij.psi.*;
-import inspection.*;
+import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.JavaElementVisitor;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiParameterList;
+import inspection.CodeSmellInspection;
+import inspection.InspectionData;
+import inspection.InspectionSettingName;
+import inspection.InspectionSettingValue;
+import inspection.InspectionUtil;
 import inspection.refactoring.introduceParameterObject.IntroduceParameterObject;
 import inspection.refactoring.preserveWholeObject.PreserveWholeObject;
 import inspection.refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
@@ -10,7 +20,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +32,10 @@ public class LongParameterListInspection extends CodeSmellInspection {
   private final LocalQuickFix replaceParameterWithMethod = new ReplaceParameterWithMethod();
   private final LocalQuickFix introduceParameterObject = new IntroduceParameterObject();
   private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
-  private InspectionData inspectionData;
-  private int numParameterList;
 
   public LongParameterListInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST);
-    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -43,11 +51,6 @@ public class LongParameterListInspection extends CodeSmellInspection {
   }
 
   @Override
-  public String getWorked() {
-    return InspectionState.LONG_PARAMETER_LIST_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
-  }
-
-  @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
     return this.createOptionUI(description, inspectionData);
@@ -55,8 +58,8 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
   @Nullable
   private ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-    numParameterList = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (list.getParametersCount() <= numParameterList) {
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (list.getParametersCount() <= upperLimitValue) {
       return null;
     }
 

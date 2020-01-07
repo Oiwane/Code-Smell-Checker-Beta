@@ -5,9 +5,15 @@ import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
 import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.text.DefaultFormatter;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
 
 import static ui.inspectionOption.InspectionOptionUtil.LIMIT_MIN_VALUE;
 

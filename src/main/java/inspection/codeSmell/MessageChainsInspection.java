@@ -1,13 +1,26 @@
-package inspection.codeSmell.messageChains;
+package inspection.codeSmell;
 
-import com.intellij.codeInspection.*;
-import com.intellij.psi.*;
-import inspection.*;
+import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.JavaElementVisitor;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiReferenceExpression;
+import inspection.CodeSmellInspection;
+import inspection.InspectionData;
+import inspection.InspectionSettingName;
+import inspection.InspectionSettingValue;
+import inspection.InspectionUtil;
+import inspection.refactoring.HideDelegate;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +29,11 @@ import java.util.List;
  * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション
  */
 public class MessageChainsInspection extends CodeSmellInspection {
-  private LocalQuickFix quickFix = new MessageChainsFix();
-  private InspectionData inspectionData;
-  private int numChains;
+  private LocalQuickFix quickFix = new HideDelegate();
 
   public MessageChainsInspection() {
     inspectionData = new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS);
-    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -35,11 +46,6 @@ public class MessageChainsInspection extends CodeSmellInspection {
   @NotNull
   public String getShortName() {
     return "MessageChainsInspection";
-  }
-
-  @Override
-  public String getWorked() {
-    return InspectionState.MESSAGE_CHAINS_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
   }
 
   @Override
@@ -58,8 +64,8 @@ public class MessageChainsInspection extends CodeSmellInspection {
       count = countPsiMethodCallExpression(expression);
     }
 
-    numChains = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (count <= numChains) return null;
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (count <= upperLimitValue) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(expression, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));

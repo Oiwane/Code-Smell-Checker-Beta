@@ -1,9 +1,9 @@
 package inspection;
 
 import com.intellij.codeInspection.InspectionToolProvider;
-import inspection.codeSmell.longMethod.LongMethodInspection;
-import inspection.codeSmell.longParameterList.LongParameterListInspection;
-import inspection.codeSmell.messageChains.MessageChainsInspection;
+import inspection.codeSmell.LongMethodInspection;
+import inspection.codeSmell.LongParameterListInspection;
+import inspection.codeSmell.MessageChainsInspection;
 import org.jetbrains.annotations.NotNull;
 
 /**

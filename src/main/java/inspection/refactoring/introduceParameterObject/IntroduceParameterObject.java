@@ -1,7 +1,8 @@
 package inspection.refactoring.introduceParameterObject;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameterList;
 import com.intellij.refactoring.introduceparameterobject.IntroduceParameterObjectDialog;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;

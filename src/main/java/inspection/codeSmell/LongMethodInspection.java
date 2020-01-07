@@ -1,8 +1,23 @@
-package inspection.codeSmell.longMethod;
+package inspection.codeSmell;
 
-import com.intellij.codeInspection.*;
-import com.intellij.psi.*;
-import inspection.*;
+import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.psi.JavaElementVisitor;
+import com.intellij.psi.PsiBlockStatement;
+import com.intellij.psi.PsiCodeBlock;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiStatement;
+import inspection.CodeSmellInspection;
+import inspection.InspectionData;
+import inspection.InspectionSettingName;
+import inspection.InspectionSettingValue;
+import inspection.InspectionUtil;
 import inspection.refactoring.DecomposeConditional;
 import inspection.refactoring.ExtractMethod;
 import inspection.refactoring.ReplaceMethodWithMethodObject;
@@ -11,7 +26,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +38,10 @@ public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix decomposeConditional = new DecomposeConditional();
   private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
   private LocalQuickFix extractMethod = new ExtractMethod();
-  private InspectionData inspectionData;
-  private int numProcesses;
 
   public LongMethodInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES);
-    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
   @Override
@@ -44,11 +57,6 @@ public class LongMethodInspection extends CodeSmellInspection {
   }
 
   @Override
-  public String getWorked() {
-    return InspectionState.LONG_METHOD_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
-  }
-
-  @Override
   public JComponent createOptionsPanel() {
     String description = "detected length of \"" + getDisplayName() + "\"";
     return this.createOptionUI(description, inspectionData);
@@ -61,8 +69,8 @@ public class LongMethodInspection extends CodeSmellInspection {
       return null;
     }
 
-    numProcesses = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (countStatement(method) <= numProcesses) {
+    upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+    if (countStatement(method) <= upperLimitValue) {
       return null;
     }
 

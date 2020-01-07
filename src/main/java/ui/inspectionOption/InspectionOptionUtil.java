@@ -4,7 +4,8 @@ import inspection.InspectionData;
 import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JTextField;
 
 /**
  * オプションUIの処理に関するクラス
