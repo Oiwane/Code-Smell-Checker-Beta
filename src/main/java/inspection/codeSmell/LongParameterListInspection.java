@@ -1,8 +1,18 @@
-package inspection.codeSmell.longParameterList;
+package inspection.codeSmell;
 
-import com.intellij.codeInspection.*;
-import com.intellij.psi.*;
-import inspection.*;
+import com.intellij.codeInspection.InspectionManager;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.JavaElementVisitor;
+import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiParameterList;
+import inspection.CodeSmellInspection;
+import inspection.InspectionData;
+import inspection.InspectionSettingName;
+import inspection.InspectionSettingValue;
+import inspection.InspectionUtil;
 import inspection.refactoring.introduceParameterObject.IntroduceParameterObject;
 import inspection.refactoring.preserveWholeObject.PreserveWholeObject;
 import inspection.refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
@@ -10,7 +20,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +50,6 @@ public class LongParameterListInspection extends CodeSmellInspection {
   @NotNull
   public String getShortName() {
     return "LongParameterListInspection";
-  }
-
-  @Override
-  public String getWorked() {
-    return InspectionState.LONG_PARAMETER_LIST_INSPECTION_STATE_PROPERTIES_COMPONENT_NAME.getName();
   }
 
   @Override

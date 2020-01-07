@@ -6,9 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.InspectionOptionUI;
 import ui.inspectionOption.listener.OptionButtonListener;
 
-import javax.swing.*;
-
-import static ui.inspectionOption.InspectionOptionUtil.TOO_SMALL_VALUE;
+import javax.swing.JComponent;
 
 public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectionTool {
 
@@ -31,9 +29,5 @@ public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectio
   @NotNull
   public HighlightDisplayLevel getDefaultLevel() {
     return HighlightDisplayLevel.WARNING;
-  }
-
-  public String getWorked() {
-    return null;
   }
 }

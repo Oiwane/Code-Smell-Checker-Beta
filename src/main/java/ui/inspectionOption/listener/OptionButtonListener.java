@@ -1,7 +1,6 @@
 package ui.inspectionOption.listener;
 
 import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.ui.messages.MessageDialog;
 import ui.inspectionOption.InspectionOptionUtil;
 
 import javax.swing.*;
