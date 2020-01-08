@@ -21,7 +21,7 @@ import inspection.InspectionUtil;
 import inspection.refactoring.decomposeConditional.DecomposeConditional;
 import inspection.refactoring.ExtractMethod;
 import inspection.refactoring.ReplaceMethodWithMethodObject;
-import inspection.refactoring.ReplaceTempWithQuery;
+import inspection.refactoring.replaceTempWithQuery.ReplaceTempWithQuery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
