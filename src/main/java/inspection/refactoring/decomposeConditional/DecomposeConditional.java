@@ -1,4 +1,4 @@
-package inspection.refactoring;
+package inspection.refactoring.decomposeConditional;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
