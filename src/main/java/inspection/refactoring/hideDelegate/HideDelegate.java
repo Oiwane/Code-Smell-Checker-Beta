@@ -25,7 +25,10 @@ public class HideDelegate implements LocalQuickFix {
     // a.hoge().fuga() -> aのクラス特定して、fuga()の戻り値のオブジェクトを返すgetterメソッドを作成
     // aクラスのファイルが変更可能かを調べる
     // 可能ならばgetterを作成
-    PsiReferenceExpression baseObject = findBaseObject(methodCallExpression);
+//    PsiReferenceExpression baseObject = findBaseObject(methodCallExpression);
+    ElementCalledMethodVisitor elementCalledMethodVisitor = new ElementCalledMethodVisitor();
+    methodCallExpression.accept(elementCalledMethodVisitor);
+    PsiReferenceExpression baseObject = elementCalledMethodVisitor.getObjectElement();
     if (baseObject == null) return;
 
     PsiElement tempElement = baseObject.getReference().resolve();
