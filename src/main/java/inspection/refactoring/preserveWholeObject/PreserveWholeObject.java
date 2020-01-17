@@ -76,35 +76,6 @@ public class PreserveWholeObject implements LocalQuickFix {
     PsiUtil.deleteUnusedMethod(psiClass, method.getName());
   }
 
-  private void changeArgumentList(@NotNull PsiMethodCallExpression methodCallExpression) {
-    PsiExpressionList argumentList = methodCallExpression.getArgumentList();
-    PsiExpression[] arguments = argumentList.getExpressions();
-
-    for (PsiElement key : map.keySet()) {
-      if (map.get(key).size() < 2) continue;
-
-      PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(methodCallExpression.getProject());
-      if (map.containsKey(key)) {
-        if (!(key instanceof PsiVariable)) return;
-        PsiVariable variable = (PsiVariable) key;
-        PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
-        argumentList.add(newArgument);
-      } else {
-        System.out.println("null");
-      }
-
-      List<PsiExpression> targetArguments = new ArrayList<>();
-      for (ArgumentInfo argumentInfo : map.get(key)) {
-        PsiExpression targetArgument = arguments[argumentInfo.getIndex()];
-        targetArguments.add(targetArgument);
-      }
-
-      for (PsiExpression deleteArgument : targetArguments) {
-        deleteArgument.delete();
-      }
-    }
-  }
-
   private void extractArgumentInfo(@NotNull PsiMethodCallExpression methodCallExpression) {
     PsiExpression[] arguments = methodCallExpression.getArgumentList().getExpressions();
 
@@ -174,13 +145,14 @@ public class PreserveWholeObject implements LocalQuickFix {
     // int a = b = c.hoge(); みたいな記述は無視
     for (PsiElement element : statement.getDeclaredElements()) {
       if (element instanceof PsiLocalVariable) {
-        for (PsiElement child : element.getChildren()) {
-          if (child instanceof PsiMethodCallExpression) {
-            returnValue = (PsiMethodCallExpression) child;
-          } else if (child instanceof PsiReferenceExpression) {
-            PsiElement variableReference = child.getReference().resolve();
-            return findTargetElementInScope(scope, variableReference);
-          }
+        PsiLocalVariable localVariable = (PsiLocalVariable) element;
+        final PsiExpression initializer = localVariable.getInitializer();
+
+        if (initializer instanceof PsiMethodCallExpression) {
+          returnValue = (PsiMethodCallExpression) initializer;
+        } else if (initializer instanceof PsiReferenceExpression) {
+          PsiElement variableReference = initializer.getReference().resolve();
+          return findTargetElementInScope(scope, variableReference);
         }
       }
     }
@@ -251,8 +223,33 @@ public class PreserveWholeObject implements LocalQuickFix {
       PsiParameter newParameter = factory.createParameter(variable.getName(), variable.getType());
 
       newParameterList.add(newParameter);
-    } else {
-      System.out.println("null");
+    }
+  }
+
+  private void changeArgumentList(@NotNull PsiMethodCallExpression methodCallExpression) {
+    PsiExpressionList argumentList = methodCallExpression.getArgumentList();
+    PsiExpression[] arguments = argumentList.getExpressions();
+
+    for (PsiElement key : map.keySet()) {
+      if (map.get(key).size() < 2) continue;
+
+      PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(methodCallExpression.getProject());
+      if (map.containsKey(key)) {
+        if (!(key instanceof PsiVariable)) return;
+        PsiVariable variable = (PsiVariable) key;
+        PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
+        argumentList.add(newArgument);
+      }
+
+      List<PsiExpression> targetArguments = new ArrayList<>();
+      for (ArgumentInfo argumentInfo : map.get(key)) {
+        PsiExpression targetArgument = arguments[argumentInfo.getIndex()];
+        targetArguments.add(targetArgument);
+      }
+
+      for (PsiExpression deleteArgument : targetArguments) {
+        deleteArgument.delete();
+      }
     }
   }
 
