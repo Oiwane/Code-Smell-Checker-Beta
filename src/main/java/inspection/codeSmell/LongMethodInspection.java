@@ -40,7 +40,7 @@ public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix extractMethod = new ExtractMethod();
 
   public LongMethodInspection() {
-    inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES);
+    inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_STATEMENTS);
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
@@ -70,7 +70,8 @@ public class LongMethodInspection extends CodeSmellInspection {
     }
 
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (countStatement(method) <= upperLimitValue) {
+    int count = countStatement(method);
+    if (count <= upperLimitValue) {
       return null;
     }
 
@@ -79,7 +80,7 @@ public class LongMethodInspection extends CodeSmellInspection {
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(
-            identifier, identifier, getDisplayName(), ProblemHighlightType.WARNING, isOnTheFly,
+            identifier, identifier, getDisplayName() + " : number of statement in method is " + count, ProblemHighlightType.WARNING, isOnTheFly,
             replaceTempWithQuery, decomposeConditional, replaceMethodWithMethodObject, extractMethod
     ));
 

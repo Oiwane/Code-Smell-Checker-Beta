@@ -8,6 +8,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiReferenceExpression;
 import inspection.CodeSmellInspection;
@@ -54,54 +55,53 @@ public class MessageChainsInspection extends CodeSmellInspection {
     return this.createOptionUI(description, inspectionData);
   }
 
-  @Nullable
+  private ProblemDescriptor[] checkReferenceExpression(@NotNull PsiReferenceExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
+    return checkExpression(expression, manager, isOnTheFly);
+  }
+
   private ProblemDescriptor[] checkMethodCallExpression(@NotNull PsiMethodCallExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
-    int count;
-    // 木の途中でないかを確認
-    if (isReferenceExpression(expression.getParent()) && isMethodCallExpression(expression.getParent().getParent())) {
-      return null;
-    } else {
-      count = countPsiMethodCallExpression(expression);
-    }
+    return checkExpression(expression, manager, isOnTheFly);
+  }
+
+  @Nullable
+  private ProblemDescriptor[] checkExpression(@NotNull PsiExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
+    if (expression.getParent() instanceof PsiExpression) return null;
+
+    int count = countPsiExpression(expression) - 1;
 
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
     if (count <= upperLimitValue) return null;
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
-    descriptors.add(manager.createProblemDescriptor(expression, getDisplayName(), quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+    descriptors.add(manager.createProblemDescriptor(expression, getDisplayName() + " : length of chain is " + count, quickFix, ProblemHighlightType.WARNING, isOnTheFly));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
-
   }
 
-  private int countPsiMethodCallExpression(@NotNull PsiMethodCallExpression expression) {
-    int count = 1;
-
+  private int countPsiExpression(@NotNull PsiExpression expression) {
     for (PsiElement element : expression.getChildren()) {
       if (element instanceof PsiReferenceExpression) {
-        count += countPsiMethodCallExpression((PsiReferenceExpression) element);
+        return countPsiExpression((PsiExpression) element) + 1;
+      } else if (element instanceof PsiMethodCallExpression) {
+        PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) element;
+        return countPsiExpression(methodCallExpression.getMethodExpression()) + 1;
       }
     }
 
-    return count;
-  }
-
-  private int countPsiMethodCallExpression(@NotNull PsiReferenceExpression expression) {
-    int count = 0;
-
-    for (PsiElement element : expression.getChildren()) {
-      if (element instanceof PsiMethodCallExpression) {
-        count += countPsiMethodCallExpression((PsiMethodCallExpression) element);
-      }
-    }
-
-    return count;
+    return 0;
   }
 
   @NotNull
   @Override
   public PsiElementVisitor buildVisitor(@NotNull final ProblemsHolder holder, boolean isOnTheFly) {
     return new JavaElementVisitor() {
+
+      @Override
+      public void visitReferenceExpression(PsiReferenceExpression expression) {
+        super.visitReferenceExpression(expression);
+
+        addDescriptors(checkReferenceExpression(expression, holder.getManager(), isOnTheFly));
+      }
 
       @Override
       public void visitMethodCallExpression(PsiMethodCallExpression expression) {
