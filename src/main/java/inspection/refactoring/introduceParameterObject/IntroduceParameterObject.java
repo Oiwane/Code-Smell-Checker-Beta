@@ -1,6 +1,7 @@
 package inspection.refactoring.introduceParameterObject;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.refactoring.introduceparameterobject.IntroduceParameterObjectDialog;
@@ -24,8 +25,10 @@ public class IntroduceParameterObject implements LocalQuickFix {
     PsiMethod method = (PsiMethod) parameterList.getParent();
 
     ApplicationManager.getApplication().invokeLater(() -> {
-      IntroduceParameterObjectDialog dialog = new IntroduceParameterObjectDialog(method);
-      dialog.show();
+      TransactionGuard.getInstance().submitTransactionAndWait(() -> {
+        IntroduceParameterObjectDialog dialog = new IntroduceParameterObjectDialog(method);
+        dialog.show();
+      });
     });
   }
 }
