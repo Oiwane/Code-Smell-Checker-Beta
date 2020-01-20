@@ -6,6 +6,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
+import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
+import inspection.psi.PsiUtil;
+import inspection.refactoring.RefactoringUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,45 +24,54 @@ public class HideDelegate implements LocalQuickFix {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) descriptor.getPsiElement();
-
-    // a.hoge().fuga() -> aのクラス特定して、fuga()の戻り値のオブジェクトを返すgetterメソッドを作成
-    // aクラスのファイルが変更可能かを調べる
-    // 可能ならばgetterを作成
-//    PsiReferenceExpression baseObject = findBaseObject(methodCallExpression);
-    ElementCalledMethodVisitor elementCalledMethodVisitor = new ElementCalledMethodVisitor();
-    methodCallExpression.accept(elementCalledMethodVisitor);
-    PsiReferenceExpression baseObject = elementCalledMethodVisitor.getObjectElement();
-    if (baseObject == null) return;
-
-    PsiElement tempElement = baseObject.getReference().resolve();
-
-    assert tempElement instanceof PsiVariable;
-//    if (!(tempElement instanceof PsiVariable)) return;
-
-    PsiVariable variable = (PsiVariable) tempElement;
-    PsiJavaCodeReferenceElement javaCodeReferenceElement = variable.getTypeElement().getInnermostComponentReferenceElement();
-    PsiElement sourceElement = javaCodeReferenceElement.getReference().resolve();
-
-    if (!sourceElement.isWritable()) return;
-
-    PsiReference referenceOfMethodChainsTail = methodCallExpression.getMethodExpression().getReference();
-    tempElement = referenceOfMethodChainsTail.resolve();
-
-    if (!(tempElement instanceof PsiMethod)) return;
-
-    PsiMethod method = (PsiMethod) tempElement;
-    PsiTypeElement returnTypeElement = method.getReturnTypeElement();
-
     ApplicationManager.getApplication().invokeLater(() -> {
       WriteCommandAction.runWriteCommandAction(project, () -> {
+        PsiExpression expression = (PsiExpression) descriptor.getPsiElement();
+
+        PsiElement tailDefinitionElement = null;
+        if (expression instanceof PsiReferenceExpression) {
+          tailDefinitionElement = expression.getReference().resolve();
+        } else if (expression instanceof PsiMethodCallExpression) {
+          tailDefinitionElement = ((PsiMethodCallExpression) expression).getMethodExpression().getReference().resolve();
+        }
+        if (tailDefinitionElement == null) return;
+
+        PsiReferenceExpression baseElement = findBaseElement(expression);
+        PsiElement baseElementDefinitionElement = baseElement.getReference().resolve();
+
+        ClassVisitor visitor = new ClassVisitor(baseElementDefinitionElement.getTextRange());
+        PsiFile fileContainingChain = baseElementDefinitionElement.getContainingFile();
+
+        fileContainingChain.accept(visitor);
+        PsiClass classContainingChain = visitor.getTargetClass();
+
+        PsiType tailElementType = null;
+        String newMethodName = null;
+        if (tailDefinitionElement instanceof PsiMethod) {
+          PsiMethod method = (PsiMethod) tailDefinitionElement;
+          tailElementType = method.getReturnType();
+          newMethodName = method.getName();
+        } else if (tailDefinitionElement instanceof PsiField) {
+          PsiField field = (PsiField) tailDefinitionElement;
+          tailElementType = field.getType();
+          newMethodName = "get" + field.getName();
+        }
+        if (tailElementType == null) return;
+
+        if (!fileContainingChain.isWritable()) return;
         PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
-        PsiMethod newMethod = factory.createMethod("get" + returnTypeElement.getInnermostComponentReferenceElement().getQualifiedName(), returnTypeElement.getType());
-        PsiCodeBlock newCodeBlock = newMethod.getBody();
-        String returnStatementStr = "return " + methodCallExpression.getText().substring((baseObject.getText() + ".").length());
-        PsiReturnStatement returnStatement = (PsiReturnStatement) factory.createStatementFromText(returnStatementStr, newCodeBlock);
-        newCodeBlock.add(returnStatement);
-        method.getContainingClass().add(newMethod);
+        PsiMethod newMethod = factory.createMethod(newMethodName, tailElementType);
+
+        PsiStatement statement = null;
+        String statementStr = null;
+        if (tailElementType.equalsToText("void")) {
+          statementStr = "return " + expression.getText().substring(baseElement.getTextLength() + 1, expression.getTextLength());
+        } else {
+          statementStr = expression.getText().substring(baseElement.getTextLength() + 1, expression.getTextLength());
+        }
+        statement = factory.createStatementFromText(statementStr, classContainingChain);
+
+        newMethod.getBody().add(statement);
       });
     });
   }
@@ -74,5 +87,19 @@ public class HideDelegate implements LocalQuickFix {
     }
 
     return null;
+  }
+
+  @Nullable
+  private PsiReferenceExpression findBaseElement(@NotNull PsiExpression expression) {
+    for (PsiElement element : expression.getChildren()) {
+      if (element instanceof PsiReferenceExpression) {
+        return findBaseElement((PsiExpression) element);
+      } else if (element instanceof PsiMethodCallExpression) {
+        PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) element;
+        return findBaseElement(methodCallExpression.getMethodExpression());
+      }
+    }
+
+    return (expression instanceof PsiReferenceExpression) ? (PsiReferenceExpression) expression : null;
   }
 }
