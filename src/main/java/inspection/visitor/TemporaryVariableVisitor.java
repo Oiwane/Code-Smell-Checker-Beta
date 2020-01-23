@@ -1,4 +1,4 @@
-package inspection.refactoring.replaceTempWithQuery;
+package inspection.visitor;
 
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiElement;
@@ -12,7 +12,7 @@ import java.util.List;
 public class TemporaryVariableVisitor extends JavaRecursiveElementWalkingVisitor {
   private List<PsiElement> tempVariableList;
 
-  TemporaryVariableVisitor() {
+  public TemporaryVariableVisitor() {
     tempVariableList = new ArrayList<>();
   }
 
@@ -25,7 +25,7 @@ public class TemporaryVariableVisitor extends JavaRecursiveElementWalkingVisitor
     }
   }
 
-  List<PsiElement> getTempVariableList() {
+  public List<PsiElement> getTempVariableList() {
     return tempVariableList;
   }
 }

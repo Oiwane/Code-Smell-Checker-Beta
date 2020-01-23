@@ -1,4 +1,4 @@
-package inspection.refactoring.decomposeConditional;
+package inspection.visitor;
 
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.JavaTokenType;
@@ -13,7 +13,7 @@ import java.util.List;
 public class ConditionalVisitor extends JavaRecursiveElementWalkingVisitor {
   private List<PsiElement> conditionalList;
 
-  ConditionalVisitor() {
+  public ConditionalVisitor() {
     conditionalList = new ArrayList<>();
   }
 
@@ -25,7 +25,7 @@ public class ConditionalVisitor extends JavaRecursiveElementWalkingVisitor {
     if (hasMultipleConditionalExpression(elementType)) conditionalList.add(expression);
   }
 
-  List<PsiElement> getConditionalList() {
+  public List<PsiElement> getConditionalList() {
     return conditionalList;
   }
 

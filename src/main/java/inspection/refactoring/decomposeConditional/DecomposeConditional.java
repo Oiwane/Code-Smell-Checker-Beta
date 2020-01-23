@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
+import inspection.visitor.ConditionalVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ui.refactoring.decomposeConditional.SelectTargetConditionalDialog;
@@ -24,16 +25,16 @@ public class DecomposeConditional implements LocalQuickFix {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    PsiMethod method = (PsiMethod) descriptor.getPsiElement().getParent();
-
-    ConditionalVisitor conditionalVisitor = new ConditionalVisitor();
-    method.accept(conditionalVisitor);
-
-    final List<PsiElement> conditionalList = conditionalVisitor.getConditionalList();
-
-    SelectTargetConditionalDialog selectTargetConditionalDialog = new SelectTargetConditionalDialog(project, true, conditionalList);
-
     ApplicationManager.getApplication().invokeLater(() -> {
+      PsiMethod method = (PsiMethod) descriptor.getPsiElement().getParent();
+
+      ConditionalVisitor conditionalVisitor = new ConditionalVisitor();
+      method.accept(conditionalVisitor);
+
+      final List<PsiElement> conditionalList = conditionalVisitor.getConditionalList();
+
+      SelectTargetConditionalDialog selectTargetConditionalDialog = new SelectTargetConditionalDialog(project, true, conditionalList);
+
       selectTargetConditionalDialog.show();
       if (selectTargetConditionalDialog.isOK()) {
         final List<Integer> selectedIndexList = selectTargetConditionalDialog.getSelectedIndexList();

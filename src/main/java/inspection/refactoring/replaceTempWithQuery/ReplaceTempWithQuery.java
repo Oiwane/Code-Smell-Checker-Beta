@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.tempWithQuery.TempWithQueryHandler;
+import inspection.visitor.TemporaryVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ui.refactoring.replaceTempWithQuery.SelectTargetTempDialog;
