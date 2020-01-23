@@ -6,18 +6,17 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Box;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Component;
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectReplacedElementsDialog extends DialogWrapper {
   private JPanel mainPanel;
   private JPanel checkboxPanel;
+  private JScrollPane scrollPane;
   private final List<PsiElement> replacedElementList;
   private List<Integer> selectedIndexList;
   private final Box verticalBox;
@@ -36,7 +35,11 @@ public class SelectReplacedElementsDialog extends DialogWrapper {
 
   private void setUpCheckBoxesPanel() {
     if (replacedElementList.size() == 0) {
-      checkboxPanel.add(new JLabel(errorText));
+      JLabel errorLabel = new JLabel(errorText);
+      errorLabel.setFont(new Font(errorLabel.getFont().getName(), Font.BOLD, errorLabel.getFont().getSize()));
+      checkboxPanel.add(errorLabel);
+      checkboxPanel.setSize(-1, -1);
+      scrollPane.setSize(-1, -1);
     } else {
       setUpCheckBoxes();
     }
