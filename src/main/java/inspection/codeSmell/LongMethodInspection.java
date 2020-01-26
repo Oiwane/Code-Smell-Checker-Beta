@@ -19,8 +19,8 @@ import inspection.InspectionSettingName;
 import inspection.InspectionSettingValue;
 import inspection.InspectionUtil;
 import inspection.refactoring.decomposeConditional.DecomposeConditional;
-import inspection.refactoring.ExtractMethod;
-import inspection.refactoring.ReplaceMethodWithMethodObject;
+//import inspection.refactoring.ExtractMethod;
+//import inspection.refactoring.replaceMethodWithMethodObject.ReplaceMethodWithMethodObject;
 import inspection.refactoring.replaceTempWithQuery.ReplaceTempWithQuery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -36,8 +36,8 @@ import java.util.List;
 public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix replaceTempWithQuery = new ReplaceTempWithQuery();
   private LocalQuickFix decomposeConditional = new DecomposeConditional();
-  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
-  private LocalQuickFix extractMethod = new ExtractMethod();
+//  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
+//  private LocalQuickFix extractMethod = new ExtractMethod();
 
   public LongMethodInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_STATEMENTS);
@@ -81,7 +81,7 @@ public class LongMethodInspection extends CodeSmellInspection {
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(
             identifier, identifier, getDisplayName() + " : number of statement in method is " + count, ProblemHighlightType.WARNING, isOnTheFly,
-            replaceTempWithQuery, decomposeConditional, replaceMethodWithMethodObject, extractMethod
+            replaceTempWithQuery, decomposeConditional/*, replaceMethodWithMethodObject, extractMethod*/
     ));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
