@@ -2,7 +2,11 @@ package inspection.refactoring.preserveWholeObject;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.JavaTokenType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiCodeBlock;
 import com.intellij.psi.PsiDeclarationStatement;
@@ -46,34 +50,43 @@ public class PreserveWholeObject implements LocalQuickFix {
 
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-    PsiParameterList parameterList = (PsiParameterList) descriptor.getPsiElement();
-    PsiMethod method = (PsiMethod) parameterList.getParent();
-    PsiClass psiClass = method.getContainingClass();
-    assert psiClass != null;
-    List<PsiMethod> methodForCompare = new ArrayList<>();
+    ApplicationManager.getApplication().invokeLater(() -> {
+      CommandProcessor.getInstance().executeCommand(project, () -> {
+        PsiParameterList parameterList = (PsiParameterList) descriptor.getPsiElement();
+        PsiMethod method = (PsiMethod) parameterList.getParent();
+        PsiClass psiClass = method.getContainingClass();
+        assert psiClass != null;
+        List<PsiMethod> methodForCompare = new ArrayList<>();
 
-    PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
-    for (PsiReference referenceResult : referenceResults) {
-      PsiMethodCallExpression methodCallExpression = ((PsiMethodCallExpression) referenceResult.getElement().getParent());
+        PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
+        for (PsiReference referenceResult : referenceResults) {
+          if (!(referenceResult.getElement().getParent() instanceof PsiMethodCallExpression)) continue;
+          PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceResult.getElement().getParent();
 
-      map = new HashMap<>();
+          map = new HashMap<>();
 
-      extractArgumentInfo(methodCallExpression);
-      PsiMethod newMethod = PsiUtil.cloneMethod(method);
-      createParameterList(newMethod);
+          extractArgumentInfo(methodCallExpression);
+          PsiMethod newMethod = PsiUtil.cloneMethod(method);
+          createParameterList(newMethod);
 
-      // メソッドの呼び出し先の編集
-      changeArgumentList(methodCallExpression);
+          // メソッドの呼び出し先の編集
+          changeArgumentList(methodCallExpression);
 
-      if (PsiUtil.existsSameMethod(newMethod, psiClass.getAllMethods()) ||
-              PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
+          if (PsiUtil.existsSameMethod(newMethod, psiClass.getAllMethods()) ||
+                  PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
 
-      psiClass.add(newMethod);
-      methodForCompare.add(newMethod);
-      PsiDocumentManager.getInstance(project).commitAllDocuments();
-    }
+          WriteCommandAction.runWriteCommandAction(project, () -> {
+            psiClass.add(newMethod);
+            methodForCompare.add(newMethod);
+            PsiDocumentManager.getInstance(project).commitAllDocuments();
+          });
+        }
 
-    PsiUtil.deleteUnusedMethod(psiClass, method.getName());
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+          PsiUtil.deleteUnusedMethod(psiClass, method.getName());
+        });
+      }, "preserve whole object", getFamilyName());
+    });
   }
 
   private void extractArgumentInfo(@NotNull PsiMethodCallExpression methodCallExpression) {
@@ -177,7 +190,7 @@ public class PreserveWholeObject implements LocalQuickFix {
         returnValue = (PsiMethodCallExpression) element;
       } else if (element instanceof PsiJavaToken) {
         PsiJavaToken javaToken = (PsiJavaToken) element;
-        appearEQ = javaToken.getText().equals("=");
+        appearEQ = javaToken.getTokenType().equals(JavaTokenType.EQ);
       }
     }
 
@@ -229,16 +242,19 @@ public class PreserveWholeObject implements LocalQuickFix {
   private void changeArgumentList(@NotNull PsiMethodCallExpression methodCallExpression) {
     PsiExpressionList argumentList = methodCallExpression.getArgumentList();
     PsiExpression[] arguments = argumentList.getExpressions();
+    final Project project = methodCallExpression.getProject();
 
     for (PsiElement key : map.keySet()) {
       if (map.get(key).size() < 2) continue;
 
-      PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(methodCallExpression.getProject());
+      PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
       if (map.containsKey(key)) {
         if (!(key instanceof PsiVariable)) return;
         PsiVariable variable = (PsiVariable) key;
         PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
-        argumentList.add(newArgument);
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+          argumentList.add(newArgument);
+        });
       }
 
       List<PsiExpression> targetArguments = new ArrayList<>();
@@ -247,9 +263,11 @@ public class PreserveWholeObject implements LocalQuickFix {
         targetArguments.add(targetArgument);
       }
 
-      for (PsiExpression deleteArgument : targetArguments) {
-        deleteArgument.delete();
-      }
+      WriteCommandAction.runWriteCommandAction(project, () -> {
+        for (PsiExpression deleteArgument : targetArguments) {
+          deleteArgument.delete();
+        }
+      });
     }
   }
 
