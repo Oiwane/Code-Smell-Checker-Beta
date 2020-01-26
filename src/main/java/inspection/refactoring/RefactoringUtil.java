@@ -1,12 +1,16 @@
 package inspection.refactoring;
 
-import com.intellij.psi.*;
+import com.intellij.psi.PsiCodeBlock;
+import com.intellij.psi.PsiDeclarationStatement;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementFactory;
+import com.intellij.psi.PsiExpression;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiStatement;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class RefactoringUtil<E> {
+public class RefactoringUtil {
   /**
    * targetParameterをnewElementに置き換えてtargetParameterを削除する
    *
@@ -26,7 +30,7 @@ public class RefactoringUtil<E> {
    * @param targetParameter 対象のパラメータ
    * @param newElement パラメータの代わりに置くメソッド呼び出し
    */
-  private static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiExpression newElement) {
+  public static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiExpression newElement) {
     PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
     PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 

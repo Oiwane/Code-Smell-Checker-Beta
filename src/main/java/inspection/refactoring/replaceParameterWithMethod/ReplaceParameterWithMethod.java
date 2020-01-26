@@ -3,27 +3,10 @@ package inspection.refactoring.replaceParameterWithMethod;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiCodeBlock;
-import com.intellij.psi.PsiDeclarationStatement;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiExpression;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiIdentifier;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiMethodCallExpression;
-import com.intellij.psi.PsiNewExpression;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiReferenceExpression;
-import com.intellij.psi.PsiStatement;
-import com.intellij.psi.PsiVariable;
-import com.intellij.psi.SmartPointerManager;
-import com.intellij.psi.SmartPsiElementPointer;
+import com.intellij.psi.*;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
@@ -52,38 +35,40 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
   @Override
   public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
     ApplicationManager.getApplication().invokeLater(() -> {
-      PsiMethod method = (PsiMethod) descriptor.getPsiElement().getParent();
+      CommandProcessor.getInstance().executeCommand(project, () -> {
+        PsiMethod method = (PsiMethod) descriptor.getPsiElement().getParent();
 
-      PsiClass psiClass = method.getContainingClass();
-      assert psiClass != null;
-      List<PsiMethod> methodForCompare = new ArrayList<>();
+        PsiClass psiClass = method.getContainingClass();
+        assert psiClass != null;
+        List<PsiMethod> methodForCompare = new ArrayList<>();
 
-      PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
-      for (PsiReference referenceResult : referenceResults) {
-        newMethod = SmartPointerManager.createPointer(PsiUtil.cloneMethod(method));
-        PsiMethod extractedMethod = RefactoringUtil.findMethodBelongsTo(referenceResult.getElement());
-        // 呼び出し先のクラスと呼び出されたメソッドのクラスが異なる場合、リファクタリングしない
-        if (!psiClass.equals(extractedMethod.getContainingClass())) continue;
+        PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
+        for (PsiReference referenceResult : referenceResults) {
+          newMethod = SmartPointerManager.createPointer(PsiUtil.cloneMethod(method));
+          PsiMethod extractedMethod = RefactoringUtil.findMethodBelongsTo(referenceResult.getElement());
+          // 呼び出し先のクラスと呼び出されたメソッドのクラスが異なる場合、リファクタリングしない
+          if (!psiClass.equals(extractedMethod.getContainingClass())) continue;
 
-        map = new HashMap<>();
-        extractElements(referenceResult);
-        if (arguments == null) continue;
+          map = new HashMap<>();
+          extractElements(referenceResult);
+          if (arguments == null) continue;
 
-        createNewMethod(method);
+          createNewMethod(method);
 
-        if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
-                PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) continue;
+          if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
+                  PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) continue;
+
+          WriteCommandAction.runWriteCommandAction(project, () -> {
+            psiClass.add(newMethod.getElement());
+          });
+          methodForCompare.add(newMethod.getElement());
+          PsiDocumentManager.getInstance(project).commitAllDocuments();
+        }
 
         WriteCommandAction.runWriteCommandAction(project, () -> {
-          psiClass.add(newMethod.getElement());
+          PsiUtil.deleteUnusedMethod(psiClass, method.getName());
         });
-        methodForCompare.add(newMethod.getElement());
-        PsiDocumentManager.getInstance(project).commitAllDocuments();
-      }
-
-      WriteCommandAction.runWriteCommandAction(project, () -> {
-        PsiUtil.deleteUnusedMethod(psiClass, method.getName());
-      });
+      }, "replace parameter with method", getFamilyName());
     });
   }
 
@@ -187,6 +172,8 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
   private void createNewMethod(@NotNull PsiMethod originalMethod) {
     Project project = originalMethod.getProject();
+    List<Integer> deleteArgumentIndexList = new ArrayList<>();
+
     for (int key : map.keySet()) {
       List<PsiElement> extractedElementList = map.get(key);
       final PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[key];
@@ -194,27 +181,29 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
       if (extractedElementList.size() == 1) {
         PsiElement element = extractedElementList.get(0);
         if (isPsiMethodCallExpression(element) || isPsiNewExpression(element)) {
-          final PsiExpression newElement = (PsiExpression) element;
-          RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, newElement);
-          changeArgumentList(project);
-          // TODO ここの処理に入ることがあるのかを確認する
+          if (isPsiMethodCallExpression(element)) {
+            PsiReferenceExpression baseElement = PsiUtil.findBaseElement((PsiMethodCallExpression) element);
+            if (baseElement.getReference() != null && isPsiLocalVariable(baseElement.getReference().resolve())) continue;
+          }
+          replaceParameter(targetParameter, (PsiExpression) element, key, deleteArgumentIndexList);
         } else if (isPsiDeclarationStatement(element)){
           PsiDeclarationStatement declarationStatement = (PsiDeclarationStatement) element;
 
-          for (PsiElement child : declarationStatement.getChildren()) {
-            if (!isPsiVariable(child)) continue;
-            PsiVariable variable = (PsiVariable) child;
+          if (declarationStatement.getDeclaredElements().length != 1) continue;
+          PsiElement child = declarationStatement.getDeclaredElements()[0];
+          if (!isPsiVariable(child)) continue;
 
-            if (!isPsiMethodCallExpression(variable.getInitializer()) ||
-                    !isPsiNewExpression(variable.getInitializer())) continue;
-
-            final PsiMethodCallExpression newElement = PsiUtil.clonePsiMethodCallExpression((PsiMethodCallExpression) variable.getInitializer());
-
-            RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, newElement);
-            changeArgumentList(project);
-            break;
+          final PsiExpression initializer = ((PsiVariable) child).getInitializer();
+          final PsiReference reference = initializer.getReference();
+          if ((isPsiMethodCallExpression(initializer) && isPsiNewExpression(initializer)) ||
+                  (reference != null && isPsiField(reference.resolve()))) {
+            replaceParameter(targetParameter, PsiUtil.clonePsiExpression(initializer), key, deleteArgumentIndexList);
           }
-        }
+        }/* else if (isPsiReferenceExpression(element)) {
+          if (element.getReference() != null && isPsiField(element.getReference().resolve())) {
+            replaceParameter(targetParameter, (PsiExpression) element, key, deleteArgumentIndexList);
+          }
+        }*/
       } else {
         PsiElement[] elements = extractedElementList.toArray(new PsiElement[0]);
         ExtractMethodProcessor processor = ExtractMethodHandler.getProcessor(project, elements, originalMethod.getContainingFile(), false);
@@ -222,27 +211,25 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
         if (ExtractMethodHandler.invokeOnElements(project, processor, originalMethod.getContainingFile(), true) ||
                 PsiUtil.existsSameMethod(processor.getExtractedMethod(), originalMethod.getContainingClass().getAllMethods())) {
-          RefactoringUtil.optimiseParameter(newMethod.getElement(), targetParameter, processor.getMethodCall());
-          changeArgumentList(project);
+          replaceParameter(targetParameter, processor.getMethodCall(), key, deleteArgumentIndexList);
         }
       }
     }
+
+    changeParameterList(project, deleteArgumentIndexList);
   }
 
-  private void changeArgumentList(Project project) {
-    for (int key : map.keySet()) {
-      List<PsiElement> extractedElements = map.get(key);
-      assert extractedElements.size() != 0;
-      WriteCommandAction.runWriteCommandAction(project, () -> {
-        if (extractedElements.size() == 1) {
-          if (isPsiMethodCallExpression(arguments[key])) arguments[key].delete();
-        }
-        else {
-          // ひょっとしたら条件式が不足している可能性あり
-          arguments[key].delete();
-        }
-      });
-    }
+  private void replaceParameter(PsiParameter targetParameter, PsiExpression newElement, int key, @NotNull List<Integer> deleteArgumentIndexList) {
+    RefactoringUtil.replaceParameterObject(newMethod.getElement(), targetParameter, newElement);
+    WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> arguments[key].delete());
+    deleteArgumentIndexList.add(key);
+  }
+
+  private void changeParameterList(Project project, List<Integer> deleteArgumentIndexList) {
+    WriteCommandAction.runWriteCommandAction(project, () -> {
+      PsiParameterList newParameterList = PsiUtil.clonePsiParameterList(project, newMethod.getElement().getParameterList(), deleteArgumentIndexList);
+      newMethod.getElement().getParameterList().replace(newParameterList);
+    });
   }
 
   private boolean isPsiField(PsiElement element) {
@@ -275,5 +262,9 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
   private boolean isPsiJavaCodeReferenceElement(PsiReference referenceResult) {
     return referenceResult instanceof PsiJavaCodeReferenceElement;
+  }
+
+  private boolean isPsiLocalVariable(PsiElement element) {
+    return element instanceof PsiLocalVariable;
   }
 }
