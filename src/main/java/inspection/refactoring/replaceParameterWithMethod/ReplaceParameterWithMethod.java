@@ -8,10 +8,12 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
 import inspection.psi.PsiUtil;
 import inspection.refactoring.RefactoringUtil;
+import inspection.visitor.LocalVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,14 +62,19 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
           WriteCommandAction.runWriteCommandAction(project, () -> {
             psiClass.add(newMethod.getElement());
+            LocalVariableVisitor visitor = new LocalVariableVisitor();
+            psiClass.accept(visitor);
+            for (PsiElement element : visitor.getLocalVariableList()) {
+              if (ReferencesSearch.search(element).toArray(new PsiReference[0]).length == 0) {
+                element.delete();
+              }
+            }
+            methodForCompare.add(newMethod.getElement());
+            PsiDocumentManager.getInstance(project).commitAllDocuments();
           });
-          methodForCompare.add(newMethod.getElement());
-          PsiDocumentManager.getInstance(project).commitAllDocuments();
         }
 
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-          PsiUtil.deleteUnusedMethod(psiClass, method.getName());
-        });
+        WriteCommandAction.runWriteCommandAction(project, () -> PsiUtil.deleteUnusedMethod(psiClass, method.getName()));
       }, "replace parameter with method", getFamilyName());
     });
   }

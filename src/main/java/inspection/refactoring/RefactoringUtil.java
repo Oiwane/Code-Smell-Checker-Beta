@@ -1,14 +1,12 @@
 package inspection.refactoring;
 
-import com.intellij.psi.PsiCodeBlock;
-import com.intellij.psi.PsiDeclarationStatement;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiExpression;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiStatement;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.psi.*;
+import com.intellij.psi.search.searches.ReferencesSearch;
+import inspection.visitor.TargetElementVisitor;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class RefactoringUtil {
   /**
@@ -31,15 +29,38 @@ public class RefactoringUtil {
    * @param newElement パラメータの代わりに置くメソッド呼び出し
    */
   public static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiExpression newElement) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
-    PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
+    TargetElementVisitor visitor = new TargetElementVisitor(targetParameter);
+    method.getBody().accept(visitor);
+    final List<PsiElement> elementList = visitor.getElementList();
 
-    if (method.getBody().getStatementCount() != 0) {
-      PsiStatement firstStatement = method.getBody().getStatements()[0];
-      method.getBody().addBefore(declarationStatement, firstStatement);
-    } else {
-      method.getBody().add(declarationStatement);
-    }
+    WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> {
+      if (elementList.size() > 1) {
+        PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
+        PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
+
+        if (method.getBody().getStatementCount() != 0) {
+          PsiStatement firstStatement = method.getBody().getStatements()[0];
+          method.getBody().addBefore(declarationStatement, firstStatement);
+        } else {
+          method.getBody().add(declarationStatement);
+        }
+      } else if (elementList.size() == 1) {
+        elementList.get(0).replace(newElement);
+      }
+    });
+
+
+//    PsiLocalVariable localVariable = (PsiLocalVariable) declarationStatement.getDeclaredElements()[0];
+//    method.getBody().accept(visitor);
+
+//    List<PsiElement> elementList = visitor.getElementList();
+//    if (elementList.size() != 1) return;
+//
+//    WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> {
+//      elementList.get(0).replace(localVariable.getInitializer());
+//      System.out.println(declarationStatement.getText());
+//      declarationStatement.delete();
+//    });
   }
 
   /**

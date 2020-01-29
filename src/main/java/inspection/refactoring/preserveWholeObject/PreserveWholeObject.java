@@ -27,8 +27,10 @@ import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiStatement;
 import com.intellij.psi.PsiVariable;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import inspection.psi.PsiUtil;
 import inspection.refactoring.RefactoringUtil;
+import inspection.visitor.LocalVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,6 +79,15 @@ public class PreserveWholeObject implements LocalQuickFix {
 
           WriteCommandAction.runWriteCommandAction(project, () -> {
             psiClass.add(newMethod);
+
+            LocalVariableVisitor visitor = new LocalVariableVisitor();
+            psiClass.accept(visitor);
+            for (PsiElement element : visitor.getLocalVariableList()) {
+              if (ReferencesSearch.search(element).toArray(new PsiReference[0]).length == 0) {
+                element.delete();
+              }
+            }
+
             methodForCompare.add(newMethod);
             PsiDocumentManager.getInstance(project).commitAllDocuments();
           });
