@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalVariableVisitor extends JavaRecursiveElementWalkingVisitor {
-  List<PsiElement> localVariableList;
+  private List<PsiElement> localVariableList;
 
   public LocalVariableVisitor() {
     localVariableList = new ArrayList<>();
