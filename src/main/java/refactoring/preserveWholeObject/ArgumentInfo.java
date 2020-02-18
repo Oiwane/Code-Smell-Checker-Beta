@@ -1,4 +1,4 @@
-package inspection.refactoring.preserveWholeObject;
+package refactoring.preserveWholeObject;
 
 import com.intellij.psi.PsiMethodCallExpression;
 

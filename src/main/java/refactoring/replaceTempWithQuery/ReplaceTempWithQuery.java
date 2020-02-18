@@ -1,4 +1,4 @@
-package inspection.refactoring.replaceTempWithQuery;
+package refactoring.replaceTempWithQuery;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.tempWithQuery.TempWithQueryHandler;
-import inspection.visitor.TemporaryVariableVisitor;
+import visitor.TemporaryVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ui.refactoring.replaceTempWithQuery.SelectTargetTempDialog;

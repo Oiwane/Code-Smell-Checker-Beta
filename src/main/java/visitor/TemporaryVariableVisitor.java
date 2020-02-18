@@ -1,4 +1,4 @@
-package inspection.visitor;
+package visitor;
 
 import com.intellij.psi.JavaRecursiveElementWalkingVisitor;
 import com.intellij.psi.PsiElement;

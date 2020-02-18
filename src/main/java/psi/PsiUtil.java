@@ -1,4 +1,4 @@
-package inspection.psi;
+package psi;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;

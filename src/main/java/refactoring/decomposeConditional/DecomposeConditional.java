@@ -1,4 +1,4 @@
-package inspection.refactoring.decomposeConditional;
+package refactoring.decomposeConditional;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
-import inspection.visitor.ConditionalVisitor;
+import visitor.ConditionalVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ui.refactoring.decomposeConditional.SelectTargetConditionalDialog;

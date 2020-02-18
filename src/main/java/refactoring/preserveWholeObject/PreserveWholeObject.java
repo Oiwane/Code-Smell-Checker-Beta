@@ -1,4 +1,4 @@
-package inspection.refactoring.preserveWholeObject;
+package refactoring.preserveWholeObject;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -28,9 +28,9 @@ import com.intellij.psi.PsiStatement;
 import com.intellij.psi.PsiVariable;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.search.searches.ReferencesSearch;
-import inspection.psi.PsiUtil;
-import inspection.refactoring.RefactoringUtil;
-import inspection.visitor.LocalVariableVisitor;
+import psi.PsiUtil;
+import refactoring.RefactoringUtil;
+import visitor.LocalVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

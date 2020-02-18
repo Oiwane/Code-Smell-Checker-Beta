@@ -16,7 +16,7 @@ import inspection.InspectionData;
 import inspection.InspectionSettingName;
 import inspection.InspectionSettingValue;
 import inspection.InspectionUtil;
-import inspection.refactoring.hideDelegate.HideDelegate;
+import refactoring.hideDelegate.HideDelegate;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

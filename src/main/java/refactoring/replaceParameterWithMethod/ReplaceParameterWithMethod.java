@@ -1,4 +1,4 @@
-package inspection.refactoring.replaceParameterWithMethod;
+package refactoring.replaceParameterWithMethod;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -11,9 +11,9 @@ import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
 import com.intellij.refactoring.extractMethod.ExtractMethodProcessor;
-import inspection.psi.PsiUtil;
-import inspection.refactoring.RefactoringUtil;
-import inspection.visitor.LocalVariableVisitor;
+import psi.PsiUtil;
+import refactoring.RefactoringUtil;
+import visitor.LocalVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 

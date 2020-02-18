@@ -1,9 +1,8 @@
-package inspection.refactoring;
+package refactoring;
 
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.*;
-import com.intellij.psi.search.searches.ReferencesSearch;
-import inspection.visitor.TargetElementVisitor;
+import visitor.TargetElementVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

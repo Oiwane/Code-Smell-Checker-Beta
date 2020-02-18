@@ -1,4 +1,4 @@
-package inspection.refactoring.introduceParameterObject;
+package refactoring.introduceParameterObject;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.TransactionGuard;

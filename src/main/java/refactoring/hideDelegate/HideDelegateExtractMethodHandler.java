@@ -1,4 +1,4 @@
-package inspection.refactoring.hideDelegate;
+package refactoring.hideDelegate;
 
 import com.intellij.codeInsight.daemon.impl.analysis.JavaHighlightUtil;
 import com.intellij.openapi.editor.Editor;

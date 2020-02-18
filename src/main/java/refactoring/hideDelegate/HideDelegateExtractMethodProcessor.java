@@ -1,4 +1,4 @@
-package inspection.refactoring.hideDelegate;
+package refactoring.hideDelegate;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -28,7 +28,7 @@ import java.util.Set;
 public class HideDelegateExtractMethodProcessor extends ExtractMethodProcessor {
   private PsiReferenceExpression base;
   private PsiElementFactory myElementFactory;
-  private static final Logger LOG = Logger.getInstance("#inspection.refactoring.hideDelegate.HideDelegateExtractMethodProcessor");
+  private static final Logger LOG = Logger.getInstance("#refactoring.hideDelegate.HideDelegateExtractMethodProcessor");
 
   HideDelegateExtractMethodProcessor(Project project,
                                      Editor editor,
