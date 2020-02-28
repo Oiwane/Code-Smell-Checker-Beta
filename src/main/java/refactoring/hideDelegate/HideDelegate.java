@@ -27,11 +27,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HideDelegate implements LocalQuickFix {
+  public static final String QUICK_FIX_NAME = "Hide Delegate";
+
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
   @Override
   public String getFamilyName() {
-    return "Hide delegate";
+    return QUICK_FIX_NAME;
   }
 
   @Override

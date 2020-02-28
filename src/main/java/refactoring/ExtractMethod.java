@@ -13,6 +13,9 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import ui.refactoring.extractMethod.SelectExtractedRangeDialog;
 
+/**
+ * 未完成のクラス
+ */
 public class ExtractMethod implements LocalQuickFix {
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull

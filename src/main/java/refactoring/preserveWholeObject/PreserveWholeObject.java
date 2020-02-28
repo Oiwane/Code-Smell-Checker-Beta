@@ -42,12 +42,13 @@ import java.util.Map;
 
 public class PreserveWholeObject implements LocalQuickFix {
   private Map<PsiElement, List<ArgumentInfo>> map;
+  public static final String QUICK_FIX_NAME = "Preserve Whole Object";
 
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
   @Override
   public String getFamilyName() {
-    return "Preserve whole Object";
+    return QUICK_FIX_NAME;
   }
 
   @Override

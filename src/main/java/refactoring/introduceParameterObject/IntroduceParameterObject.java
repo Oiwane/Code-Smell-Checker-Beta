@@ -12,11 +12,13 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 public class IntroduceParameterObject implements LocalQuickFix {
+  public static final String QUICK_FIX_NAME = "Introduce Parameter Object";
+
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
   @Override
   public String getFamilyName() {
-    return "Introduce parameter Object";
+    return QUICK_FIX_NAME;
   }
 
   @Override

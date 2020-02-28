@@ -22,16 +22,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 未完成のクラス
+ */
 public class ReplaceParameterWithMethod implements LocalQuickFix {
   private Map<Integer, List<PsiElement>> map;
   private SmartPsiElementPointer<PsiMethod> newMethod;
   private PsiExpression[] arguments;
 
+  public static final String QUICK_FIX_NAME = "Replace Parameter with Method";
+
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
   @Override
   public String getFamilyName() {
-    return "Replace parameter with method";
+    return QUICK_FIX_NAME;
   }
 
   @Override

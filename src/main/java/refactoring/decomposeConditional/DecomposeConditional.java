@@ -16,11 +16,13 @@ import ui.refactoring.decomposeConditional.SelectTargetConditionalDialog;
 import java.util.List;
 
 public class DecomposeConditional implements LocalQuickFix {
+  public static final String QUICK_FIX_NAME = "Decompose Conditional";
+
   @Nls(capitalization = Nls.Capitalization.Sentence)
   @NotNull
   @Override
   public String getFamilyName() {
-    return "Decompose conditional";
+    return QUICK_FIX_NAME;
   }
 
   @Override
