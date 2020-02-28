@@ -26,7 +26,7 @@ import java.util.List;
 public class PsiUtil {
 
   public static PsiMethod cloneMethod(@NotNull PsiMethod originalMethod) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(originalMethod.getProject());
+    PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
     PsiMethod newMethod;
     if (originalMethod.isConstructor()) {
       newMethod = factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
@@ -68,12 +68,12 @@ public class PsiUtil {
   }
 
   public static PsiExpression clonePsiExpression(PsiExpression originalElement) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(originalElement.getProject());
+    PsiElementFactory factory = PsiElementFactory.getInstance(originalElement.getProject());
     return factory.createExpressionFromText(originalElement.getText(), null);
   }
 
   public static PsiParameterList clonePsiParameterList(Project project, PsiParameterList parameterList, List<Integer> deleteArgumentIndexList) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
+    PsiElementFactory factory = PsiElementFactory.getInstance(project);
     List<String> nameList = new ArrayList<>();
     List<PsiType> typeList = new ArrayList<>();
 
@@ -111,13 +111,12 @@ public class PsiUtil {
   private static boolean isSameParameters(@NotNull PsiParameter[] targetParameters, PsiParameter[] sampleParameters) {
     int counter = 0;
     boolean[] flags = new boolean[targetParameters.length];
-    for (int i = 0; i < flags.length; i++) {
-      flags[i] = false;
-    }
+    for (int i = 0; i < flags.length; i++) flags[i] = false;
+
     for (PsiParameter targetParameter : targetParameters) {
-      for (int j = 0; j < sampleParameters.length; j++) {
-        if (targetParameter.getType().equals(sampleParameters[j].getType()) && !flags[j]) {
-          flags[j] = true;
+      for (int i = 0; i < sampleParameters.length; i++) {
+        if (targetParameter.getType().equals(sampleParameters[i].getType()) && !flags[i]) {
+          flags[i] = true;
           counter++;
           break;
         }

@@ -1,7 +1,14 @@
 package refactoring;
 
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiCodeBlock;
+import com.intellij.psi.PsiDeclarationStatement;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementFactory;
+import com.intellij.psi.PsiExpression;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiStatement;
 import visitor.TargetElementVisitor;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,37 +36,28 @@ public class RefactoringUtil {
    */
   public static void replaceParameterObject(@NotNull PsiMethod method, @NotNull PsiParameter targetParameter, PsiExpression newElement) {
     TargetElementVisitor visitor = new TargetElementVisitor(targetParameter);
-    method.getBody().accept(visitor);
+
+    final PsiCodeBlock codeBlock = method.getBody();
+    assert codeBlock != null;
+
+    codeBlock.accept(visitor);
     final List<PsiElement> elementList = visitor.getElementList();
 
     WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> {
       if (elementList.size() > 1) {
-        PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(targetParameter.getProject());
+        PsiElementFactory factory = PsiElementFactory.getInstance(targetParameter.getProject());
         PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 
-        if (method.getBody().getStatementCount() != 0) {
-          PsiStatement firstStatement = method.getBody().getStatements()[0];
-          method.getBody().addBefore(declarationStatement, firstStatement);
+        if (codeBlock.getStatementCount() != 0) {
+          PsiStatement firstStatement = codeBlock.getStatements()[0];
+          codeBlock.addBefore(declarationStatement, firstStatement);
         } else {
-          method.getBody().add(declarationStatement);
+          codeBlock.add(declarationStatement);
         }
       } else if (elementList.size() == 1) {
         elementList.get(0).replace(newElement);
       }
     });
-
-
-//    PsiLocalVariable localVariable = (PsiLocalVariable) declarationStatement.getDeclaredElements()[0];
-//    method.getBody().accept(visitor);
-
-//    List<PsiElement> elementList = visitor.getElementList();
-//    if (elementList.size() != 1) return;
-//
-//    WriteCommandAction.runWriteCommandAction(targetParameter.getProject(), () -> {
-//      elementList.get(0).replace(localVariable.getInitializer());
-//      System.out.println(declarationStatement.getText());
-//      declarationStatement.delete();
-//    });
   }
 
   /**

@@ -49,17 +49,18 @@ public class HideDelegate implements LocalQuickFix {
         if (classInsertedMethod == null || !classInsertedMethod.isWritable()) return;
 
         PsiElement[] elements = new PsiElement[]{expression};
-        HideDelegateExtractMethodProcessor processor = HideDelegateExtractMethodHandler.getProcessor(project, elements, expression.getContainingFile(), false, base);
+        HideDelegateExtractMethodProcessor processor = HideDelegateExtractMethodHandler.getProcessor(project, elements, expression.getContainingFile(), base);
         assert processor != null;
 
         TransactionGuard.getInstance().submitTransactionAndWait(() -> {
           if (HideDelegateExtractMethodHandler.invokeOnElements(project, processor, expression.getContainingFile(), true)) {
             createNewMethod(processor);
             PsiMethod method = processor.getExtractedMethod();
-            if (classInsertedMethod.equals(method.getContainingClass())) return;
+            final PsiClass containingClass = method.getContainingClass();
+            if (classInsertedMethod.equals(containingClass)) return;
 
             WriteCommandAction.runWriteCommandAction(project, () -> {
-              PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
+              PsiElementFactory factory = PsiElementFactory.getInstance(project);
 
               final PsiMethodCallExpression methodCall = processor.getMethodCall();
               PsiExpression newElement = factory.createExpressionFromText(base.getText() + "." + methodCall.getText(), null);
