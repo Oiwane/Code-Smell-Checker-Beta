@@ -1,7 +1,5 @@
 package pass;
 
-import java.util.Calendar;
-
 public class Person {
   private final String name;
   private final int yearOfBirthDay;
