@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>jp.ac.miyazaki_u.student.oiwane.code_smell_checker_plugin</id>
+    <id>io.github.oiwane.code_smell_checker_plugin</id>
     <name>Code Smell Checker</name>
     <version>1.0</version>
     <vendor email="drhv8272@gmail.com" url=""/>
