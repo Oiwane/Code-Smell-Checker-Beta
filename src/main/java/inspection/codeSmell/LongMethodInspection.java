@@ -18,10 +18,10 @@ import inspection.InspectionData;
 import inspection.InspectionSettingName;
 import inspection.InspectionSettingValue;
 import inspection.InspectionUtil;
-import inspection.refactoring.decomposeConditional.DecomposeConditional;
-import inspection.refactoring.ExtractMethod;
-import inspection.refactoring.ReplaceMethodWithMethodObject;
-import inspection.refactoring.replaceTempWithQuery.ReplaceTempWithQuery;
+import refactoring.decomposeConditional.DecomposeConditional;
+//import refactoring.ExtractMethod;
+//import refactoring.replaceMethodWithMethodObject.ReplaceMethodWithMethodObject;
+import refactoring.replaceTempWithQuery.ReplaceTempWithQuery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,11 +36,11 @@ import java.util.List;
 public class LongMethodInspection extends CodeSmellInspection {
   private LocalQuickFix replaceTempWithQuery = new ReplaceTempWithQuery();
   private LocalQuickFix decomposeConditional = new DecomposeConditional();
-  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
-  private LocalQuickFix extractMethod = new ExtractMethod();
+//  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
+//  private LocalQuickFix extractMethod = new ExtractMethod();
 
   public LongMethodInspection() {
-    inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PROCESSES);
+    inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_STATEMENTS);
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
   }
 
@@ -70,7 +70,8 @@ public class LongMethodInspection extends CodeSmellInspection {
     }
 
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
-    if (countStatement(method) <= upperLimitValue) {
+    int count = countStatement(method);
+    if (count <= upperLimitValue) {
       return null;
     }
 
@@ -79,8 +80,8 @@ public class LongMethodInspection extends CodeSmellInspection {
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(
-            identifier, identifier, getDisplayName(), ProblemHighlightType.WARNING, isOnTheFly,
-            replaceTempWithQuery, decomposeConditional, replaceMethodWithMethodObject, extractMethod
+            identifier, identifier, getDisplayName() + " : number of statement in method is " + count, ProblemHighlightType.WARNING, isOnTheFly,
+            replaceTempWithQuery, decomposeConditional/*, replaceMethodWithMethodObject, extractMethod*/
     ));
 
     return descriptors.toArray(new ProblemDescriptor[0]);

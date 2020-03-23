@@ -13,9 +13,9 @@ import inspection.InspectionData;
 import inspection.InspectionSettingName;
 import inspection.InspectionSettingValue;
 import inspection.InspectionUtil;
-import inspection.refactoring.introduceParameterObject.IntroduceParameterObject;
-import inspection.refactoring.preserveWholeObject.PreserveWholeObject;
-import inspection.refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
+import refactoring.introduceParameterObject.IntroduceParameterObject;
+import refactoring.preserveWholeObject.PreserveWholeObject;
+import refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,7 +65,7 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
     List<ProblemDescriptor> descriptors = new ArrayList<>();
     descriptors.add(manager.createProblemDescriptor(
-            list, list, getDisplayName(), ProblemHighlightType.WARNING, isOnTheFly,
+            list, list, getDisplayName() + " : number of parameter is " + list.getParametersCount(), ProblemHighlightType.WARNING, isOnTheFly,
             replaceParameterWithMethod, introduceParameterObject, preserveWholeObject));
 
     return descriptors.toArray(new ProblemDescriptor[0]);
