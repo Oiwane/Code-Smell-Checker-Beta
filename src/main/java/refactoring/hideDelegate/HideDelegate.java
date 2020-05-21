@@ -92,7 +92,7 @@ public class HideDelegate implements LocalQuickFix {
   }
 
   private void checkAccessModifier(@NotNull PsiClass classInsertedMethod, PsiClass originalClass, PsiMethod newMethod) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(classInsertedMethod.getProject());
+    PsiElementFactory factory = PsiElementFactory.getInstance(classInsertedMethod.getProject());
     if (!classInsertedMethod.equals(originalClass)) {
       for (PsiElement child : newMethod.getModifierList().getChildren()) {
         if (child.getText().equals(PsiModifier.PRIVATE)) {

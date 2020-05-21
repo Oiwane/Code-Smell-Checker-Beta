@@ -241,7 +241,7 @@ public class PreserveWholeObject implements LocalQuickFix {
    * @param newParameterList 新しいパラメータリスト
    */
   private void addParameter(@NotNull Map<PsiElement, List<ArgumentInfo>> map, PsiElement key, @NotNull PsiParameterList newParameterList) {
-    PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(newParameterList.getProject());
+    PsiElementFactory factory = PsiElementFactory.getInstance(newParameterList.getProject());
     if (map.containsKey(key)) {
       if (!(key instanceof PsiVariable)) return;
       PsiVariable variable = (PsiVariable) key;
@@ -259,7 +259,7 @@ public class PreserveWholeObject implements LocalQuickFix {
     for (PsiElement key : map.keySet()) {
       if (map.get(key).size() < 2) continue;
 
-      PsiElementFactory factory = PsiElementFactory.SERVICE.getInstance(project);
+      PsiElementFactory factory = PsiElementFactory.getInstance(project);
       if (map.containsKey(key)) {
         if (!(key instanceof PsiVariable)) return;
         PsiVariable variable = (PsiVariable) key;
