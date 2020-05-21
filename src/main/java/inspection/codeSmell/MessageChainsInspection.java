@@ -35,12 +35,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
   public MessageChainsInspection() {
     inspectionData = new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS);
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
-  }
-
-  @Override
-  @NotNull
-  public String getDisplayName() {
-      return "Message chains";
+    displayName = "Message chains";
   }
 
   @NonNls
@@ -118,13 +113,5 @@ public class MessageChainsInspection extends CodeSmellInspection {
         }
       }
     };
-  }
-
-  private boolean isMethodCallExpression(@NotNull PsiElement element) {
-    return element instanceof PsiMethodCallExpression;
-  }
-
-  private boolean isReferenceExpression(@NotNull PsiElement element) {
-    return element instanceof PsiReferenceExpression;
   }
 }

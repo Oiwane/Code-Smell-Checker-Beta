@@ -42,12 +42,7 @@ public class LongMethodInspection extends CodeSmellInspection {
   public LongMethodInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_STATEMENTS);
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
-  }
-
-  @Override
-  @NotNull
-  public String getDisplayName() {
-    return "Long method";
+    displayName = "Long method";
   }
 
   @NonNls

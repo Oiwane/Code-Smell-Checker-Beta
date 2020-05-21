@@ -36,12 +36,7 @@ public class LongParameterListInspection extends CodeSmellInspection {
   public LongParameterListInspection() {
     inspectionData = new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST);
     upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
-  }
-
-  @Override
-  @NotNull
-  public String getDisplayName() {
-      return "Long parameter list";
+    displayName = "Long parameter list";
   }
 
   @NonNls
