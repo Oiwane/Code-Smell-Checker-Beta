@@ -1,7 +1,6 @@
 package ui.inspectionOption;
 
 import inspection.InspectionData;
-import inspection.InspectionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
@@ -24,7 +23,7 @@ public class InspectionOptionUtil {
      * @param data      インスペクションの設定値
      */
     public static void changeAvailabilityButton(@NotNull JButton button, @NotNull JTextField textField, @NotNull InspectionData data) {
-        int value = InspectionUtil.getUpperLimitValue(data);
+        int value = data.getUpperLimitValue();
         button.setEnabled(!textField.getText().equals(String.valueOf(value)));
     }
 }

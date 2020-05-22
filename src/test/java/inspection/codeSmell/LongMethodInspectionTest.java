@@ -2,7 +2,7 @@ package inspection.codeSmell;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.ide.util.PropertiesComponent;
-import inspection.InspectionSettingName;
+import inspection.InspectionData;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest implements
     public void testForInspection() {
         final LongMethodInspection longMethodInspection = new LongMethodInspection();
         // 検出基準値を15に設定
-        PropertiesComponent.getInstance().setValue(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME.getName(), "15");
+        PropertiesComponent.getInstance().setValue(InspectionData.LONG_METHOD_PROPERTIES_COMPONENT_NAME, "15");
 
         myFixture.configureByFile(originalFilePath);
         myFixture.enableInspections(longMethodInspection);

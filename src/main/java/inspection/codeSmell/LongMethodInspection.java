@@ -15,9 +15,6 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiStatement;
 import inspection.CodeSmellInspection;
 import inspection.InspectionData;
-import inspection.InspectionSettingName;
-import inspection.InspectionSettingValue;
-import inspection.InspectionUtil;
 import refactoring.decomposeConditional.DecomposeConditional;
 //import refactoring.ExtractMethod;
 //import refactoring.replaceMethodWithMethodObject.ReplaceMethodWithMethodObject;
@@ -40,8 +37,8 @@ public class LongMethodInspection extends CodeSmellInspection {
 //  private LocalQuickFix extractMethod = new ExtractMethod();
 
     public LongMethodInspection() {
-        inspectionData = new InspectionData(InspectionSettingName.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_STATEMENTS);
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        inspectionData = new InspectionData(InspectionData.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_STATEMENTS);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Long method";
     }
 
@@ -64,7 +61,7 @@ public class LongMethodInspection extends CodeSmellInspection {
             return null;
         }
 
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         int count = countStatement(method);
         if (count <= upperLimitValue) {
             return null;

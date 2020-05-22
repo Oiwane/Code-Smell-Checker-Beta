@@ -13,9 +13,6 @@ import com.intellij.psi.PsiMethodCallExpression;
 import com.intellij.psi.PsiReferenceExpression;
 import inspection.CodeSmellInspection;
 import inspection.InspectionData;
-import inspection.InspectionSettingName;
-import inspection.InspectionSettingValue;
-import inspection.InspectionUtil;
 import refactoring.hideDelegate.HideDelegate;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +30,8 @@ public class MessageChainsInspection extends CodeSmellInspection {
     private LocalQuickFix quickFix = new HideDelegate();
 
     public MessageChainsInspection() {
-        inspectionData = new InspectionData(InspectionSettingName.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_CHAINS);
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        inspectionData = new InspectionData(InspectionData.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_CHAINS);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Message chains";
     }
 
@@ -64,7 +61,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
         int count = countPsiExpression(expression) - 1;
 
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         if (count <= upperLimitValue) return null;
 
         List<ProblemDescriptor> descriptors = new ArrayList<>();

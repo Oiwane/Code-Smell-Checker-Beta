@@ -14,7 +14,7 @@ public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectio
     protected String displayName;
 
     protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
-        InspectionOptionUI optionUI = new InspectionOptionUI(description, InspectionUtil.getUpperLimitValue(data));
+        InspectionOptionUI optionUI = new InspectionOptionUI(description, data.getUpperLimitValue());
         OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), data.getComponentName());
 
         return optionUI.createOptionPanel(listener, data);
@@ -28,11 +28,11 @@ public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectio
 
     @NotNull
     public String getGroupDisplayName() {
-        return InspectionUtil.GROUP_NAME;
+        return "Code smell";
     }
 
     public boolean isEnabledByDefault() {
-        return InspectionUtil.IS_ENABLED_BY_DEFAULT;
+        return false;
     }
 
     @NotNull

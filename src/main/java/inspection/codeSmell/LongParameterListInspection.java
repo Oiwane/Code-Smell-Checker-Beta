@@ -10,9 +10,6 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiParameterList;
 import inspection.CodeSmellInspection;
 import inspection.InspectionData;
-import inspection.InspectionSettingName;
-import inspection.InspectionSettingValue;
-import inspection.InspectionUtil;
 import refactoring.introduceParameterObject.IntroduceParameterObject;
 import refactoring.preserveWholeObject.PreserveWholeObject;
 import refactoring.replaceParameterWithMethod.ReplaceParameterWithMethod;
@@ -34,8 +31,8 @@ public class LongParameterListInspection extends CodeSmellInspection {
     private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
 
     public LongParameterListInspection() {
-        inspectionData = new InspectionData(InspectionSettingName.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionSettingValue.DEFAULT_NUM_PARAMETER_LIST);
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        inspectionData = new InspectionData(InspectionData.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_PARAMETER_LIST);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Long parameter list";
     }
 
@@ -53,7 +50,7 @@ public class LongParameterListInspection extends CodeSmellInspection {
 
     @Nullable
     private ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-        upperLimitValue = InspectionUtil.getUpperLimitValue(inspectionData);
+        upperLimitValue = inspectionData.getUpperLimitValue();
         if (list.getParametersCount() <= upperLimitValue) {
             return null;
         }
