@@ -15,33 +15,33 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
 public class HideDelegateExtractMethodProcessor extends ExtractMethodProcessor {
-  private PsiReferenceExpression base;
-  private PsiElementFactory myElementFactory;
+    private PsiReferenceExpression base;
+    private PsiElementFactory myElementFactory;
 
-  HideDelegateExtractMethodProcessor(Project project,
-                                     Editor editor,
-                                     PsiElement[] elements,
-                                     PsiType forcedReturnType,
-                                     String refactoringName,
-                                     String initialMethodName,
-                                     String helpId,
-                                     PsiReferenceExpression base) {
-    super(project, editor, elements, forcedReturnType, refactoringName, initialMethodName, helpId);
-    this.base = base;
-    PsiManager myManager = PsiManager.getInstance(myProject);
-    myElementFactory = JavaPsiFacade.getElementFactory(myManager.getProject());
-  }
+    HideDelegateExtractMethodProcessor(Project project,
+                                       Editor editor,
+                                       PsiElement[] elements,
+                                       PsiType forcedReturnType,
+                                       String refactoringName,
+                                       String initialMethodName,
+                                       String helpId,
+                                       PsiReferenceExpression base) {
+        super(project, editor, elements, forcedReturnType, refactoringName, initialMethodName, helpId);
+        this.base = base;
+        PsiManager myManager = PsiManager.getInstance(myProject);
+        myElementFactory = JavaPsiFacade.getElementFactory(myManager.getProject());
+    }
 
-  @Override
-  public PsiElement processMatch(@NotNull Match match) throws IncorrectOperationException {
-    PsiElement replacedMatch = super.processMatch(match);
+    @Override
+    public PsiElement processMatch(@NotNull Match match) throws IncorrectOperationException {
+        PsiElement replacedMatch = super.processMatch(match);
 
-    final String text = base.getText() + "." + getMethodCall().getText();
-    PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) myElementFactory.createExpressionFromText(text, replacedMatch.getContext());
+        final String text = base.getText() + "." + getMethodCall().getText();
+        PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) myElementFactory.createExpressionFromText(text, replacedMatch.getContext());
 
-    PsiElement element = match.replace(myExtractedMethod, methodCallExpression, myOutputVariable, myReturnType);
+        PsiElement element = match.replace(myExtractedMethod, methodCallExpression, myOutputVariable, myReturnType);
 
-    replacedMatch.replace(element);
-    return replacedMatch;
-  }
+        replacedMatch.replace(element);
+        return replacedMatch;
+    }
 }

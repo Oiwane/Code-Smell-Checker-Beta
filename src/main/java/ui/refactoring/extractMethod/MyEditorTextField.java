@@ -7,16 +7,16 @@ import com.intellij.ui.EditorTextField;
 
 public class MyEditorTextField extends EditorTextField {
 
-  MyEditorTextField(String text, Project project, FileType fileType) {
-    super(text, project, fileType);
-  }
+    MyEditorTextField(String text, Project project, FileType fileType) {
+        super(text, project, fileType);
+    }
 
-  @Override
-  protected EditorEx createEditor() {
-    EditorEx editorEx = super.createEditor();
-    editorEx.setVerticalScrollbarVisible(true);
+    @Override
+    protected EditorEx createEditor() {
+        EditorEx editorEx = super.createEditor();
+        editorEx.setVerticalScrollbarVisible(true);
 
-    return editorEx;
-  }
+        return editorEx;
+    }
 
 }
