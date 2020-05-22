@@ -5,7 +5,7 @@ import inspection.CodeSmellInspectionTest;
 
 import java.util.List;
 
-public class MessageChainsInspectionTest extends CodeSmellInspectionTest implements HighlightTest {
+public class MessageChainsInspectionTest extends CodeSmellInspectionTest {
     private final String fileName = "Demo";
     private final String originalFilePath = "MessageChains\\src\\" + fileName + ".java";
 

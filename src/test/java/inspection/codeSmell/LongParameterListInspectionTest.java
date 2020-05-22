@@ -5,7 +5,7 @@ import inspection.CodeSmellInspectionTest;
 
 import java.util.List;
 
-public class LongParameterListInspectionTest extends CodeSmellInspectionTest implements HighlightTest {
+public class LongParameterListInspectionTest extends CodeSmellInspectionTest {
     private final String fileName = "Main";
     private final String originalFilePath = "LongParameterList\\src\\" + fileName + ".java";
 

@@ -1,27 +1,17 @@
 package inspection.codeSmell;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
-import com.intellij.codeInspection.InspectionManager;
-import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.psi.PsiElementFactory;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiType;
 import inspection.CodeSmellInspectionTest;
 import inspection.InspectionData;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import java.awt.Component;
 import java.util.List;
 
-public class LongMethodInspectionTest extends CodeSmellInspectionTest implements HighlightTest {
+public class LongMethodInspectionTest extends CodeSmellInspectionTest {
     private final String fileName = "Item";
     private final String originalFilePath = "LongMethod\\src\\item\\" + fileName + ".java";
 
+    @Override
     public void testForInspection() {
         final LongMethodInspection longMethodInspection = new LongMethodInspection();
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);

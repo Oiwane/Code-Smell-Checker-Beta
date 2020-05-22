@@ -31,4 +31,12 @@ public class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase
 
         return returnValue;
     }
+
+    /**
+     * コードインスペクションのハイライト表示テスト
+     *
+     * このメソッドにコードインスペクションのハイライト表示のテストコードを書く
+     */
+    public void testForInspection() {
+    }
 }
