@@ -30,7 +30,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
     private LocalQuickFix quickFix = new HideDelegate();
 
     public MessageChainsInspection() {
-        inspectionData = new InspectionData(InspectionData.MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_CHAINS);
+        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS);
         upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Message chains";
     }
