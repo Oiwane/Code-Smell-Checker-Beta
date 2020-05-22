@@ -7,3 +7,9 @@ gradle/
 out/
 gradlew
 gradlew.bat
+
+src/main/java/ui/refactoring
+!src/main/java/ui/refactoring/decomposeConditional/
+!src/main/java/ui/refactoring/replaceTempWithQuery/
+!src/main/java/ui/refactoring/SelectReplaceElementsDialog*
+!src/main/java/ui/refactoring/README*
