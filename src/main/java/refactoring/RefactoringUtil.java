@@ -71,13 +71,19 @@ public class RefactoringUtil {
      */
     public static PsiCodeBlock findCodeBlockInParents(@NotNull PsiElement element) {
         PsiElement parentElement = element.getParent();
-        if (parentElement instanceof PsiCodeBlock) return (PsiCodeBlock) parentElement;
-        else return findCodeBlockInParents(parentElement);
+        if (parentElement instanceof PsiCodeBlock) {
+            return (PsiCodeBlock) parentElement;
+        } else {
+            return findCodeBlockInParents(parentElement);
+        }
     }
 
     public static PsiMethod findMethodBelongsTo(@NotNull PsiElement element) {
         PsiElement parentElement = element.getParent();
-        if (parentElement instanceof PsiMethod) return (PsiMethod) parentElement;
-        else return findMethodBelongsTo(parentElement);
+        if (parentElement instanceof PsiMethod) {
+            return (PsiMethod) parentElement;
+        } else {
+            return findMethodBelongsTo(parentElement);
+        }
     }
 }

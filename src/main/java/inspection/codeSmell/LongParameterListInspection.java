@@ -55,9 +55,10 @@ public class LongParameterListInspection extends CodeSmellInspection {
             return null;
         }
 
+        String descriptionTemplate = getDisplayName() + " : number of parameter is " + list.getParametersCount();
         List<ProblemDescriptor> descriptors = new ArrayList<>();
         descriptors.add(manager.createProblemDescriptor(
-                list, list, getDisplayName() + " : number of parameter is " + list.getParametersCount(), ProblemHighlightType.WARNING, isOnTheFly,
+                list, list, descriptionTemplate, ProblemHighlightType.WARNING, isOnTheFly,
                 replaceParameterWithMethod, introduceParameterObject, preserveWholeObject));
 
         return descriptors.toArray(new ProblemDescriptor[0]);

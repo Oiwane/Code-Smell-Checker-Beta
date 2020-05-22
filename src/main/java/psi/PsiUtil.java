@@ -43,8 +43,9 @@ public class PsiUtil {
         PsiParameterList newParameterList = cloneParameterList(originalParameterList, factory);
 
         newMethod.getModifierList().replace(originalMethod.getModifierList());
-        if (!originalMethod.isConstructor())
+        if (!originalMethod.isConstructor()) {
             newMethod.getReturnTypeElement().replace(originalMethod.getReturnTypeElement());
+        }
         newMethod.getParameterList().replace(newParameterList);
         newMethod.getThrowsList().replace(originalMethod.getThrowsList());
         newMethod.getBody().replace(codeBlock);
@@ -98,14 +99,24 @@ public class PsiUtil {
      */
     public static boolean existsSameMethod(PsiMethod target, @NotNull PsiMethod[] samples) {
         for (PsiMethod sample : samples) {
-            if (!target.getName().equals(sample.getName())) continue;
-            if (target.getParameterList().getParametersCount() != sample.getParameterList().getParametersCount())
+            String targetName = target.getName();
+            String sampleName = sample.getName();
+            if (!targetName.equals(sampleName)) {
                 continue;
+            }
+
+            int targetParametersCount = target.getParameterList().getParametersCount();
+            int sampleParametersCount = sample.getParameterList().getParametersCount();
+            if (targetParametersCount != sampleParametersCount) {
+                continue;
+            }
 
             PsiParameter[] targetParameters = target.getParameterList().getParameters();
             PsiParameter[] sampleParameters = sample.getParameterList().getParameters();
 
-            if (isSameParameters(targetParameters, sampleParameters)) return true;
+            if (isSameParameters(targetParameters, sampleParameters)) {
+                return true;
+            }
         }
 
         return false;
@@ -114,7 +125,9 @@ public class PsiUtil {
     private static boolean isSameParameters(@NotNull PsiParameter[] targetParameters, PsiParameter[] sampleParameters) {
         int counter = 0;
         boolean[] flags = new boolean[targetParameters.length];
-        for (int i = 0; i < flags.length; i++) flags[i] = false;
+        for (int i = 0; i < flags.length; i++) {
+            flags[i] = false;
+        }
 
         for (PsiParameter targetParameter : targetParameters) {
             for (int i = 0; i < sampleParameters.length; i++) {
@@ -131,7 +144,9 @@ public class PsiUtil {
 
     public static boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
         for (PsiMethod comparedMethod : methodForCompare) {
-            if (comparedMethod.getText().equals(newMethod.getText())) return true;
+            if (comparedMethod.getText().equals(newMethod.getText())) {
+                return true;
+            }
         }
 
         return false;
@@ -140,10 +155,14 @@ public class PsiUtil {
     public static void deleteUnusedMethod(@NotNull PsiClass psiClass, String targetMethodName) {
         PsiMethod[] methods = psiClass.getMethods();
         for (PsiMethod method : methods) {
-            if (!targetMethodName.equals(method.getName())) continue;
+            if (!targetMethodName.equals(method.getName())) {
+                continue;
+            }
 
             PsiReference[] references = ReferencesSearch.search(method).toArray(new PsiReference[0]);
-            if (references.length != 0) continue;
+            if (references.length != 0) {
+                continue;
+            }
 
             method.delete();
         }

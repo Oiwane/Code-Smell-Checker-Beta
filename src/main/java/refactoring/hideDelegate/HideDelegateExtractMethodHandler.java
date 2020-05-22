@@ -54,8 +54,9 @@ class HideDelegateExtractMethodHandler extends ExtractMethodHandler {
 
     public static boolean invokeOnElements(final Project project, @NotNull final ExtractMethodProcessor processor, final PsiFile file, final boolean directTypes) {
 //    openEditor(file);
-        if (!CommonRefactoringUtil.checkReadOnlyStatus(project, processor.getTargetClass().getContainingFile()))
+        if (!CommonRefactoringUtil.checkReadOnlyStatus(project, processor.getTargetClass().getContainingFile())) {
             return false;
+        }
 
         processor.setPreviewSupported(true);
         if (processor.showDialog(directTypes)) {

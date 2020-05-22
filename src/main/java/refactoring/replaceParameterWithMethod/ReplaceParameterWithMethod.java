@@ -54,17 +54,22 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                     newMethod = SmartPointerManager.createPointer(PsiUtil.cloneMethod(method));
                     PsiMethod extractedMethod = RefactoringUtil.findMethodBelongsTo(referenceResult.getElement());
                     // 呼び出し先のクラスと呼び出されたメソッドのクラスが異なる場合、リファクタリングしない
-                    if (!psiClass.equals(extractedMethod.getContainingClass())) continue;
+                    if (!psiClass.equals(extractedMethod.getContainingClass())) {
+                        continue;
+                    }
 
                     map = new HashMap<>();
                     extractElements(referenceResult);
-                    if (arguments == null) continue;
+                    if (arguments == null) {
+                        continue;
+                    }
 
                     createNewMethod(method);
 
                     if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
-                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement()))
+                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) {
                         continue;
+                    }
 
                     WriteCommandAction.runWriteCommandAction(project, () -> {
                         psiClass.add(newMethod.getElement());
@@ -107,7 +112,9 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
         PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceExpression.getParent();
         PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(referenceExpression);
         for (PsiStatement statement : scope.getStatements()) {
-            if (statement.equals(findStatementInParents(methodCallExpression))) break;
+            if (statement.equals(findStatementInParents(methodCallExpression))) {
+                break;
+            }
             putExtractedElement(scope, statement);
         }
     }
@@ -115,7 +122,9 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     private void extractElements(@NotNull PsiNewExpression psiNewExpression) {
         PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(psiNewExpression);
         for (PsiStatement statement : scope.getStatements()) {
-            if (statement.equals(findStatementInParents(psiNewExpression))) break;
+            if (statement.equals(findStatementInParents(psiNewExpression))) {
+                break;
+            }
             putExtractedElement(scope, statement);
         }
     }
@@ -131,20 +140,28 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
             PsiExpression argument = arguments[i];
             if (isPsiReferenceExpression(argument)) {
                 if (existsTargetElement(statement, argument)) {
-                    if (canExtractStatement(scope, statement)) putToMap(i, statement);
+                    if (canExtractStatement(scope, statement)) {
+                        putToMap(i, statement);
+                    }
                 }
             } else if (isPsiMethodCallExpression(argument)) {
-                if (canExtractStatement(scope, argument)) putToMap(i, argument);
+                if (canExtractStatement(scope, argument)) {
+                    putToMap(i, argument);
+                }
             }
         }
     }
 
     private boolean existsTargetElement(@NotNull PsiElement element, PsiElement target) {
         for (PsiElement childElement : element.getChildren()) {
-            if (existsTargetElement(childElement, target)) return true;
+            if (existsTargetElement(childElement, target)) {
+                return true;
+            }
             if (childElement instanceof PsiIdentifier) {
                 PsiIdentifier identifier = (PsiIdentifier) childElement;
-                if (identifier.getText().equals(target.getText())) return true;
+                if (identifier.getText().equals(target.getText())) {
+                    return true;
+                }
             }
         }
 
@@ -154,18 +171,26 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     // TODO この条件式が正しいかを確かめる
     private boolean canExtractStatement(PsiCodeBlock codeBlock, @NotNull PsiElement element) {
         for (PsiElement child : element.getChildren()) {
-            if (!canExtractStatement(codeBlock, child)) return false;
-            if (!fulfillExtractCondition(codeBlock, child)) return false;
+            if (!canExtractStatement(codeBlock, child)) {
+                return false;
+            }
+            if (!fulfillExtractCondition(codeBlock, child)) {
+                return false;
+            }
         }
 
         return true;
     }
 
     private boolean fulfillExtractCondition(@NotNull PsiCodeBlock codeBlock, @NotNull PsiElement element) {
-        if (!(element instanceof PsiReferenceExpression)) return true;
+        if (!(element instanceof PsiReferenceExpression)) {
+            return true;
+        }
 
         PsiElement declareElement = element.getReference().resolve();
-        if (declareElement == null) return true;
+        if (declareElement == null) {
+            return true;
+        }
         if (!codeBlock.getTextRange().contains(declareElement.getTextRange())) {
             if (declareElement.getContainingFile().equals(codeBlock.getContainingFile())) {
                 return isPsiMethod(declareElement) || isPsiField(declareElement);
@@ -176,9 +201,13 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     }
 
     private void putToMap(int index, PsiElement element) {
-        if (!map.containsKey(index)) map.put(index, new ArrayList<>());
+        if (!map.containsKey(index)) {
+            map.put(index, new ArrayList<>());
+        }
         for (PsiElement sample : map.get(index)) {
-            if (sample.equals(element)) return;
+            if (sample.equals(element)) {
+                return;
+            }
         }
         map.get(index).add(element);
     }
@@ -196,16 +225,21 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                 if (isPsiMethodCallExpression(element) || isPsiNewExpression(element)) {
                     if (isPsiMethodCallExpression(element)) {
                         PsiReferenceExpression baseElement = PsiUtil.findBaseElement((PsiMethodCallExpression) element);
-                        if (baseElement.getReference() != null && isPsiLocalVariable(baseElement.getReference().resolve()))
+                        if (baseElement.getReference() != null && isPsiLocalVariable(baseElement.getReference().resolve())) {
                             continue;
+                        }
                     }
                     replaceParameter(targetParameter, (PsiExpression) element, key, deleteArgumentIndexList);
                 } else if (isPsiDeclarationStatement(element)) {
                     PsiDeclarationStatement declarationStatement = (PsiDeclarationStatement) element;
 
-                    if (declarationStatement.getDeclaredElements().length != 1) continue;
+                    if (declarationStatement.getDeclaredElements().length != 1) {
+                        continue;
+                    }
                     PsiElement child = declarationStatement.getDeclaredElements()[0];
-                    if (!isPsiVariable(child)) continue;
+                    if (!isPsiVariable(child)) {
+                        continue;
+                    }
 
                     final PsiExpression initializer = ((PsiVariable) child).getInitializer();
                     final PsiReference reference = initializer.getReference();

@@ -45,10 +45,14 @@ public class HideDelegate implements LocalQuickFix {
                 // 一番最初の要素の定義場所を取得
                 PsiElement definition = base.getReference().resolve();
 
-                if (hasStatic(definition)) return;
+                if (hasStatic(definition)) {
+                    return;
+                }
 
                 PsiClass classInsertedMethod = getClassInsertedMethod(definition);
-                if (classInsertedMethod == null || !classInsertedMethod.isWritable()) return;
+                if (classInsertedMethod == null || !classInsertedMethod.isWritable()) {
+                    return;
+                }
 
                 PsiElement[] elements = new PsiElement[]{expression};
                 HideDelegateExtractMethodProcessor processor = HideDelegateExtractMethodHandler.getProcessor(project, elements, expression.getContainingFile(), base);
@@ -59,7 +63,9 @@ public class HideDelegate implements LocalQuickFix {
                         createNewMethod(processor);
                         PsiMethod method = processor.getExtractedMethod();
                         final PsiClass containingClass = method.getContainingClass();
-                        if (classInsertedMethod.equals(containingClass)) return;
+                        if (classInsertedMethod.equals(containingClass)) {
+                            return;
+                        }
 
                         WriteCommandAction.runWriteCommandAction(project, () -> {
                             PsiElementFactory factory = PsiElementFactory.getInstance(project);
@@ -97,7 +103,7 @@ public class HideDelegate implements LocalQuickFix {
             for (PsiElement child : newMethod.getModifierList().getChildren()) {
                 if (child.getText().equals(PsiModifier.PRIVATE)) {
                     child.replace(factory.createKeyword(PsiModifier.PUBLIC));
-                    break;
+                    return;
                 }
             }
         }
@@ -133,7 +139,9 @@ public class HideDelegate implements LocalQuickFix {
             if (element instanceof PsiJavaCodeReferenceElement) {
                 PsiJavaCodeReferenceElement javaCodeReferenceElement = (PsiJavaCodeReferenceElement) element;
                 classInsertedMethod = (PsiClass) javaCodeReferenceElement.getReference().resolve();
-            } else return null;
+            } else {
+                return null;
+            }
         } else if (baseElementDefinitionElement instanceof PsiClass) {
             classInsertedMethod = (PsiClass) baseElementDefinitionElement;
         }

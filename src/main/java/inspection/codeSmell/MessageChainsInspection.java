@@ -57,15 +57,20 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
     @Nullable
     private ProblemDescriptor[] checkExpression(@NotNull PsiExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
-        if (expression.getParent() instanceof PsiExpression) return null;
+        if (expression.getParent() instanceof PsiExpression) {
+            return null;
+        }
 
         int count = countPsiExpression(expression) - 1;
 
         upperLimitValue = inspectionData.getUpperLimitValue();
-        if (count <= upperLimitValue) return null;
+        if (count <= upperLimitValue) {
+            return null;
+        }
 
+        String descriptionTemplate = getDisplayName() + " : length of chain is " + count;
         List<ProblemDescriptor> descriptors = new ArrayList<>();
-        descriptors.add(manager.createProblemDescriptor(expression, getDisplayName() + " : length of chain is " + count, quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+        descriptors.add(manager.createProblemDescriptor(expression, descriptionTemplate, quickFix, ProblemHighlightType.WARNING, isOnTheFly));
 
         return descriptors.toArray(new ProblemDescriptor[0]);
     }

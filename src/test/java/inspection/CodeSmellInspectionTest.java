@@ -23,7 +23,9 @@ class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase {
         List<HighlightInfo> returnValue = new ArrayList<>();
 
         for (HighlightInfo highlightInfo : highlightInfoList) {
-            if (inspectionShortName.equals(highlightInfo.getInspectionToolId())) returnValue.add(highlightInfo);
+            if (inspectionShortName.equals(highlightInfo.getInspectionToolId())) {
+                returnValue.add(highlightInfo);
+            }
         }
         assertTrue(returnValue.size() > 0);
 

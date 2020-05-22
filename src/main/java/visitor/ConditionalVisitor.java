@@ -22,7 +22,9 @@ public class ConditionalVisitor extends JavaRecursiveElementWalkingVisitor {
         super.visitPolyadicExpression(expression);
 
         IElementType elementType = expression.getOperationTokenType();
-        if (hasMultipleConditionalExpression(elementType)) conditionalList.add(expression);
+        if (hasMultipleConditionalExpression(elementType)) {
+            conditionalList.add(expression);
+        }
     }
 
     public List<PsiElement> getConditionalList() {

@@ -16,8 +16,6 @@ import com.intellij.psi.PsiStatement;
 import inspection.CodeSmellInspection;
 import inspection.InspectionData;
 import refactoring.decomposeConditional.DecomposeConditional;
-//import refactoring.ExtractMethod;
-//import refactoring.replaceMethodWithMethodObject.ReplaceMethodWithMethodObject;
 import refactoring.replaceTempWithQuery.ReplaceTempWithQuery;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +31,6 @@ import java.util.List;
 public class LongMethodInspection extends CodeSmellInspection {
     private LocalQuickFix replaceTempWithQuery = new ReplaceTempWithQuery();
     private LocalQuickFix decomposeConditional = new DecomposeConditional();
-//  private LocalQuickFix replaceMethodWithMethodObject = new ReplaceMethodWithMethodObject();
-//  private LocalQuickFix extractMethod = new ExtractMethod();
 
     public LongMethodInspection() {
         inspectionData = new InspectionData(InspectionData.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_STATEMENTS);
@@ -68,11 +64,14 @@ public class LongMethodInspection extends CodeSmellInspection {
         }
 
         final PsiIdentifier identifier = method.getNameIdentifier();
-        if (identifier == null) return null;
+        if (identifier == null) {
+            return null;
+        }
 
+        String descriptionTemplate = getDisplayName() + " : number of statement in method is " + count;
         List<ProblemDescriptor> descriptors = new ArrayList<>();
         descriptors.add(manager.createProblemDescriptor(
-                identifier, identifier, getDisplayName() + " : number of statement in method is " + count, ProblemHighlightType.WARNING, isOnTheFly,
+                identifier, identifier, descriptionTemplate, ProblemHighlightType.WARNING, isOnTheFly,
                 replaceTempWithQuery, decomposeConditional/*, replaceMethodWithMethodObject, extractMethod*/
         ));
 
@@ -80,7 +79,9 @@ public class LongMethodInspection extends CodeSmellInspection {
     }
 
     private int countStatement(@NotNull PsiMethod method) {
-        if (method.getBody() == null) return 0;
+        if (method.getBody() == null) {
+            return 0;
+        }
 
         return countStatement(method.getBody());
     }

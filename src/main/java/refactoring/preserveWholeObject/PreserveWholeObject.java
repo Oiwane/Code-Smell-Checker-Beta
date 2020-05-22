@@ -63,7 +63,9 @@ public class PreserveWholeObject implements LocalQuickFix {
 
                 PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
                 for (PsiReference referenceResult : referenceResults) {
-                    if (!(referenceResult.getElement().getParent() instanceof PsiMethodCallExpression)) continue;
+                    if (!(referenceResult.getElement().getParent() instanceof PsiMethodCallExpression)) {
+                        continue;
+                    }
                     PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceResult.getElement().getParent();
 
                     map = new HashMap<>();
@@ -76,7 +78,9 @@ public class PreserveWholeObject implements LocalQuickFix {
                     changeArgumentList(methodCallExpression);
 
                     if (PsiUtil.existsSameMethod(newMethod, psiClass.getAllMethods()) ||
-                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) continue;
+                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) {
+                        continue;
+                    }
 
                     WriteCommandAction.runWriteCommandAction(project, () -> {
                         psiClass.add(newMethod);
@@ -115,7 +119,9 @@ public class PreserveWholeObject implements LocalQuickFix {
             else if (argument instanceof PsiReferenceExpression) {
                 PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(methodCallExpression);
                 PsiMethodCallExpression argumentMethod = findTargetElementInScope(scope, argument);
-                if (argumentMethod != null) addArgumentInfo(map, i, argumentMethod);
+                if (argumentMethod != null) {
+                    addArgumentInfo(map, i, argumentMethod);
+                }
             }
         }
     }
@@ -155,7 +161,9 @@ public class PreserveWholeObject implements LocalQuickFix {
             } else if (statement instanceof PsiExpressionStatement) {
                 returnValue = findTargetElementInStatement(scope, (PsiExpressionStatement) statement, targetElement);
             }
-            if (returnValue != null) return returnValue;
+            if (returnValue != null) {
+                return returnValue;
+            }
         }
 
         return null;
@@ -165,7 +173,9 @@ public class PreserveWholeObject implements LocalQuickFix {
     private PsiMethodCallExpression findTargetElementInStatement(PsiCodeBlock scope, @NotNull PsiDeclarationStatement statement, @NotNull PsiElement targetElement) {
         PsiMethodCallExpression returnValue = null;
         final PsiReference reference = targetElement.getReference();
-        if (reference == null) return null;
+        if (reference == null) {
+            return null;
+        }
 
         // int a = b = c.hoge(); みたいな記述は無視
         for (PsiElement element : statement.getDeclaredElements()) {
@@ -206,16 +216,22 @@ public class PreserveWholeObject implements LocalQuickFix {
             }
         }
 
-        if (compareVariable == null) return null;
+        if (compareVariable == null) {
+            return null;
+        }
         assert compareVariable.getReference() != null;
-        if (targetElement.getReference() == null) return null;
+        if (targetElement.getReference() == null) {
+            return null;
+        }
         return (compareVariable.getReference().resolve().equals(targetElement.getReference().resolve())) ? returnValue : null;
     }
 
     private void createParameterList(@NotNull PsiMethod newMethod) {
         PsiParameterList newParameterList = newMethod.getParameterList();
         for (PsiElement key : map.keySet()) {
-            if (map.get(key).size() < 2) continue;
+            if (map.get(key).size() < 2) {
+                continue;
+            }
 
             addParameter(map, key, newParameterList);
 
@@ -243,7 +259,9 @@ public class PreserveWholeObject implements LocalQuickFix {
     private void addParameter(@NotNull Map<PsiElement, List<ArgumentInfo>> map, PsiElement key, @NotNull PsiParameterList newParameterList) {
         PsiElementFactory factory = PsiElementFactory.getInstance(newParameterList.getProject());
         if (map.containsKey(key)) {
-            if (!(key instanceof PsiVariable)) return;
+            if (!(key instanceof PsiVariable)) {
+                return;
+            }
             PsiVariable variable = (PsiVariable) key;
             PsiParameter newParameter = factory.createParameter(variable.getName(), variable.getType());
 
@@ -257,11 +275,15 @@ public class PreserveWholeObject implements LocalQuickFix {
         final Project project = methodCallExpression.getProject();
 
         for (PsiElement key : map.keySet()) {
-            if (map.get(key).size() < 2) continue;
+            if (map.get(key).size() < 2) {
+                continue;
+            }
 
             PsiElementFactory factory = PsiElementFactory.getInstance(project);
             if (map.containsKey(key)) {
-                if (!(key instanceof PsiVariable)) return;
+                if (!(key instanceof PsiVariable)) {
+                    return;
+                }
                 PsiVariable variable = (PsiVariable) key;
                 PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
                 WriteCommandAction.runWriteCommandAction(project, () -> {
