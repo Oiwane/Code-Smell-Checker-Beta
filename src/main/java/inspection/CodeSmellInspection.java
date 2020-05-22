@@ -9,27 +9,34 @@ import ui.inspectionOption.listener.OptionButtonListener;
 import javax.swing.JComponent;
 
 public abstract class CodeSmellInspection extends AbstractBaseJavaLocalInspectionTool {
-  protected InspectionData inspectionData;
-  protected int upperLimitValue;
+    protected InspectionData inspectionData;
+    protected int upperLimitValue;
+    protected String displayName;
 
-  protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
-    InspectionOptionUI optionUI = new InspectionOptionUI(description, InspectionUtil.getUpperLimitValue(data));
-    OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), data.getComponentName());
+    protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
+        InspectionOptionUI optionUI = new InspectionOptionUI(description, data.getUpperLimitValue());
+        OptionButtonListener listener = new OptionButtonListener(optionUI.getTextField(), data.getComponentName());
 
-    return optionUI.createOptionPanel(listener, data);
-  }
+        return optionUI.createOptionPanel(listener, data);
+    }
 
-  @NotNull
-  public String getGroupDisplayName() {
-    return InspectionUtil.GROUP_NAME;
-  }
+    @Override
+    @NotNull
+    public String getDisplayName() {
+        return displayName;
+    }
 
-  public boolean isEnabledByDefault() {
-    return InspectionUtil.IS_ENABLED_BY_DEFAULT;
-  }
+    @NotNull
+    public String getGroupDisplayName() {
+        return "Code smell";
+    }
 
-  @NotNull
-  public HighlightDisplayLevel getDefaultLevel() {
-    return HighlightDisplayLevel.WARNING;
-  }
+    public boolean isEnabledByDefault() {
+        return false;
+    }
+
+    @NotNull
+    public HighlightDisplayLevel getDefaultLevel() {
+        return HighlightDisplayLevel.WARNING;
+    }
 }

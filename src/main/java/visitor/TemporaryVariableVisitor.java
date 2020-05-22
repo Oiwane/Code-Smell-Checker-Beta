@@ -10,22 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TemporaryVariableVisitor extends JavaRecursiveElementWalkingVisitor {
-  private List<PsiElement> tempVariableList;
+    private List<PsiElement> tempVariableList;
 
-  public TemporaryVariableVisitor() {
-    tempVariableList = new ArrayList<>();
-  }
-
-  @Override
-  public void visitLocalVariable(PsiLocalVariable variable) {
-    super.visitLocalVariable(variable);
-
-    if (ReferencesSearch.search(variable).toArray(new PsiReference[0]).length == 1) {
-      tempVariableList.add(variable);
+    public TemporaryVariableVisitor() {
+        tempVariableList = new ArrayList<>();
     }
-  }
 
-  public List<PsiElement> getTempVariableList() {
-    return tempVariableList;
-  }
+    @Override
+    public void visitLocalVariable(PsiLocalVariable variable) {
+        super.visitLocalVariable(variable);
+
+        if (ReferencesSearch.search(variable).toArray(new PsiReference[0]).length == 1) {
+            tempVariableList.add(variable);
+        }
+    }
+
+    public List<PsiElement> getTempVariableList() {
+        return tempVariableList;
+    }
 }

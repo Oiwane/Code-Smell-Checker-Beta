@@ -11,26 +11,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConditionalVisitor extends JavaRecursiveElementWalkingVisitor {
-  private List<PsiElement> conditionalList;
+    private List<PsiElement> conditionalList;
 
-  public ConditionalVisitor() {
-    conditionalList = new ArrayList<>();
-  }
+    public ConditionalVisitor() {
+        conditionalList = new ArrayList<>();
+    }
 
-  @Override
-  public void visitPolyadicExpression(PsiPolyadicExpression expression) {
-    super.visitPolyadicExpression(expression);
+    @Override
+    public void visitPolyadicExpression(PsiPolyadicExpression expression) {
+        super.visitPolyadicExpression(expression);
 
-    IElementType elementType = expression.getOperationTokenType();
-    if (hasMultipleConditionalExpression(elementType)) conditionalList.add(expression);
-  }
+        IElementType elementType = expression.getOperationTokenType();
+        if (hasMultipleConditionalExpression(elementType)) {
+            conditionalList.add(expression);
+        }
+    }
 
-  public List<PsiElement> getConditionalList() {
-    return conditionalList;
-  }
+    public List<PsiElement> getConditionalList() {
+        return conditionalList;
+    }
 
-  private boolean hasMultipleConditionalExpression(@NotNull IElementType elementType) {
-    return elementType.equals(JavaTokenType.OROR) || elementType.equals(JavaTokenType.ANDAND);
-  }
+    private boolean hasMultipleConditionalExpression(@NotNull IElementType elementType) {
+        return elementType.equals(JavaTokenType.OROR) || elementType.equals(JavaTokenType.ANDAND);
+    }
 
 }
