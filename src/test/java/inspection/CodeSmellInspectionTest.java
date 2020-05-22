@@ -1,4 +1,4 @@
-package inspection.codeSmell;
+package inspection;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
@@ -6,7 +6,7 @@ import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase {
+public class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase {
     @Override
     protected String getTestDataPath() {
         return "src/test/resources";

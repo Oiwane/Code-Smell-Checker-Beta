@@ -1,14 +1,9 @@
 package inspection.codeSmell;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
-import com.intellij.codeInsight.intention.IntentionAction;
-import com.intellij.testFramework.HighlightTestInfo;
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import refactoring.hideDelegate.HideDelegate;
+import inspection.CodeSmellInspectionTest;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class MessageChainsInspectionTest extends CodeSmellInspectionTest implements HighlightTest {
     private final String fileName = "Demo";
@@ -29,7 +24,7 @@ public class MessageChainsInspectionTest extends CodeSmellInspectionTest impleme
         // 今回のテストケースであれば、検出結果としては1つのみ
         HighlightInfo highlightInfo = highlightInfoList.get(0);
         // ハイライトすべき部分が正しいか確認
-        assertEquals(316, highlightInfo.getActualStartOffset());
-        assertEquals(358, highlightInfo.getActualEndOffset());
+        assertEquals(346, highlightInfo.getActualStartOffset());
+        assertEquals(388, highlightInfo.getActualEndOffset());
     }
 }

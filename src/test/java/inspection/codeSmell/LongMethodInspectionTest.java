@@ -2,6 +2,7 @@ package inspection.codeSmell;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.ide.util.PropertiesComponent;
+import inspection.CodeSmellInspectionTest;
 import inspection.InspectionData;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest implements
         // 今回のテストケースであれば、検出結果としては1つのみ
         HighlightInfo info = highlightInfoList.get(0);
         // ハイライトすべき部分が正しいか確認
-        assertEquals(689, info.getActualStartOffset());
-        assertEquals(693, info.getActualEndOffset());
+        assertEquals(753, info.getActualStartOffset());
+        assertEquals(757, info.getActualEndOffset());
     }
 }
