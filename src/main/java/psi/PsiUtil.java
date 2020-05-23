@@ -135,16 +135,6 @@ public class PsiUtil {
         return true;
     }
 
-    public static boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
-        for (PsiMethod comparedMethod : methodForCompare) {
-            if (comparedMethod.getText().equals(newMethod.getText())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public static void deleteUnusedMethod(@NotNull PsiClass psiClass, String targetMethodName) {
         PsiMethod[] methods = psiClass.getMethods();
         for (PsiMethod method : methods) {

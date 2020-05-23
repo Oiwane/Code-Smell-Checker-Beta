@@ -67,7 +67,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                     createNewMethod(method);
 
                     if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
-                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) {
+                            PsiUtil.existsSameMethod(newMethod.getElement(), methodForCompare.toArray(new PsiMethod[0]))) {
                         continue;
                     }
 

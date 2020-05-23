@@ -78,7 +78,8 @@ public class PreserveWholeObject implements LocalQuickFix {
                     changeArgumentList(methodCallExpression);
 
                     if (PsiUtil.existsSameMethod(newMethod, psiClass.getAllMethods()) ||
-                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) {
+                            PsiUtil.existsSameMethod(newMethod, methodForCompare.toArray(new PsiMethod[0]))) {
+                            // PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) {
                         continue;
                     }
 
