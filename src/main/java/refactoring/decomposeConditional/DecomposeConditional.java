@@ -38,16 +38,17 @@ public class DecomposeConditional implements LocalQuickFix {
             SelectTargetConditionalDialog selectTargetConditionalDialog = new SelectTargetConditionalDialog(project, true, conditionalList);
 
             selectTargetConditionalDialog.show();
-            if (selectTargetConditionalDialog.isOK()) {
-                final List<Integer> selectedIndexList = selectTargetConditionalDialog.getSelectedIndexList();
+            if (!selectTargetConditionalDialog.isOK()) {
+                return;
+            }
+            final List<Integer> selectedIndexList = selectTargetConditionalDialog.getSelectedIndexList();
 
-                for (Integer index : selectedIndexList) {
-                    PsiElement[] elements = new PsiElement[]{conditionalList.get(index)};
-                    ExtractMethodProcessor processor = ExtractMethodHandler.getProcessor(project, elements, method.getContainingFile(), false);
-                    assert processor != null;
+            for (Integer index : selectedIndexList) {
+                PsiElement[] elements = new PsiElement[]{conditionalList.get(index)};
+                ExtractMethodProcessor processor = ExtractMethodHandler.getProcessor(project, elements, method.getContainingFile(), false);
+                assert processor != null;
 
-                    ExtractMethodHandler.invokeOnElements(project, processor, method.getContainingFile(), true);
-                }
+                ExtractMethodHandler.invokeOnElements(project, processor, method.getContainingFile(), true);
             }
         });
     }

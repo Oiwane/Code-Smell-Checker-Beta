@@ -34,15 +34,15 @@ public class SelectReplacedElementsDialog extends DialogWrapper {
     }
 
     private void setUpCheckBoxesPanel() {
-        if (replacedElementList.size() == 0) {
-            JLabel errorLabel = new JLabel(errorText);
-            errorLabel.setFont(new Font(errorLabel.getFont().getName(), Font.BOLD, errorLabel.getFont().getSize()));
-            checkboxPanel.add(errorLabel);
-            checkboxPanel.setSize(-1, -1);
-            scrollPane.setSize(-1, -1);
-        } else {
+        if (replacedElementList.size() != 0) {
             setUpCheckBoxes();
+            return;
         }
+        JLabel errorLabel = new JLabel(errorText);
+        errorLabel.setFont(new Font(errorLabel.getFont().getName(), Font.BOLD, errorLabel.getFont().getSize()));
+        checkboxPanel.add(errorLabel);
+        checkboxPanel.setSize(-1, -1);
+        scrollPane.setSize(-1, -1);
     }
 
     private void setUpCheckBoxes() {
@@ -58,13 +58,19 @@ public class SelectReplacedElementsDialog extends DialogWrapper {
     protected void doOKAction() {
         super.doOKAction();
 
-        if (replacedElementList.size() == 0) return;
+        if (replacedElementList.size() == 0) {
+            return;
+        }
 
         int index = 0;
         for (Component component : verticalBox.getComponents()) {
-            if (!(component instanceof JCheckBox)) continue;
+            if (!(component instanceof JCheckBox)) {
+                continue;
+            }
             JCheckBox checkBox = (JCheckBox) component;
-            if (checkBox.isSelected()) selectedIndexList.add(index);
+            if (checkBox.isSelected()) {
+                selectedIndexList.add(index);
+            }
             index++;
         }
     }

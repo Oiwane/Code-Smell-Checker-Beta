@@ -49,8 +49,7 @@ public class InspectionData {
         String value = PropertiesComponent.getInstance().getValue(componentName);
         if (value != null) {
             return Integer.parseInt(value);
-        } else {
-            return componentValue;
         }
+        return componentValue;
     }
 }

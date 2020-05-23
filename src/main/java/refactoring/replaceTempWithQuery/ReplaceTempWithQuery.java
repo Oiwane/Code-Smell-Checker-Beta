@@ -38,16 +38,17 @@ public class ReplaceTempWithQuery implements LocalQuickFix {
         SelectTargetTempDialog selectTargetTempDialog = new SelectTargetTempDialog(project, true, tempVariableList);
         ApplicationManager.getApplication().invokeLater(() -> {
             selectTargetTempDialog.show();
-            if (selectTargetTempDialog.isOK()) {
-                final List<Integer> selectedIndexList = selectTargetTempDialog.getSelectedIndexList();
+            if (!selectTargetTempDialog.isOK()) {
+                return;
+            }
+            final List<Integer> selectedIndexList = selectTargetTempDialog.getSelectedIndexList();
 
-                for (Integer index : selectedIndexList) {
-                    Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
-                    PsiElement localVariable = tempVariableList.get(index);
-                    assert editor != null;
-                    TempWithQueryHandler handler = new TempWithQueryHandler();
-                    handler.invoke(project, new PsiElement[]{localVariable}, DataManager.getInstance().getDataContext(editor.getComponent()));
-                }
+            for (Integer index : selectedIndexList) {
+                Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+                PsiElement localVariable = tempVariableList.get(index);
+                assert editor != null;
+                TempWithQueryHandler handler = new TempWithQueryHandler();
+                handler.invoke(project, new PsiElement[]{localVariable}, DataManager.getInstance().getDataContext(editor.getComponent()));
             }
         });
     }

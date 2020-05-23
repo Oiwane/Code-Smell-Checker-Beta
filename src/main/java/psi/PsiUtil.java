@@ -49,9 +49,8 @@ public class PsiUtil {
         PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
         if (originalMethod.isConstructor()) {
             return factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
-        } else {
-            return factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
         }
+        return factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
     }
 
     @NotNull
@@ -134,16 +133,6 @@ public class PsiUtil {
             }
         }
         return true;
-    }
-
-    public static boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
-        for (PsiMethod comparedMethod : methodForCompare) {
-            if (comparedMethod.getText().equals(newMethod.getText())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public static void deleteUnusedMethod(@NotNull PsiClass psiClass, String targetMethodName) {

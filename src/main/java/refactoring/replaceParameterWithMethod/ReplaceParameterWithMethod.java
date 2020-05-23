@@ -67,7 +67,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                     createNewMethod(method);
 
                     if (PsiUtil.existsSameMethod(newMethod.getElement(), psiClass.getAllMethods()) ||
-                            PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod.getElement())) {
+                            PsiUtil.existsSameMethod(newMethod.getElement(), methodForCompare.toArray(new PsiMethod[0]))) {
                         continue;
                     }
 
@@ -113,7 +113,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
         PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(referenceExpression);
         for (PsiStatement statement : scope.getStatements()) {
             if (statement.equals(findStatementInParents(methodCallExpression))) {
-                break;
+                return;
             }
             putExtractedElement(scope, statement);
         }
@@ -123,7 +123,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
         PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(psiNewExpression);
         for (PsiStatement statement : scope.getStatements()) {
             if (statement.equals(findStatementInParents(psiNewExpression))) {
-                break;
+                return;
             }
             putExtractedElement(scope, statement);
         }
@@ -131,8 +131,10 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
     private PsiStatement findStatementInParents(@NotNull PsiElement element) {
         PsiElement parentElement = element.getParent();
-        if (parentElement instanceof PsiStatement) return (PsiStatement) parentElement;
-        else return findStatementInParents(parentElement);
+        if (parentElement instanceof PsiStatement) {
+            return (PsiStatement) parentElement;
+        }
+        return findStatementInParents(parentElement);
     }
 
     private void putExtractedElement(PsiCodeBlock scope, PsiStatement statement) {
@@ -157,11 +159,12 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
             if (existsTargetElement(childElement, target)) {
                 return true;
             }
-            if (childElement instanceof PsiIdentifier) {
-                PsiIdentifier identifier = (PsiIdentifier) childElement;
-                if (identifier.getText().equals(target.getText())) {
-                    return true;
-                }
+            if (!(childElement instanceof PsiIdentifier)) {
+                continue;
+            }
+            PsiIdentifier identifier = (PsiIdentifier) childElement;
+            if (identifier.getText().equals(target.getText())) {
+                return true;
             }
         }
 
@@ -171,10 +174,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     // TODO この条件式が正しいかを確かめる
     private boolean canExtractStatement(PsiCodeBlock codeBlock, @NotNull PsiElement element) {
         for (PsiElement child : element.getChildren()) {
-            if (!canExtractStatement(codeBlock, child)) {
-                return false;
-            }
-            if (!fulfillExtractCondition(codeBlock, child)) {
+            if (!(canExtractStatement(codeBlock, child) && fulfillExtractCondition(codeBlock, child))) {
                 return false;
             }
         }
@@ -191,10 +191,11 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
         if (declareElement == null) {
             return true;
         }
-        if (!codeBlock.getTextRange().contains(declareElement.getTextRange())) {
-            if (declareElement.getContainingFile().equals(codeBlock.getContainingFile())) {
-                return isPsiMethod(declareElement) || isPsiField(declareElement);
-            }
+        if (codeBlock.getTextRange().contains(declareElement.getTextRange())) {
+            return true;
+        }
+        if (declareElement.getContainingFile().equals(codeBlock.getContainingFile())) {
+            return isPsiMethod(declareElement) || isPsiField(declareElement);
         }
 
         return true;
