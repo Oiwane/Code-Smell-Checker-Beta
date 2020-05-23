@@ -31,7 +31,8 @@ public class LongParameterListInspection extends CodeSmellInspection {
     private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
 
     public LongParameterListInspection() {
-        inspectionData = new InspectionData(InspectionData.LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_PARAMETER_LIST);
+        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_PARAMETER_LIST);
+        assert inspectionData != null;
         upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Long parameter list";
     }

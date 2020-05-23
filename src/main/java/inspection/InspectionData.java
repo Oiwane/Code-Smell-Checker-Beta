@@ -7,22 +7,41 @@ import org.jetbrains.annotations.NotNull;
  * インスペクションの検出条件に関するデータクラス
  */
 public class InspectionData {
+    public enum InspectionDataKey {
+        LONG_METHOD,
+        LONG_PARAMETER_LIST,
+        MESSAGE_CHAINS
+    }
+
+    private static InspectionData longMethodInspectionData = new InspectionData("limit value used for LongMethodInspection", 30);
+    private static InspectionData longParameterInspectionData = new InspectionData("limit value used for LongParameterListInspection", 5);
+    private static InspectionData messageChainsInspectionData = new InspectionData("limit value used for MessageChainsInspection", 2);
+
     private String  componentName;
     private int componentValue;
 
-    public static final String  LONG_METHOD_PROPERTIES_COMPONENT_NAME = "limit value used for LongMethodInspection";
-    public static final String LONG_PARAMETER_LIST_PROPERTIES_COMPONENT_NAME = "limit value used for LongParameterListInspection";
-    public static final String MESSAGE_CHAINS_PROPERTIES_COMPONENT_NAME = "limit value used for MessageChainsInspection";
-    public static final int DEFAULT_NUM_PARAMETER_LIST = 5;
-    public static final int DEFAULT_NUM_STATEMENTS = 30;
-    public static final int DEFAULT_NUM_CHAINS = 2;
-
-    public InspectionData(String  componentName, int componentValue) {
+    private InspectionData(String  componentName, int componentValue) {
         this.componentName = componentName;
         this.componentValue = componentValue;
     }
 
-    String getComponentName() {
+    public static InspectionData getInstance(@NotNull InspectionDataKey key) {
+        switch (key) {
+            case LONG_METHOD:
+                return longMethodInspectionData;
+
+            case LONG_PARAMETER_LIST:
+                return longParameterInspectionData;
+
+            case MESSAGE_CHAINS:
+                return messageChainsInspectionData;
+
+            default:
+                return null;
+        }
+    }
+
+    public String getComponentName() {
         return componentName;
     }
 

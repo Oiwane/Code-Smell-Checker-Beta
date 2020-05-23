@@ -33,7 +33,8 @@ public class LongMethodInspection extends CodeSmellInspection {
     private LocalQuickFix decomposeConditional = new DecomposeConditional();
 
     public LongMethodInspection() {
-        inspectionData = new InspectionData(InspectionData.LONG_METHOD_PROPERTIES_COMPONENT_NAME, InspectionData.DEFAULT_NUM_STATEMENTS);
+        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
+        assert inspectionData != null;
         upperLimitValue = inspectionData.getUpperLimitValue();
         displayName = "Long method";
     }

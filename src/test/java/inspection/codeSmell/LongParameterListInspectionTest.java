@@ -1,10 +1,11 @@
 package inspection.codeSmell;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
+import inspection.CodeSmellInspectionTest;
 
 import java.util.List;
 
-public class LongParameterListInspectionTest extends CodeSmellInspectionTest implements HighlightTest {
+public class LongParameterListInspectionTest extends CodeSmellInspectionTest {
     private final String fileName = "Main";
     private final String originalFilePath = "LongParameterList\\src\\" + fileName + ".java";
 
@@ -19,7 +20,7 @@ public class LongParameterListInspectionTest extends CodeSmellInspectionTest imp
 
         HighlightInfo highlightInfo = highlightInfoList.get(0);
 
-        assertEquals(537, highlightInfo.getActualStartOffset());
-        assertEquals(650, highlightInfo.getActualEndOffset());
+        assertEquals(573, highlightInfo.getActualStartOffset());
+        assertEquals(686, highlightInfo.getActualEndOffset());
     }
 }
