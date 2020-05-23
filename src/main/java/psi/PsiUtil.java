@@ -1,6 +1,5 @@
 package psi;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiCodeBlock;
 import com.intellij.psi.PsiElement;
@@ -28,19 +27,11 @@ public class PsiUtil {
     }
 
     public static PsiMethod cloneMethod(@NotNull PsiMethod originalMethod) {
-        PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
-        PsiMethod newMethod;
-        if (originalMethod.isConstructor()) {
-            newMethod = factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
-        } else {
-            newMethod = factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
-        }
+        PsiMethod newMethod = getPsiMethod(originalMethod);
         PsiParameterList originalParameterList = originalMethod.getParameterList();
 
-        // PsiCodeBlockの作成
-        PsiCodeBlock codeBlock = cloneCodeBlock(originalMethod, factory, newMethod);
-        // PsiParameterListの作成
-        PsiParameterList newParameterList = cloneParameterList(originalParameterList, factory);
+        PsiCodeBlock codeBlock = cloneCodeBlock(originalMethod, newMethod);
+        PsiParameterList newParameterList = cloneParameterList(originalParameterList);
 
         newMethod.getModifierList().replace(originalMethod.getModifierList());
         if (!originalMethod.isConstructor()) {
@@ -54,13 +45,25 @@ public class PsiUtil {
     }
 
     @NotNull
-    private static PsiCodeBlock cloneCodeBlock(@NotNull PsiMethod originalMethod, @NotNull PsiElementFactory factory, PsiMethod newMethod) {
+    private static PsiMethod getPsiMethod(@NotNull PsiMethod originalMethod) {
+        PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
+        if (originalMethod.isConstructor()) {
+            return factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
+        } else {
+            return factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
+        }
+    }
+
+    @NotNull
+    private static PsiCodeBlock cloneCodeBlock(@NotNull PsiMethod originalMethod, PsiMethod newMethod) {
+        PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
         String bodyStr = originalMethod.getBody().getText();
         return factory.createCodeBlockFromText(bodyStr, newMethod);
     }
 
     @NotNull
-    private static PsiParameterList cloneParameterList(@NotNull PsiParameterList originalParameterList, PsiElementFactory factory) {
+    private static PsiParameterList cloneParameterList(@NotNull PsiParameterList originalParameterList) {
+        PsiElementFactory factory = PsiElementFactory.getInstance(originalParameterList.getProject());
         String[] newParametersName = new String[originalParameterList.getParametersCount()];
         List<PsiType> newType = new ArrayList<>();
         for (int i = 0; i < originalParameterList.getParametersCount(); i++) {
@@ -70,21 +73,24 @@ public class PsiUtil {
         return factory.createParameterList(newParametersName, newType.toArray(new PsiType[0]));
     }
 
-    public static PsiExpression clonePsiExpression(PsiExpression originalElement) {
+    @NotNull
+    public static PsiExpression clonePsiExpression(@NotNull PsiExpression originalElement) {
         PsiElementFactory factory = PsiElementFactory.getInstance(originalElement.getProject());
         return factory.createExpressionFromText(originalElement.getText(), null);
     }
 
-    public static PsiParameterList clonePsiParameterList(Project project, PsiParameterList parameterList, List<Integer> deleteArgumentIndexList) {
-        PsiElementFactory factory = PsiElementFactory.getInstance(project);
+    @NotNull
+    public static PsiParameterList clonePsiParameterList(@NotNull PsiParameterList parameterList, List<Integer> deleteArgumentIndexList) {
+        PsiElementFactory factory = PsiElementFactory.getInstance(parameterList.getProject());
         List<String> nameList = new ArrayList<>();
         List<PsiType> typeList = new ArrayList<>();
 
         for (int index = 0; index < parameterList.getParametersCount(); index++) {
-            if (!deleteArgumentIndexList.contains(index)) {
-                nameList.add(parameterList.getParameters()[index].getName());
-                typeList.add(parameterList.getParameters()[index].getType());
+            if (deleteArgumentIndexList.contains(index)) {
+                continue;
             }
+            nameList.add(parameterList.getParameters()[index].getName());
+            typeList.add(parameterList.getParameters()[index].getType());
         }
 
         return factory.createParameterList(nameList.toArray(new String[0]), typeList.toArray(new PsiType[0]));
@@ -105,12 +111,6 @@ public class PsiUtil {
                 continue;
             }
 
-            int targetParametersCount = target.getParameterList().getParametersCount();
-            int sampleParametersCount = sample.getParameterList().getParametersCount();
-            if (targetParametersCount != sampleParametersCount) {
-                continue;
-            }
-
             PsiParameter[] targetParameters = target.getParameterList().getParameters();
             PsiParameter[] sampleParameters = sample.getParameterList().getParameters();
 
@@ -122,24 +122,18 @@ public class PsiUtil {
         return false;
     }
 
-    private static boolean isSameParameters(@NotNull PsiParameter[] targetParameters, PsiParameter[] sampleParameters) {
-        int counter = 0;
-        boolean[] flags = new boolean[targetParameters.length];
-        for (int i = 0; i < flags.length; i++) {
-            flags[i] = false;
+    private static boolean isSameParameters(@NotNull PsiParameter[] targetParameters, @NotNull PsiParameter[] sampleParameters) {
+        if (targetParameters.length != sampleParameters.length) {
+            return false;
         }
 
-        for (PsiParameter targetParameter : targetParameters) {
-            for (int i = 0; i < sampleParameters.length; i++) {
-                if (targetParameter.getType().equals(sampleParameters[i].getType()) && !flags[i]) {
-                    flags[i] = true;
-                    counter++;
-                    break;
-                }
+        int length = targetParameters.length;
+        for (int i = 0; i < length; i++) {
+            if (!targetParameters[i].getType().equalsToText(sampleParameters[i].getType().getCanonicalText())) {
+                return false;
             }
         }
-
-        return counter == targetParameters.length;
+        return true;
     }
 
     public static boolean existsSameMethodInOtherNewMethod(@NotNull List<PsiMethod> methodForCompare, PsiMethod newMethod) {
