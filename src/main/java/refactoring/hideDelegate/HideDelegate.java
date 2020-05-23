@@ -59,28 +59,29 @@ public class HideDelegate implements LocalQuickFix {
                 assert processor != null;
 
                 TransactionGuard.getInstance().submitTransactionAndWait(() -> {
-                    if (HideDelegateExtractMethodHandler.invokeOnElements(project, processor, expression.getContainingFile(), true)) {
-                        createNewMethod(processor);
-                        PsiMethod method = processor.getExtractedMethod();
-                        final PsiClass containingClass = method.getContainingClass();
-                        if (classInsertedMethod.equals(containingClass)) {
-                            return;
-                        }
-
-                        WriteCommandAction.runWriteCommandAction(project, () -> {
-                            PsiElementFactory factory = PsiElementFactory.getInstance(project);
-
-                            final PsiMethodCallExpression methodCall = processor.getMethodCall();
-                            PsiExpression newElement = factory.createExpressionFromText(base.getText() + "." + methodCall.getText(), null);
-                            methodCall.replace(newElement);
-
-                            PsiMethod newMethod = PsiUtil.cloneMethod(processor.getExtractedMethod());
-                            processor.getExtractedMethod().delete();
-
-                            checkAccessModifier(classInsertedMethod, getClassInsertedMethod(expression), newMethod);
-                            classInsertedMethod.add(newMethod);
-                        });
+                    if (!HideDelegateExtractMethodHandler.invokeOnElements(project, processor, expression.getContainingFile(), true)) {
+                        return;
                     }
+                    createNewMethod(processor);
+                    PsiMethod method = processor.getExtractedMethod();
+                    final PsiClass containingClass = method.getContainingClass();
+                    if (classInsertedMethod.equals(containingClass)) {
+                        return;
+                    }
+
+                    WriteCommandAction.runWriteCommandAction(project, () -> {
+                        PsiElementFactory factory = PsiElementFactory.getInstance(project);
+
+                        final PsiMethodCallExpression methodCall = processor.getMethodCall();
+                        PsiExpression newElement = factory.createExpressionFromText(base.getText() + "." + methodCall.getText(), null);
+                        methodCall.replace(newElement);
+
+                        PsiMethod newMethod = PsiUtil.cloneMethod(processor.getExtractedMethod());
+                        processor.getExtractedMethod().delete();
+
+                        checkAccessModifier(classInsertedMethod, getClassInsertedMethod(expression), newMethod);
+                        classInsertedMethod.add(newMethod);
+                    });
                 });
             }, "hide delegate", getFamilyName());
         });
@@ -99,12 +100,13 @@ public class HideDelegate implements LocalQuickFix {
 
     private void checkAccessModifier(@NotNull PsiClass classInsertedMethod, PsiClass originalClass, PsiMethod newMethod) {
         PsiElementFactory factory = PsiElementFactory.getInstance(classInsertedMethod.getProject());
-        if (!classInsertedMethod.equals(originalClass)) {
-            for (PsiElement child : newMethod.getModifierList().getChildren()) {
-                if (child.getText().equals(PsiModifier.PRIVATE)) {
-                    child.replace(factory.createKeyword(PsiModifier.PUBLIC));
-                    return;
-                }
+        if (classInsertedMethod.equals(originalClass)) {
+            return;
+        }
+        for (PsiElement child : newMethod.getModifierList().getChildren()) {
+            if (child.getText().equals(PsiModifier.PRIVATE)) {
+                child.replace(factory.createKeyword(PsiModifier.PUBLIC));
+                return;
             }
         }
     }
@@ -136,12 +138,11 @@ public class HideDelegate implements LocalQuickFix {
         if (baseElementDefinitionElement instanceof PsiVariable) {
             PsiVariable variable = (PsiVariable) baseElementDefinitionElement;
             PsiElement element = variable.getTypeElement().getChildren()[0];
-            if (element instanceof PsiJavaCodeReferenceElement) {
-                PsiJavaCodeReferenceElement javaCodeReferenceElement = (PsiJavaCodeReferenceElement) element;
-                classInsertedMethod = (PsiClass) javaCodeReferenceElement.getReference().resolve();
-            } else {
+            if (!(element instanceof PsiJavaCodeReferenceElement)) {
                 return null;
             }
+            PsiJavaCodeReferenceElement javaCodeReferenceElement = (PsiJavaCodeReferenceElement) element;
+            classInsertedMethod = (PsiClass) javaCodeReferenceElement.getReference().resolve();
         } else if (baseElementDefinitionElement instanceof PsiClass) {
             classInsertedMethod = (PsiClass) baseElementDefinitionElement;
         }

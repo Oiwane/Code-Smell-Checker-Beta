@@ -179,16 +179,17 @@ public class PreserveWholeObject implements LocalQuickFix {
 
         // int a = b = c.hoge(); みたいな記述は無視
         for (PsiElement element : statement.getDeclaredElements()) {
-            if (element instanceof PsiLocalVariable) {
-                PsiLocalVariable localVariable = (PsiLocalVariable) element;
-                final PsiExpression initializer = localVariable.getInitializer();
+            if (!(element instanceof PsiLocalVariable)) {
+                continue;
+            }
+            PsiLocalVariable localVariable = (PsiLocalVariable) element;
+            final PsiExpression initializer = localVariable.getInitializer();
 
-                if (initializer instanceof PsiMethodCallExpression) {
-                    returnValue = (PsiMethodCallExpression) initializer;
-                } else if (initializer instanceof PsiReferenceExpression) {
-                    PsiElement variableReference = initializer.getReference().resolve();
-                    return findTargetElementInScope(scope, variableReference);
-                }
+            if (initializer instanceof PsiMethodCallExpression) {
+                returnValue = (PsiMethodCallExpression) initializer;
+            } else if (initializer instanceof PsiReferenceExpression) {
+                PsiElement variableReference = initializer.getReference().resolve();
+                return findTargetElementInScope(scope, variableReference);
             }
         }
 
@@ -205,9 +206,8 @@ public class PreserveWholeObject implements LocalQuickFix {
             if (element instanceof PsiReferenceExpression) {
                 if (appearEQ) {
                     return findTargetElementInScope(scope, element);
-                } else {
-                    compareVariable = (PsiReferenceExpression) element;
                 }
+                compareVariable = (PsiReferenceExpression) element;
             } else if (element instanceof PsiMethodCallExpression) {
                 returnValue = (PsiMethodCallExpression) element;
             } else if (element instanceof PsiJavaToken) {
@@ -258,15 +258,13 @@ public class PreserveWholeObject implements LocalQuickFix {
      */
     private void addParameter(@NotNull Map<PsiElement, List<ArgumentInfo>> map, PsiElement key, @NotNull PsiParameterList newParameterList) {
         PsiElementFactory factory = PsiElementFactory.getInstance(newParameterList.getProject());
-        if (map.containsKey(key)) {
-            if (!(key instanceof PsiVariable)) {
-                return;
-            }
-            PsiVariable variable = (PsiVariable) key;
-            PsiParameter newParameter = factory.createParameter(variable.getName(), variable.getType());
-
-            newParameterList.add(newParameter);
+        if (!(map.containsKey(key) && key instanceof PsiVariable)) {
+            return;
         }
+        PsiVariable variable = (PsiVariable) key;
+        PsiParameter newParameter = factory.createParameter(variable.getName(), variable.getType());
+
+        newParameterList.add(newParameter);
     }
 
     private void changeArgumentList(@NotNull PsiMethodCallExpression methodCallExpression) {

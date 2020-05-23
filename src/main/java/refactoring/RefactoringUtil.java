@@ -51,12 +51,12 @@ public class RefactoringUtil {
                 PsiElementFactory factory = PsiElementFactory.getInstance(targetParameter.getProject());
                 PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 
-                if (codeBlock.getStatementCount() != 0) {
-                    PsiStatement firstStatement = codeBlock.getStatements()[0];
-                    codeBlock.addBefore(declarationStatement, firstStatement);
-                } else {
+                if (codeBlock.getStatementCount() == 0) {
                     codeBlock.add(declarationStatement);
+                    return;
                 }
+                PsiStatement firstStatement = codeBlock.getStatements()[0];
+                codeBlock.addBefore(declarationStatement, firstStatement);
             } else if (elementList.size() == 1) {
                 elementList.get(0).replace(newElement);
             }
@@ -73,17 +73,15 @@ public class RefactoringUtil {
         PsiElement parentElement = element.getParent();
         if (parentElement instanceof PsiCodeBlock) {
             return (PsiCodeBlock) parentElement;
-        } else {
-            return findCodeBlockInParents(parentElement);
         }
+        return findCodeBlockInParents(parentElement);
     }
 
     public static PsiMethod findMethodBelongsTo(@NotNull PsiElement element) {
         PsiElement parentElement = element.getParent();
         if (parentElement instanceof PsiMethod) {
             return (PsiMethod) parentElement;
-        } else {
-            return findMethodBelongsTo(parentElement);
         }
+        return findMethodBelongsTo(parentElement);
     }
 }

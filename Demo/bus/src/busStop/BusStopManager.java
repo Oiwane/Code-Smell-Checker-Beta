@@ -23,10 +23,9 @@ public class BusStopManager {
   public BusStop getBusStop(int id) {
     if (map.containsKey(id)) {
       return map.get(id);
-    } else {
-      System.out.println(NO_EXIST_ID);
-      return null;
     }
+    System.out.println(NO_EXIST_ID);
+    return null;
   }
 
   public int getId(String busStopName) {
@@ -42,12 +41,12 @@ public class BusStopManager {
   public void changeID(int currentId, int newId) {
     BusStop busStop = map.get(currentId);
 
-    if (map.containsKey(currentId)) {
-      map.put(newId, busStop);
-      map.remove(currentId);
-    } else {
+    if (!map.containsKey(currentId)) {
       System.out.println(NO_EXIST_ID);
+      return;
     }
+    map.put(newId, busStop);
+    map.remove(currentId);
   }
 
 }

@@ -49,9 +49,8 @@ public class PsiUtil {
         PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
         if (originalMethod.isConstructor()) {
             return factory.createConstructor(originalMethod.getName(), originalMethod.getContext());
-        } else {
-            return factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
         }
+        return factory.createMethod(originalMethod.getName(), originalMethod.getReturnType(), originalMethod.getContainingClass());
     }
 
     @NotNull
