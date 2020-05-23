@@ -2,6 +2,7 @@ package ui.inspectionOption;
 
 import inspection.InspectionData;
 import org.jetbrains.annotations.NotNull;
+import ui.inspectionOption.listener.OptionButtonListener;
 import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
 import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
 
@@ -63,7 +64,7 @@ public class InspectionOptionUI {
         return textField;
     }
 
-    public JPanel createOptionPanel(ActionListener listener, InspectionData inspectionData) {
+    public JPanel createOptionPanel(OptionButtonListener listener, InspectionData inspectionData) {
         spinnerPanel.setLayout(new BoxLayout(spinnerPanel, BoxLayout.X_AXIS));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 

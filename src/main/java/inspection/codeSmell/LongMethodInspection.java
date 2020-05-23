@@ -73,7 +73,7 @@ public class LongMethodInspection extends CodeSmellInspection {
         List<ProblemDescriptor> descriptors = new ArrayList<>();
         descriptors.add(manager.createProblemDescriptor(
                 identifier, identifier, descriptionTemplate, ProblemHighlightType.WARNING, isOnTheFly,
-                replaceTempWithQuery, decomposeConditional/*, replaceMethodWithMethodObject, extractMethod*/
+                replaceTempWithQuery, decomposeConditional
         ));
 
         return descriptors.toArray(new ProblemDescriptor[0]);
