@@ -8,7 +8,7 @@
 そのため、使いづらいとは思いますが、もし使用したい場合はcloneしてお使いください。
 cloneした後は、以下の手順で使用できると思います。
 
-1. IntelliJ IDEAでcloneしたレポジトリを開く
+1. IntelliJ IDEAでcloneしたリポジトリを開く
 2. `` View > Tool Windows > Gradle``を選択する
     1. ウィンドウに何も表示されていない場合、左上の更新ボタンを押す
 3. `` code_smell_checker_plugin > Tasks > intellij > runIde ``を選択する
