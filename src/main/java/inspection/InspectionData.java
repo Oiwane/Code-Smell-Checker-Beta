@@ -10,7 +10,8 @@ public class InspectionData {
     public enum InspectionDataKey {
         LONG_METHOD,
         LONG_PARAMETER_LIST,
-        MESSAGE_CHAINS
+        MESSAGE_CHAINS,
+        NULL
     }
 
     private static InspectionData longMethodInspectionData = new InspectionData("limit value used for LongMethodInspection", 30);
