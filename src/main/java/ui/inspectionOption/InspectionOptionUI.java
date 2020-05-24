@@ -4,6 +4,7 @@ import inspection.InspectionData;
 import org.jetbrains.annotations.NotNull;
 import ui.inspectionOption.listener.OptionButtonListener;
 import ui.inspectionOption.listener.OptionSpinnerNumberModelChangeListener;
+import ui.inspectionOption.listener.OptionTextFieldActionListener;
 import ui.inspectionOption.listener.OptionTextFieldDocumentListener;
 
 import javax.swing.BoxLayout;
@@ -75,13 +76,7 @@ public class InspectionOptionUI {
         // リスナーの登録
         spinnerNumberModel.addChangeListener(new OptionSpinnerNumberModelChangeListener(button, textField, inspectionData));
         textField.getDocument().addDocumentListener(new OptionTextFieldDocumentListener(button, textField, inspectionData));
-        ActionListener actionListener = e -> {
-            if (button.isEnabled()) {
-                button.doClick();
-                button.setEnabled(false);
-            }
-        };
-        textField.addActionListener(actionListener);
+        textField.addActionListener(new OptionTextFieldActionListener(button));
 
         spinnerPanel.add(descriptionLabel);
         spinnerPanel.add(spinner);
