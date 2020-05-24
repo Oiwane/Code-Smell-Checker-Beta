@@ -8,9 +8,13 @@ import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiType;
 import inspection.CodeSmellInspectionTest;
 
+<<<<<<< HEAD
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+=======
+import javax.swing.*;
+>>>>>>> 2afcc03ead84059474ce70edb5a3a4e5c6e146bf
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
