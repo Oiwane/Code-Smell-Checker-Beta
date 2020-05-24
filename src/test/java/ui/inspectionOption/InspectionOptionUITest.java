@@ -1,18 +1,19 @@
 package ui.inspectionOption;
 
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import inspection.InspectionData;
-import org.junit.Test;
 import ui.inspectionOption.listener.OptionButtonListener;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import java.awt.Component;
 
-import static org.junit.Assert.*;
+public class InspectionOptionUITest extends LightJavaCodeInsightFixtureTestCase {
 
-public class InspectionOptionUITest {
-
-    @Test
-    public void getTextField() {
+    public void testGetTextField() {
         String testDescription = "test";
         int expected = 50;
         InspectionOptionUI optionUI = new InspectionOptionUI(testDescription, expected);
@@ -20,8 +21,7 @@ public class InspectionOptionUITest {
         assertEquals(expected, actual);
     }
 
-    @Test
-    public void createOptionPanel() {
+    public void testCreateOptionPanel() {
         String testDescription = "test";
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
         InspectionOptionUI optionUI = new InspectionOptionUI(testDescription, inspectionData.getUpperLimitValue());
