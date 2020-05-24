@@ -14,12 +14,10 @@ public class OptionButtonListenerTest extends LightJavaCodeInsightFixtureTestCas
         String componentName = inspectionData.getComponentName();
         OptionButtonListener listener = new OptionButtonListener(textField, componentName);
         listener.actionPerformed(null);
-        String value = PropertiesComponent.getInstance().getValue(componentName);
-        assertNull(value);
 
         textField.setText("3");
         listener.actionPerformed(null);
-        value = PropertiesComponent.getInstance().getValue(componentName);
+        String value = PropertiesComponent.getInstance().getValue(componentName);
         assertEquals("3", value);
     }
 }
