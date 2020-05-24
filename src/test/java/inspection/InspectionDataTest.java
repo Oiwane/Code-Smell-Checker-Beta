@@ -16,6 +16,9 @@ public class InspectionDataTest {
 
         inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS);
         assertNotNull(inspectionData);
+
+        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.NULL);
+        assertNull(inspectionData);
     }
 
     @Test
