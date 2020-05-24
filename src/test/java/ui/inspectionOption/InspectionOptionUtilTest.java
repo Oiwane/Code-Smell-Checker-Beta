@@ -2,11 +2,9 @@ package ui.inspectionOption;
 
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import inspection.InspectionData;
-import org.junit.Test;
 
-import javax.swing.*;
-
-import static org.junit.Assert.*;
+import javax.swing.JButton;
+import javax.swing.JTextField;
 
 public class InspectionOptionUtilTest extends LightJavaCodeInsightFixtureTestCase {
 
