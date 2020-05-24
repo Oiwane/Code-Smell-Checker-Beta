@@ -54,10 +54,6 @@ public class LongMethodInspection extends CodeSmellInspection {
     @Override
     @Nullable
     public ProblemDescriptor[] checkMethod(@NotNull PsiMethod method, @NotNull InspectionManager manager, boolean isOnTheFly) {
-        if (method.getBody() == null) {
-            return null;
-        }
-
         upperLimitValue = inspectionData.getUpperLimitValue();
         int count = countStatement(method);
         if (count <= upperLimitValue) {

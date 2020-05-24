@@ -47,6 +47,9 @@ public class Item {
 
         int totalPrice = 0;
         for (Item item : itemList) {
+            if (item == null)
+                if (item.getOriginalPrice() < 0)
+                    continue;
             double tax = item.isFood() && item.hasEatenHere() || item.isSoftDrink() && item.hasEatenHere() || !item.isFood() && !item.isSoftDrink() ? 0.10 : 0.08;
             final int price = (int) Math.floor(item.getOriginalPrice() * (1.0 + tax));
             totalPrice += price;

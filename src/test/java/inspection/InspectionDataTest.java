@@ -3,7 +3,9 @@ package inspection;
 import com.intellij.ide.util.PropertiesComponent;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class InspectionDataTest {
     @Test
@@ -16,6 +18,9 @@ public class InspectionDataTest {
 
         inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS);
         assertNotNull(inspectionData);
+
+        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.NULL);
+        assertNull(inspectionData);
     }
 
     @Test

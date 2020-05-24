@@ -3,6 +3,7 @@ package inspection.codeSmell;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInspection.InspectionManager;
 import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiMethod;
@@ -10,34 +11,30 @@ import com.intellij.psi.PsiType;
 import inspection.CodeSmellInspectionTest;
 import inspection.InspectionData;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import java.awt.Component;
 import java.util.List;
 
 public class LongMethodInspectionTest extends CodeSmellInspectionTest {
     private final String fileName = "Item";
-    private final String originalFilePath = "LongMethod\\src\\item\\" + fileName + ".java";
+    private final String originalFilePath = "LongMethod\\src\\item\\" + fileName + JavaFileType.DOT_DEFAULT_EXTENSION;
 
     @Override
     public void testForInspection() {
-        final LongMethodInspection longMethodInspection = new LongMethodInspection();
+        final LongMethodInspection inspection = new LongMethodInspection();
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
         assert inspectionData != null;
         // 検出基準値を15に設定
         PropertiesComponent.getInstance().setValue(inspectionData.getComponentName(), "15");
 
         myFixture.configureByFile(originalFilePath);
-        myFixture.enableInspections(longMethodInspection);
+        myFixture.enableInspections(inspection);
 
         // 『長すぎるメソッド』コードインスペクションが検出したコードを特定
-        List<HighlightInfo> highlightInfoList = getHighlightInfoList(longMethodInspection.getShortName());
+        List<HighlightInfo> highlightInfoList = getHighlightInfoList(inspection.getShortName());
 
+        assertEquals(1, highlightInfoList.size());
         // ハイライト部分の情報を取得
-        // 今回のテストケースであれば、検出結果としては1つのみ
         HighlightInfo info = highlightInfoList.get(0);
         // ハイライトすべき部分が正しいか確認
         assertEquals(753, info.getActualStartOffset());
@@ -57,18 +54,10 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest {
     public void testCreateOptionsPanel() {
         LongMethodInspection inspection = new LongMethodInspection();
         JComponent component = inspection.createOptionsPanel();
-        Class[] classes = {JPanel.class,    // spinnerPanel
-                JLabel.class,               // descriptionLable
-                JSpinner.class,             // spinner
-                JPanel.class,               // buttonPanel
-                JButton.class};             // button
-        int index = 0;
-        for (Component child : component.getComponents()) {
-            assertEquals(classes[index++], child.getClass());
-            for (Component grandChild : ((JComponent) child).getComponents()) {
-                assertEquals(classes[index++], grandChild.getClass());
-            }
-        }
+        component = (JComponent) component.getComponent(0);
+        JLabel label = (JLabel) component.getComponent(0);
+        String description = "detected length of \"" + inspection.getDisplayName() + "\"";
+        assertEquals(description, label.getText());
     }
 
     public void testCheckMethod() {
@@ -94,6 +83,7 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest {
         descriptors = inspection.checkMethod(target, manager, true);
         assertNull(descriptors);
 
+        // 該当メソッドがあった時
         /* testForInspectionにて使用しているので検出時のテストはスルー */
     }
 
