@@ -79,15 +79,12 @@ public class PsiUtil {
     }
 
     @NotNull
-    public static PsiParameterList clonePsiParameterList(@NotNull PsiParameterList parameterList, List<Integer> deleteArgumentIndexList) {
+    public static PsiParameterList clonePsiParameterList(@NotNull PsiParameterList parameterList) {
         PsiElementFactory factory = PsiElementFactory.getInstance(parameterList.getProject());
         List<String> nameList = new ArrayList<>();
         List<PsiType> typeList = new ArrayList<>();
 
         for (int index = 0; index < parameterList.getParametersCount(); index++) {
-            if (deleteArgumentIndexList.contains(index)) {
-                continue;
-            }
             nameList.add(parameterList.getParameters()[index].getName());
             typeList.add(parameterList.getParameters()[index].getType());
         }
@@ -146,7 +143,6 @@ public class PsiUtil {
             if (references.length != 0) {
                 continue;
             }
-
             method.delete();
         }
     }

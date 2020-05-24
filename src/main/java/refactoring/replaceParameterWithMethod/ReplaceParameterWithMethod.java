@@ -276,7 +276,12 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
     private void changeParameterList(Project project, List<Integer> deleteArgumentIndexList) {
         WriteCommandAction.runWriteCommandAction(project, () -> {
-            PsiParameterList newParameterList = PsiUtil.clonePsiParameterList(newMethod.getElement().getParameterList(), deleteArgumentIndexList);
+            PsiParameterList newParameterList = PsiUtil.clonePsiParameterList(newMethod.getElement().getParameterList());
+
+            for (int i = 0; i < deleteArgumentIndexList.size(); i++) {
+                Integer index = deleteArgumentIndexList.get(i);
+                newParameterList.getParameters()[index - i].delete();
+            }
             newMethod.getElement().getParameterList().replace(newParameterList);
         });
     }
