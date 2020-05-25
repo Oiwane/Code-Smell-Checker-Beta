@@ -3,9 +3,8 @@ package inspection;
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import org.jetbrains.annotations.NotNull;
+import inspection.codeSmell.ConcreteCodeSmellInspection;
 
-import javax.swing.JComponent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,65 +40,47 @@ public class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase
      * このメソッドにコードインスペクションのハイライト表示のテストコードを書く
      */
     public void testForInspection() {
+        // 特にやることなし
     }
 
     public void testCreateOptionUI() {
-        CodeSmellInspection inspection = new CodeSmellInspection() {
-            @Override
-            protected JComponent createOptionUI(String description, @NotNull InspectionData data) {
-                return super.createOptionUI(description, data);
-            }
-        };
+        // 特にやることなし
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
         inspection.createOptionUI("test", inspectionData);
     }
 
     public void testGetDisplayName() {
-        CodeSmellInspection inspection = new CodeSmellInspection() {
-            @NotNull
-            @Override
-            public String getDisplayName() {
-                return super.getDisplayName();
-            }
-        };
-
-        // displayNameはnullなので必ず例外が発生する
-        try {
-            inspection.getDisplayName();
-            fail();
-        } catch (IllegalStateException ignored) {
-        }
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
+        assertEquals("Null", inspection.getDisplayName());
     }
 
     public void testGetGroupDisplayName() {
-        CodeSmellInspection inspection = new CodeSmellInspection() {
-            @NotNull
-            @Override
-            public String getGroupDisplayName() {
-                return super.getGroupDisplayName();
-            }
-        };
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
         assertEquals("Code smell", inspection.getGroupDisplayName());
     }
 
     public void testIsEnabledByDefault() {
-        CodeSmellInspection inspection = new CodeSmellInspection() {
-            @Override
-            public boolean isEnabledByDefault() {
-                return super.isEnabledByDefault();
-            }
-        };
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
         assertFalse(inspection.isEnabledByDefault());
     }
 
     public void testGetDefaultLevel() {
-        CodeSmellInspection inspection = new CodeSmellInspection() {
-            @NotNull
-            @Override
-            public HighlightDisplayLevel getDefaultLevel() {
-                return super.getDefaultLevel();
-            }
-        };
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
         assertEquals(HighlightDisplayLevel.WARNING, inspection.getDefaultLevel());
+    }
+
+    public void testSetAndGetInspectionData() {
+        InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.NULL);
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
+        inspection.setInspectionData(inspectionData);
+        assertEquals(inspectionData, inspection.getInspectionData());
+    }
+
+    public void testGetUpperLimitValue() {
+        InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_PARAMETER_LIST);
+        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
+        inspection.setInspectionData(inspectionData);
+        assertEquals(inspectionData.getUpperLimitValue(), inspection.getUpperLimitValue());
     }
 }
