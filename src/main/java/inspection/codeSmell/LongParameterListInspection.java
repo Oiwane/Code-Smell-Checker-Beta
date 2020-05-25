@@ -31,10 +31,13 @@ public class LongParameterListInspection extends CodeSmellInspection {
     private final LocalQuickFix preserveWholeObject = new PreserveWholeObject();
 
     public LongParameterListInspection() {
-        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_PARAMETER_LIST);
-        assert inspectionData != null;
-        upperLimitValue = inspectionData.getUpperLimitValue();
-        displayName = "Long parameter list";
+        setInspectionData(InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_PARAMETER_LIST));
+    }
+
+    @Override
+    @NotNull
+    public String getDisplayName() {
+        return "Long parameter list";
     }
 
     @NonNls
@@ -46,13 +49,12 @@ public class LongParameterListInspection extends CodeSmellInspection {
     @Override
     public JComponent createOptionsPanel() {
         String description = "detected length of \"" + getDisplayName() + "\"";
-        return this.createOptionUI(description, inspectionData);
+        return this.createOptionUI(description, getInspectionData());
     }
 
     @Nullable
     private ProblemDescriptor[] checkParameterList(@NotNull PsiParameterList list, @NotNull InspectionManager manager, boolean isOnTheFly) {
-        upperLimitValue = inspectionData.getUpperLimitValue();
-        if (list.getParametersCount() <= upperLimitValue) {
+        if (list.getParametersCount() <= getUpperLimitValue()) {
             return null;
         }
 
