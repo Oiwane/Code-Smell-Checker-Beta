@@ -33,10 +33,13 @@ public class LongMethodInspection extends CodeSmellInspection {
     private LocalQuickFix decomposeConditional = new DecomposeConditional();
 
     public LongMethodInspection() {
-        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
-        assert inspectionData != null;
-        upperLimitValue = inspectionData.getUpperLimitValue();
-        displayName = "Long method";
+        setInspectionData(InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD));
+    }
+
+    @Override
+    @NotNull
+    public String getDisplayName() {
+        return "Long method";
     }
 
     @NonNls
@@ -48,15 +51,14 @@ public class LongMethodInspection extends CodeSmellInspection {
     @Override
     public JComponent createOptionsPanel() {
         String description = "detected length of \"" + getDisplayName() + "\"";
-        return this.createOptionUI(description, inspectionData);
+        return this.createOptionUI(description, getInspectionData());
     }
 
     @Override
     @Nullable
     public ProblemDescriptor[] checkMethod(@NotNull PsiMethod method, @NotNull InspectionManager manager, boolean isOnTheFly) {
-        upperLimitValue = inspectionData.getUpperLimitValue();
         int count = countStatement(method);
-        if (count <= upperLimitValue) {
+        if (count <= getUpperLimitValue()) {
             return null;
         }
 

@@ -1,7 +1,9 @@
 package inspection;
 
 import com.intellij.ide.util.PropertiesComponent;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * インスペクションの検出条件に関するデータクラス
@@ -21,11 +23,14 @@ public class InspectionData {
     private String  componentName;
     private int componentValue;
 
+    @Contract(pure = true)
     private InspectionData(String  componentName, int componentValue) {
         this.componentName = componentName;
         this.componentValue = componentValue;
     }
 
+    @Nullable
+    @Contract(pure = true)
     public static InspectionData getInstance(@NotNull InspectionDataKey key) {
         switch (key) {
             case LONG_METHOD:

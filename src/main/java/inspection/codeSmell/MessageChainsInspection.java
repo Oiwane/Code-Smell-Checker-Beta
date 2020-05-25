@@ -30,9 +30,13 @@ public class MessageChainsInspection extends CodeSmellInspection {
     private LocalQuickFix quickFix = new HideDelegate();
 
     public MessageChainsInspection() {
-        inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS);
-        upperLimitValue = inspectionData.getUpperLimitValue();
-        displayName = "Message chains";
+        setInspectionData(InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS));
+    }
+
+    @Override
+    @NotNull
+    public String getDisplayName() {
+        return "Message chains";
     }
 
     @NonNls
@@ -44,7 +48,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
     @Override
     public JComponent createOptionsPanel() {
         String description = "detected length of \"" + getDisplayName() + "\"";
-        return this.createOptionUI(description, inspectionData);
+        return this.createOptionUI(description, getInspectionData());
     }
 
     private ProblemDescriptor[] checkReferenceExpression(@NotNull PsiReferenceExpression expression, @NotNull InspectionManager manager, boolean isOnTheFly) {
@@ -63,8 +67,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
         int count = countPsiExpression(expression) - 1;
 
-        upperLimitValue = inspectionData.getUpperLimitValue();
-        if (count <= upperLimitValue) {
+        if (count <= getUpperLimitValue()) {
             return null;
         }
 
