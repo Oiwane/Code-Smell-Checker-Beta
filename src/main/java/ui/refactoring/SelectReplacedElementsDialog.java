@@ -64,14 +64,13 @@ public class SelectReplacedElementsDialog extends DialogWrapper {
 
         int index = 0;
         for (Component component : verticalBox.getComponents()) {
-            if (!(component instanceof JCheckBox)) {
-                continue;
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.isSelected()) {
+                    selectedIndexList.add(index);
+                }
+                index++;
             }
-            JCheckBox checkBox = (JCheckBox) component;
-            if (checkBox.isSelected()) {
-                selectedIndexList.add(index);
-            }
-            index++;
         }
     }
 
