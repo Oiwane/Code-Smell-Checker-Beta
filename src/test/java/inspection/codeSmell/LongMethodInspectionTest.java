@@ -62,16 +62,15 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest {
 
     public void testCheckMethod() {
         LongMethodInspection inspection = new LongMethodInspection();
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
 
         // メソッドのボディがnullの時
-        PsiMethod target = factory.createMethodFromText("public void test()", null);
+        PsiMethod target = getElementFactory().createMethodFromText("public void test()", null);
         InspectionManager manager = InspectionManager.getInstance(getProject());
         ProblemDescriptor[] descriptors = inspection.checkMethod(target, manager, true);
         assertNull(descriptors);
 
         // 検出対象でなかった時
-        target = factory.createMethod("test", PsiType.VOID, null);
+        target = getElementFactory().createMethod("test", PsiType.VOID, null);
         descriptors = inspection.checkMethod(target, manager, true);
         assertNull(descriptors);
 
@@ -79,7 +78,7 @@ public class LongMethodInspectionTest extends CodeSmellInspectionTest {
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
         assert inspectionData != null;
         PropertiesComponent.getInstance().setValue(inspectionData.getComponentName(), "1");
-        target = factory.createMethodFromText("public void (){System.out.print();System.out.print();}", null);
+        target = getElementFactory().createMethodFromText("public void (){System.out.print();System.out.print();}", null);
         descriptors = inspection.checkMethod(target, manager, true);
         assertNull(descriptors);
 

@@ -60,10 +60,9 @@ public class LongParameterListInspectionTest extends CodeSmellInspectionTest {
         assert method != null;
         method.setAccessible(true);
 
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
         String[] names = {""};
         PsiType[] types = {PsiType.VOID};
-        PsiParameterList parameterList = factory.createParameterList(names, types);
+        PsiParameterList parameterList = getElementFactory().createParameterList(names, types);
 
         ProblemDescriptor[] descriptors = (ProblemDescriptor[]) method.invoke(inspection, parameterList, manager, true);
         assertNull(descriptors);

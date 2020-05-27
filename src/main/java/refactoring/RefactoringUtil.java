@@ -9,25 +9,15 @@ import com.intellij.psi.PsiExpression;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiStatement;
+import org.jetbrains.annotations.Contract;
 import visitor.TargetElementVisitor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class RefactoringUtil {
+    @Contract(pure = true)
     private RefactoringUtil() {
-    }
-
-    /**
-     * targetParameterをnewElementに置き換えてtargetParameterを削除する
-     *
-     * @param method          変更するメソッド
-     * @param targetParameter 削除対象のパラメータ
-     * @param newElement      targetParameterと置き換えるメソッド呼び出し
-     */
-    public static void optimiseParameter(PsiMethod method, PsiParameter targetParameter, PsiExpression newElement) {
-        RefactoringUtil.replaceParameterObject(method, targetParameter, newElement);
-        targetParameter.delete();
     }
 
     /**
