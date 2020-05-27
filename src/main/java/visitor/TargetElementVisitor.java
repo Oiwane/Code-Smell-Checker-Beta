@@ -19,10 +19,9 @@ public class TargetElementVisitor extends JavaRecursiveElementWalkingVisitor {
     @Override
     public void visitReferenceExpression(PsiReferenceExpression expression) {
         super.visitReferenceExpression(expression);
-        if (expression.getReference() == null) {
-            return;
-        }
-        if (targetElement.getText().equals(expression.getReference().resolve().getText())) {
+        assert expression.getReference() != null;
+        PsiElement resolve = expression.getReference().resolve();
+        if (resolve != null && targetElement.getText().equals(resolve.getText())) {
             elementList.add(expression);
         }
     }
