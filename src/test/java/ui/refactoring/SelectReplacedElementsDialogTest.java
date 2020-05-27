@@ -18,8 +18,7 @@ public class SelectReplacedElementsDialogTest extends LightJavaCodeInsightFixtur
         dialog.doOKAction();
         assertEquals(0, dialog.getSelectedIndexList().size());
 
-        PsiElementFactory factory = getElementFactory();
-        PsiStatement statement = factory.createStatementFromText("System.out.println(\"hoge\");", null);
+        PsiStatement statement = getElementFactory().createStatementFromText("System.out.println(\"hoge\");", null);
         replacedElementList.add(statement);
         dialog = new SelectReplacedElementsDialog(getProject(), true, replacedElementList, "test");
         dialog.doOKAction();
@@ -54,8 +53,7 @@ public class SelectReplacedElementsDialogTest extends LightJavaCodeInsightFixtur
         classList.add(Box.class);           // verticalBox
         classList.add(JCheckBox.class);     // no name
 
-        PsiElementFactory factory = getElementFactory();
-        PsiStatement statement = factory.createStatementFromText("System.out.println(\"hoge\");", null);
+        PsiStatement statement = getElementFactory().createStatementFromText("System.out.println(\"hoge\");", null);
         replacedElementList.add(statement);
         dialog = new SelectReplacedElementsDialog(getProject(), true, replacedElementList, "test");
         centerPanel = dialog.createCenterPanel();

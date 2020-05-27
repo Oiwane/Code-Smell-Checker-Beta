@@ -66,10 +66,9 @@ public class MessageChainsInspectionTest extends CodeSmellInspectionTest {
         method.setAccessible(true);
 
         // 上限値以下の時
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiStatement statement = factory.createStatementFromText("System.out.println(\"test\");", null);
+        PsiStatement statement = getElementFactory().createStatementFromText("System.out.println(\"test\");", null);
         PsiExpression expression = (PsiExpression) statement.getChildren()[0];  // PsiMethodCallExpression
-        PsiCodeBlock codeBlock = factory.createCodeBlock();
+        PsiCodeBlock codeBlock = getElementFactory().createCodeBlock();
         codeBlock.add(expression);
         ProblemDescriptor[] descriptors = (ProblemDescriptor[]) method.invoke(inspection, expression, manager, true);
         assertNull(descriptors);

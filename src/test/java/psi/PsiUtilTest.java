@@ -19,14 +19,13 @@ public class PsiUtilTest extends LightJavaCodeInsightFixtureTestCase {
 
     public void testCloneMethod() {
         // サンプルメソッド
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiMethod method1 = factory.createMethod("test", PsiType.INT);
+        PsiMethod method1 = getElementFactory().createMethod("test", PsiType.INT);
         PsiParameterList parameterList = method1.getParameterList();
         String[] names = {"num"};
         PsiType[] types = {PsiType.INT};
-        parameterList.replace(factory.createParameterList(names, types));
+        parameterList.replace(getElementFactory().createParameterList(names, types));
         PsiCodeBlock codeBlock = method1.getBody();
-        PsiStatement statement = factory.createStatementFromText("System.out.println(num);", null);
+        PsiStatement statement = getElementFactory().createStatementFromText("System.out.println(num);", null);
         assert codeBlock != null;
         codeBlock.add(statement);
 
@@ -37,10 +36,9 @@ public class PsiUtilTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testCloneConstructor() {
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiMethod method1 = factory.createConstructor("Test");
+        PsiMethod method1 = getElementFactory().createConstructor("Test");
         PsiCodeBlock codeBlock = method1.getBody();
-        PsiStatement statement = factory.createStatementFromText("System.out.println(\"test\");", null);
+        PsiStatement statement = getElementFactory().createStatementFromText("System.out.println(\"test\");", null);
         assert codeBlock != null;
         codeBlock.add(statement);
 
@@ -51,18 +49,16 @@ public class PsiUtilTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testClonePsiExpression() {
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiExpression expression1 = factory.createExpressionFromText("System.out.println(\"test\")", null);
+        PsiExpression expression1 = getElementFactory().createExpressionFromText("System.out.println(\"test\")", null);
         PsiExpression expression2 = PsiUtil.clonePsiExpression(expression1);
         assertEquals(expression1.getText(), expression2.getText());
         assertNotSame(expression1, expression2);
     }
 
     public void testClonePsiParameterList() {
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
         String[] names = {"num", "c"};
         PsiType[] types = {PsiType.INT, PsiType.CHAR};
-        PsiParameterList parameterList1 = factory.createParameterList(names, types);
+        PsiParameterList parameterList1 = getElementFactory().createParameterList(names, types);
         PsiParameterList parameterList2 = PsiUtil.clonePsiParameterList(parameterList1);
         assertEquals(parameterList1.getText(), parameterList2.getText());
         assertNotSame(parameterList1, parameterList2);
@@ -90,9 +86,8 @@ public class PsiUtilTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     private PsiMethod createMethod(String methodName, String[] parameterNames, PsiType[] parameterTypes) {
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiMethod method = factory.createMethod(methodName, PsiType.VOID);
-        PsiParameterList parameterList = factory.createParameterList(parameterNames, parameterTypes);
+        PsiMethod method = getElementFactory().createMethod(methodName, PsiType.VOID);
+        PsiParameterList parameterList = getElementFactory().createParameterList(parameterNames, parameterTypes);
         method.getParameterList().replace(parameterList);
         return method;
     }
@@ -122,8 +117,7 @@ public class PsiUtilTest extends LightJavaCodeInsightFixtureTestCase {
     }
 
     public void testFindBaseElement() {
-        PsiElementFactory factory = PsiElementFactory.getInstance(getProject());
-        PsiExpression expression = factory.createExpressionFromText("str.substring(0,4).substring(0,3)", null);
+        PsiExpression expression = getElementFactory().createExpressionFromText("str.substring(0,4).substring(0,3)", null);
         PsiReferenceExpression referenceExpression = PsiUtil.findBaseElement(expression);
         assertEquals("str", referenceExpression.getText());
     }
