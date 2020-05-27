@@ -244,7 +244,9 @@ public class PreserveWholeObject implements LocalQuickFix {
 
             ArgumentInfo[] argumentInfo = map.get(key).toArray(new ArgumentInfo[0]);
             for (int i = 0; i < argumentInfo.length; i++) {
-                RefactoringUtil.optimiseParameter(newMethod, parameters.get(i), argumentInfo[i].getArgumentMethod());
+                PsiParameter targetParameter = parameters.get(i);
+                RefactoringUtil.replaceParameterObject(newMethod, targetParameter, argumentInfo[i].getArgumentMethod());
+                targetParameter.delete();
             }
         }
     }
