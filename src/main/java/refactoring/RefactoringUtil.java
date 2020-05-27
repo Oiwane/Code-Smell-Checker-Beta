@@ -32,6 +32,9 @@ public class RefactoringUtil {
 
         final PsiCodeBlock codeBlock = method.getBody();
         assert codeBlock != null;
+        if (codeBlock.getStatements().length == 0) {
+            return;
+        }
 
         codeBlock.accept(visitor);
         final List<PsiElement> elementList = visitor.getElementList();
@@ -41,10 +44,6 @@ public class RefactoringUtil {
                 PsiElementFactory factory = PsiElementFactory.getInstance(targetParameter.getProject());
                 PsiDeclarationStatement declarationStatement = factory.createVariableDeclarationStatement(targetParameter.getName(), targetParameter.getType(), newElement);
 
-                if (codeBlock.getStatementCount() == 0) {
-                    codeBlock.add(declarationStatement);
-                    return;
-                }
                 PsiStatement firstStatement = codeBlock.getStatements()[0];
                 codeBlock.addBefore(declarationStatement, firstStatement);
             } else if (elementList.size() == 1) {
@@ -59,12 +58,12 @@ public class RefactoringUtil {
      * @param element 対象のPsiElement
      * @return elementの存在するスコープ
      */
-    public static PsiCodeBlock findCodeBlockInParents(@NotNull PsiElement element) {
+    public static PsiCodeBlock findCodeBlockBelongsTo(@NotNull PsiElement element) {
         PsiElement parentElement = element.getParent();
         if (parentElement instanceof PsiCodeBlock) {
             return (PsiCodeBlock) parentElement;
         }
-        return findCodeBlockInParents(parentElement);
+        return findCodeBlockBelongsTo(parentElement);
     }
 
     public static PsiMethod findMethodBelongsTo(@NotNull PsiElement element) {
