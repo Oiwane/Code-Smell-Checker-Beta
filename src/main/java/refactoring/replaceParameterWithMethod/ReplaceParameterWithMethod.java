@@ -110,7 +110,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
     private void extractElements(@NotNull PsiReferenceExpression referenceExpression) {
         PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceExpression.getParent();
-        PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(referenceExpression);
+        PsiCodeBlock scope = RefactoringUtil.findCodeBlockBelongsTo(referenceExpression);
         for (PsiStatement statement : scope.getStatements()) {
             if (statement.equals(findStatementInParents(methodCallExpression))) {
                 return;
@@ -120,7 +120,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
     }
 
     private void extractElements(@NotNull PsiNewExpression psiNewExpression) {
-        PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(psiNewExpression);
+        PsiCodeBlock scope = RefactoringUtil.findCodeBlockBelongsTo(psiNewExpression);
         for (PsiStatement statement : scope.getStatements()) {
             if (statement.equals(findStatementInParents(psiNewExpression))) {
                 return;

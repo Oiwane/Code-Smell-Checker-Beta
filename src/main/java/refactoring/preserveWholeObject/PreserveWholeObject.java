@@ -118,7 +118,7 @@ public class PreserveWholeObject implements LocalQuickFix {
             // TODO オブジェクトがどこで宣言されたのかを確認する
             // TODO 制約 : 同じスコープ内の変数（オブジェクト）しか見ない
             else if (argument instanceof PsiReferenceExpression) {
-                PsiCodeBlock scope = RefactoringUtil.findCodeBlockInParents(methodCallExpression);
+                PsiCodeBlock scope = RefactoringUtil.findCodeBlockBelongsTo(methodCallExpression);
                 PsiMethodCallExpression argumentMethod = findTargetElementInScope(scope, argument);
                 if (argumentMethod != null) {
                     addArgumentInfo(map, i, argumentMethod);
