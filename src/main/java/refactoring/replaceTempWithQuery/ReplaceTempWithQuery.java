@@ -18,7 +18,7 @@ import ui.refactoring.replaceTempWithQuery.SelectTargetTempDialog;
 import java.util.List;
 
 public class ReplaceTempWithQuery implements LocalQuickFix {
-    public static final String QUICK_FIX_NAME = "Replace Temp with Query";
+    private static final String QUICK_FIX_NAME = "Replace Temp with Query";
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
