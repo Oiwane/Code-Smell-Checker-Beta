@@ -27,7 +27,7 @@ import java.util.List;
  * コードスメル『Message Chains（メッセージの連鎖）』のインスペクション
  */
 public class MessageChainsInspection extends CodeSmellInspection {
-    private LocalQuickFix quickFix = new HideDelegate();
+    private LocalQuickFix hideDelegate = new HideDelegate();
 
     public MessageChainsInspection() {
         setInspectionData(InspectionData.getInstance(InspectionData.InspectionDataKey.MESSAGE_CHAINS));
@@ -73,7 +73,7 @@ public class MessageChainsInspection extends CodeSmellInspection {
 
         String descriptionTemplate = getDisplayName() + " : length of chain is " + count;
         List<ProblemDescriptor> descriptors = new ArrayList<>();
-        descriptors.add(manager.createProblemDescriptor(expression, descriptionTemplate, quickFix, ProblemHighlightType.WARNING, isOnTheFly));
+        descriptors.add(manager.createProblemDescriptor(expression, descriptionTemplate, hideDelegate, ProblemHighlightType.WARNING, isOnTheFly));
 
         return descriptors.toArray(new ProblemDescriptor[0]);
     }

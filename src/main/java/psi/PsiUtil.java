@@ -13,6 +13,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceExpression;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.searches.ReferencesSearch;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +24,7 @@ import java.util.List;
  * PSI要素の操作に関するクラス
  */
 public class PsiUtil {
+    @Contract(pure = true)
     private PsiUtil() {
     }
 
@@ -31,7 +33,7 @@ public class PsiUtil {
         PsiParameterList originalParameterList = originalMethod.getParameterList();
 
         PsiCodeBlock codeBlock = cloneCodeBlock(originalMethod, newMethod);
-        PsiParameterList newParameterList = cloneParameterList(originalParameterList);
+        PsiParameterList newParameterList = clonePsiParameterList(originalParameterList);
 
         newMethod.getModifierList().replace(originalMethod.getModifierList());
         if (!originalMethod.isConstructor()) {
@@ -58,18 +60,6 @@ public class PsiUtil {
         PsiElementFactory factory = PsiElementFactory.getInstance(originalMethod.getProject());
         String bodyStr = originalMethod.getBody().getText();
         return factory.createCodeBlockFromText(bodyStr, newMethod);
-    }
-
-    @NotNull
-    private static PsiParameterList cloneParameterList(@NotNull PsiParameterList originalParameterList) {
-        PsiElementFactory factory = PsiElementFactory.getInstance(originalParameterList.getProject());
-        String[] newParametersName = new String[originalParameterList.getParametersCount()];
-        List<PsiType> newType = new ArrayList<>();
-        for (int i = 0; i < originalParameterList.getParametersCount(); i++) {
-            newParametersName[i] = originalParameterList.getParameters()[i].getName();
-            newType.add(i, originalParameterList.getParameters()[i].getType());
-        }
-        return factory.createParameterList(newParametersName, newType.toArray(new PsiType[0]));
     }
 
     @NotNull
