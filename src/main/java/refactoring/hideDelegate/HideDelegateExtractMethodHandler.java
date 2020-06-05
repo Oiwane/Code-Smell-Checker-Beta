@@ -13,23 +13,17 @@ import com.intellij.refactoring.extractMethod.ExtractMethodSnapshot;
 import com.intellij.refactoring.extractMethod.PrepareFailedException;
 import com.intellij.refactoring.extractMethod.preview.ExtractMethodPreviewManager;
 import com.intellij.refactoring.util.CommonRefactoringUtil;
-import com.intellij.refactoring.util.duplicates.DuplicatesImpl;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 class HideDelegateExtractMethodHandler extends ExtractMethodHandler {
+    @Contract("_, null, _, _ -> null")
     static HideDelegateExtractMethodProcessor getProcessor(final Project project,
                                                            final PsiElement[] elements,
                                                            final PsiFile file,
                                                            PsiReferenceExpression base) {
-        return getProcessor(elements, project, file, base);
-    }
-
-    private static HideDelegateExtractMethodProcessor getProcessor(final PsiElement[] elements,
-                                                                   final Project project,
-                                                                   final PsiFile file,
-                                                                   PsiReferenceExpression base) {
         if (elements == null || elements.length == 0) {
             return null;
         }
