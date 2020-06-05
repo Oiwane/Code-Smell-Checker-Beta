@@ -42,7 +42,7 @@ import java.util.Map;
 
 public class PreserveWholeObject implements LocalQuickFix {
     private Map<PsiElement, List<ArgumentInfo>> map;
-    public static final String QUICK_FIX_NAME = "Preserve Whole Object";
+    private static final String QUICK_FIX_NAME = "Preserve Whole Object";
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
@@ -61,14 +61,14 @@ public class PreserveWholeObject implements LocalQuickFix {
                 assert psiClass != null;
                 List<PsiMethod> methodForCompare = new ArrayList<>();
 
-                PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
-                for (PsiReference referenceResult : referenceResults) {
+                map = new HashMap<>();
+                for (PsiReference referenceResult : MethodReferencesSearch.search(method)) {
                     if (!(referenceResult.getElement().getParent() instanceof PsiMethodCallExpression)) {
                         continue;
                     }
                     PsiMethodCallExpression methodCallExpression = (PsiMethodCallExpression) referenceResult.getElement().getParent();
 
-                    map = new HashMap<>();
+                    map.clear();
 
                     extractArgumentInfo(methodCallExpression);
                     PsiMethod newMethod = PsiUtil.cloneMethod(method);
@@ -79,7 +79,6 @@ public class PreserveWholeObject implements LocalQuickFix {
 
                     if (PsiUtil.existsSameMethod(newMethod, psiClass.getAllMethods()) ||
                             PsiUtil.existsSameMethod(newMethod, methodForCompare.toArray(new PsiMethod[0]))) {
-                            // PsiUtil.existsSameMethodInOtherNewMethod(methodForCompare, newMethod)) {
                         continue;
                     }
 
@@ -113,7 +112,7 @@ public class PreserveWholeObject implements LocalQuickFix {
             PsiExpression argument = arguments[i];
             // 引数がメソッド呼び出しになっているかを確認する
             if (argument instanceof PsiMethodCallExpression) {
-                addArgumentInfo(map, i, argument);
+                addArgumentInfo(i, argument);
             }
             // TODO オブジェクトがどこで宣言されたのかを確認する
             // TODO 制約 : 同じスコープ内の変数（オブジェクト）しか見ない
@@ -121,13 +120,13 @@ public class PreserveWholeObject implements LocalQuickFix {
                 PsiCodeBlock scope = RefactoringUtil.findCodeBlockBelongsTo(methodCallExpression);
                 PsiMethodCallExpression argumentMethod = findTargetElementInScope(scope, argument);
                 if (argumentMethod != null) {
-                    addArgumentInfo(map, i, argumentMethod);
+                    addArgumentInfo(i, argumentMethod);
                 }
             }
         }
     }
 
-    private void addArgumentInfo(@NotNull Map<PsiElement, List<ArgumentInfo>> map, int index, PsiExpression argumentMethod) {
+    private void addArgumentInfo(int index, PsiExpression argumentMethod) {
         PsiElement key = extractObjectCallingMethod(argumentMethod).getReference().resolve();
 
         if (!map.containsKey(key)) {
@@ -229,20 +228,20 @@ public class PreserveWholeObject implements LocalQuickFix {
 
     private void createParameterList(@NotNull PsiMethod newMethod) {
         PsiParameterList newParameterList = newMethod.getParameterList();
-        for (PsiElement key : map.keySet()) {
-            if (map.get(key).size() < 2) {
+        for (Map.Entry<PsiElement, List<ArgumentInfo>> entry : map.entrySet()) {
+            if (entry.getValue().size() < 2) {
                 continue;
             }
 
-            addParameter(map, key, newParameterList);
+            addParameter(entry.getKey(), newParameterList);
 
             List<PsiParameter> parameters = new ArrayList<>();
-            for (ArgumentInfo argumentInfo : map.get(key)) {
+            for (ArgumentInfo argumentInfo : entry.getValue()) {
                 PsiParameter targetParameter = newParameterList.getParameters()[argumentInfo.getIndex()];
                 parameters.add(targetParameter);
             }
 
-            ArgumentInfo[] argumentInfo = map.get(key).toArray(new ArgumentInfo[0]);
+            ArgumentInfo[] argumentInfo = entry.getValue().toArray(new ArgumentInfo[0]);
             for (int i = 0; i < argumentInfo.length; i++) {
                 PsiParameter targetParameter = parameters.get(i);
                 RefactoringUtil.replaceParameterObject(newMethod, targetParameter, argumentInfo[i].getArgumentMethod());
@@ -254,14 +253,13 @@ public class PreserveWholeObject implements LocalQuickFix {
     /**
      * パラメータを追加する
      *
-     * @param map              追加するパラメータの対象となるオブジェクトを格納しているマップ
      * @param key              mapの添え字
      * @param newParameterList 新しいパラメータリスト
      * @brief パラメータの一番最後に任意のオブジェクト用のパラメータを追加する
      */
-    private void addParameter(@NotNull Map<PsiElement, List<ArgumentInfo>> map, PsiElement key, @NotNull PsiParameterList newParameterList) {
+    private void addParameter(PsiElement key, @NotNull PsiParameterList newParameterList) {
         PsiElementFactory factory = PsiElementFactory.getInstance(newParameterList.getProject());
-        if (!(map.containsKey(key) && key instanceof PsiVariable)) {
+        if (!(key instanceof PsiVariable)) {
             return;
         }
         PsiVariable variable = (PsiVariable) key;
@@ -275,25 +273,23 @@ public class PreserveWholeObject implements LocalQuickFix {
         PsiExpression[] arguments = argumentList.getExpressions();
         final Project project = methodCallExpression.getProject();
 
-        for (PsiElement key : map.keySet()) {
-            if (map.get(key).size() < 2) {
+        for (Map.Entry<PsiElement, List<ArgumentInfo>> entry: map.entrySet()) {
+            if (entry.getValue().size() < 2) {
                 continue;
             }
 
             PsiElementFactory factory = PsiElementFactory.getInstance(project);
-            if (map.containsKey(key)) {
-                if (!(key instanceof PsiVariable)) {
-                    return;
-                }
-                PsiVariable variable = (PsiVariable) key;
-                PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
-                WriteCommandAction.runWriteCommandAction(project, () -> {
-                    argumentList.add(newArgument);
-                });
+            if (!(entry.getKey() instanceof PsiVariable)) {
+                return;
             }
+            PsiVariable variable = (PsiVariable) entry.getKey();
+            PsiExpression newArgument = factory.createExpressionFromText(variable.getNameIdentifier().getText(), argumentList);
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+                argumentList.add(newArgument);
+            });
 
             List<PsiExpression> targetArguments = new ArrayList<>();
-            for (ArgumentInfo argumentInfo : map.get(key)) {
+            for (ArgumentInfo argumentInfo : entry.getValue()) {
                 PsiExpression targetArgument = arguments[argumentInfo.getIndex()];
                 targetArguments.add(targetArgument);
             }
@@ -305,5 +301,4 @@ public class PreserveWholeObject implements LocalQuickFix {
             });
         }
     }
-
 }

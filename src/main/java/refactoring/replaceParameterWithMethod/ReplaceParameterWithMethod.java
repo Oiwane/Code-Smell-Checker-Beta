@@ -6,7 +6,27 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiCodeBlock;
+import com.intellij.psi.PsiDeclarationStatement;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiExpression;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.psi.PsiLocalVariable;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiMethodCallExpression;
+import com.intellij.psi.PsiNewExpression;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiParameterList;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiReferenceExpression;
+import com.intellij.psi.PsiStatement;
+import com.intellij.psi.PsiVariable;
+import com.intellij.psi.SmartPointerManager;
+import com.intellij.psi.SmartPsiElementPointer;
 import com.intellij.psi.search.searches.MethodReferencesSearch;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.refactoring.extractMethod.ExtractMethodHandler;
@@ -22,15 +42,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 未完成のクラス
- */
 public class ReplaceParameterWithMethod implements LocalQuickFix {
     private Map<Integer, List<PsiElement>> map;
     private SmartPsiElementPointer<PsiMethod> newMethod;
     private PsiExpression[] arguments;
 
-    public static final String QUICK_FIX_NAME = "Replace Parameter with Method";
+    private static final String QUICK_FIX_NAME = "Replace Parameter with Method";
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
@@ -49,8 +66,8 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                 assert psiClass != null;
                 List<PsiMethod> methodForCompare = new ArrayList<>();
 
-                PsiReference[] referenceResults = MethodReferencesSearch.search(method).toArray(new PsiReference[0]);
-                for (PsiReference referenceResult : referenceResults) {
+                map = new HashMap<>();
+                for (PsiReference referenceResult : MethodReferencesSearch.search(method)) {
                     newMethod = SmartPointerManager.createPointer(PsiUtil.cloneMethod(method));
                     PsiMethod extractedMethod = RefactoringUtil.findMethodBelongsTo(referenceResult.getElement());
                     // 呼び出し先のクラスと呼び出されたメソッドのクラスが異なる場合、リファクタリングしない
@@ -58,7 +75,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                         continue;
                     }
 
-                    map = new HashMap<>();
+                    map.clear();
                     extractElements(referenceResult);
                     if (arguments == null) {
                         continue;
@@ -217,9 +234,9 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
         Project project = originalMethod.getProject();
         List<Integer> deleteArgumentIndexList = new ArrayList<>();
 
-        for (int key : map.keySet()) {
-            List<PsiElement> extractedElementList = map.get(key);
-            final PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[key];
+        for (Map.Entry<Integer, List<PsiElement>> entry: map.entrySet()) {
+            List<PsiElement> extractedElementList = entry.getValue();
+            final PsiParameter targetParameter = newMethod.getElement().getParameterList().getParameters()[entry.getKey()];
 
             if (extractedElementList.size() == 1) {
                 PsiElement element = extractedElementList.get(0);
@@ -230,7 +247,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                             continue;
                         }
                     }
-                    replaceParameter(targetParameter, (PsiExpression) element, key, deleteArgumentIndexList);
+                    replaceParameter(targetParameter, (PsiExpression) element, entry.getKey(), deleteArgumentIndexList);
                 } else if (isPsiDeclarationStatement(element)) {
                     PsiDeclarationStatement declarationStatement = (PsiDeclarationStatement) element;
 
@@ -246,11 +263,11 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
                     final PsiReference reference = initializer.getReference();
                     if ((isPsiMethodCallExpression(initializer) && isPsiNewExpression(initializer)) ||
                             (reference != null && isPsiField(reference.resolve()))) {
-                        replaceParameter(targetParameter, PsiUtil.clonePsiExpression(initializer), key, deleteArgumentIndexList);
+                        replaceParameter(targetParameter, PsiUtil.clonePsiExpression(initializer), entry.getKey(), deleteArgumentIndexList);
                     }
                 }/* else if (isPsiReferenceExpression(element)) {
           if (element.getReference() != null && isPsiField(element.getReference().resolve())) {
-            replaceParameter(targetParameter, (PsiExpression) element, key, deleteArgumentIndexList);
+            replaceParameter(targetParameter, (PsiExpression) element, entry.getKey(), deleteArgumentIndexList);
           }
         }*/
             } else {
@@ -260,7 +277,7 @@ public class ReplaceParameterWithMethod implements LocalQuickFix {
 
                 if (ExtractMethodHandler.invokeOnElements(project, processor, originalMethod.getContainingFile(), true) ||
                         PsiUtil.existsSameMethod(processor.getExtractedMethod(), originalMethod.getContainingClass().getAllMethods())) {
-                    replaceParameter(targetParameter, processor.getMethodCall(), key, deleteArgumentIndexList);
+                    replaceParameter(targetParameter, processor.getMethodCall(), entry.getKey(), deleteArgumentIndexList);
                 }
             }
         }
