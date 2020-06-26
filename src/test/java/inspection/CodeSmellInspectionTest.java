@@ -3,7 +3,6 @@ package inspection;
 import com.intellij.codeHighlighting.HighlightDisplayLevel;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
-import inspection.codeSmell.ConcreteCodeSmellInspection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +47,6 @@ public class CodeSmellInspectionTest extends LightJavaCodeInsightFixtureTestCase
         CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
         InspectionData inspectionData = InspectionData.getInstance(InspectionData.InspectionDataKey.LONG_METHOD);
         inspection.createOptionUI("test", inspectionData);
-    }
-
-    public void testGetDisplayName() {
-        CodeSmellInspection inspection = new ConcreteCodeSmellInspection();
-        assertEquals("Null", inspection.getDisplayName());
     }
 
     public void testGetGroupDisplayName() {
