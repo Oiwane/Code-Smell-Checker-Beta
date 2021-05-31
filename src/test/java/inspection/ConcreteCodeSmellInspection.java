@@ -1,12 +1,11 @@
-package inspection.codeSmell;
+package inspection;
 
-import inspection.CodeSmellInspection;
 import org.jetbrains.annotations.NotNull;
 
 public class ConcreteCodeSmellInspection extends CodeSmellInspection {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Null";
+        return null;
     }
 }

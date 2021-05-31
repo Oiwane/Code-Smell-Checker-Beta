@@ -9,16 +9,27 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import com.intellij.refactoring.tempWithQuery.TempWithQueryHandler;
-import visitor.TemporaryVariableVisitor;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+import ui.refactoring.replaceTempWithQuery.MyTempWithQueryHandler;
 import ui.refactoring.replaceTempWithQuery.SelectTargetTempDialog;
+import visitor.TemporaryVariableVisitor;
 
 import java.util.List;
 
 public class ReplaceTempWithQuery implements LocalQuickFix {
     private static final String QUICK_FIX_NAME = "Replace Temp with Query";
+    private final boolean isOKReturnValue; // テスト時のSelectTargetTempDialog.isOK()の戻り値
+    private final boolean isTest;
+
+    public ReplaceTempWithQuery() {
+        this(false, false);
+    }
+
+    public ReplaceTempWithQuery(boolean isTest, boolean isOKReturnValue) {
+        this.isOKReturnValue = isOKReturnValue;
+        this.isTest = isTest;
+    }
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
     @NotNull
@@ -35,19 +46,19 @@ public class ReplaceTempWithQuery implements LocalQuickFix {
 
         List<PsiElement> tempVariableList = temporaryVariableVisitor.getTempVariableList();
 
-        SelectTargetTempDialog selectTargetTempDialog = new SelectTargetTempDialog(project, true, tempVariableList);
+        SelectTargetTempDialog dialog = new SelectTargetTempDialog(project, true, tempVariableList, isTest, isOKReturnValue);
         ApplicationManager.getApplication().invokeLater(() -> {
-            selectTargetTempDialog.show();
-            if (!selectTargetTempDialog.isOK()) {
+            dialog.show();
+            if (!dialog.isOK()) {
                 return;
             }
-            final List<Integer> selectedIndexList = selectTargetTempDialog.getSelectedIndexList();
+            final List<Integer> selectedIndexList = dialog.getSelectedIndexList();
 
             for (Integer index : selectedIndexList) {
                 Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
                 PsiElement localVariable = tempVariableList.get(index);
                 assert editor != null;
-                TempWithQueryHandler handler = new TempWithQueryHandler();
+                MyTempWithQueryHandler handler = new MyTempWithQueryHandler(isTest);
                 handler.invoke(project, new PsiElement[]{localVariable}, DataManager.getInstance().getDataContext(editor.getComponent()));
             }
         });
