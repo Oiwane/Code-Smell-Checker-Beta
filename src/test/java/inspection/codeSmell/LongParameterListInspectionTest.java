@@ -30,8 +30,8 @@ public class LongParameterListInspectionTest extends CodeSmellInspectionTest {
 
         HighlightInfo highlightInfo = highlightInfoList.get(0);
 
-        assertEquals(573, highlightInfo.getActualStartOffset());
-        assertEquals(686, highlightInfo.getActualEndOffset());
+        assertEquals(574, highlightInfo.getActualStartOffset());
+        assertEquals(687, highlightInfo.getActualEndOffset());
     }
 
     public void testGetDisplayName() {
